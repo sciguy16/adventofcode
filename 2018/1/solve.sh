@@ -1,3 +1,3 @@
 #!/bin/bash
 
-(tr -d '\n' < input; echo ) | bc
+(tr -d '\n' < input.txt; echo ) | bc
