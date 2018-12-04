@@ -49,5 +49,7 @@ int main(void) {
 #endif
 	}
 
+	free(outputs);
+
 	return 0;
 }
