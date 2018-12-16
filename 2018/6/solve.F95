@@ -17,7 +17,7 @@ program solve
 
       ! variables
       integer, dimension(NUMCOORDS,2) :: coords
-      integer, dimension(GRIDSIZE, GRIDSIZE) :: grid
+!      integer, dimension(GRIDSIZE, GRIDSIZE) :: grid
       integer, dimension(NUMCOORDS) :: areas
 
       integer :: i,j
@@ -51,7 +51,7 @@ program solve
                 ! Set areas bordering the edge of the grid to a negative number
 
                 ! Initialise the square to zero
-                grid(i, j) = 0
+ !               grid(i, j) = 0
 
                 closestIndex = findClosest(coords, (/ i, j /) )
 #ifdef DEBUG
