@@ -2,8 +2,9 @@
 from parse import parse
 
 f = open("input.sorted", "r")
-debug = True
-#debug = False
+#f = open("testinput", "r")
+#debug = True
+debug = False
 
 def parseFile(f):
     """Returns a hashmap of guards and shifts"""
