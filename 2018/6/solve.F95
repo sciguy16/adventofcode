@@ -1,6 +1,11 @@
-#define NUMCOORDS 6
-#define INFILE "testinput"
-#define GRIDSIZE 10
+!#define NUMCOORDS 6
+!#define INFILE "testinput"
+!#define GRIDSIZE 10
+
+#define NUMCOORDS 50
+#define INFILE "input"
+#define GRIDSIZE 500
+
 !#define DEBUG
 
 program solve
