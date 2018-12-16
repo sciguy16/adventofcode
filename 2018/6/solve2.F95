@@ -1,5 +1,5 @@
-#define TEST
-#define DEBUG
+!#define TEST
+!#define DEBUG
 
 #ifdef TEST
 
