@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from parse import parse
 
 f = open("input.sorted", "r")
 debug = True
-debug = False
+#debug = False
 
 def parseFile(f):
     """Returns a hashmap of guards and shifts"""
@@ -53,6 +53,8 @@ def mostAsleep(guards):
                 assert(hour == 0)
                 assert(start != -1)
                 tim += minute - start
+                if debug: print("Start %d, stop %d. Adding %d"%(
+                    start, minute, minute-start))
                 start = -1
         sleepTimes[guard] = tim
     return sleepTimes
@@ -64,11 +66,13 @@ if debug: print(sleeeeep)
 
 bestGuard = max(sleeeeep, key=sleeeeep.get)
 
+print("Found best guard: %d"%bestGuard)
 # now find the most sleepy minute for this guard
-if debug: print(guardTimes[bestGuard])
+if debug:
+    print("guardTimes[%d]"%bestGuard)
+    print(guardTimes[bestGuard])
 
 # guard starts awake
-
 minutes = [0]*60
 state = None
 start = -1
@@ -85,11 +89,13 @@ for gt in guardTimes[bestGuard]:
         assert(start != -1)
         state = 'wakes'
         stop = int(gt[0].split(':')[1])
-        for tim in range(start,stop+1):
+        for tim in range(start,stop):
             minutes[tim] += 1
         start = -1
 
-if debug: print(minutes)
+if debug:
+    print("minutes:",)
+    print(minutes)
 maxx = max(minutes)
-maxMin = minutes[maxx]
-print("guard {} likes minute {} with product {}".format(maxx, maxMin, maxx*maxMin))
+maxMin = minutes.index(maxx)
+print("guard {} likes minute {} with product {}".format(bestGuard, maxMin, bestGuard*maxMin))
