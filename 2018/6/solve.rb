@@ -44,7 +44,7 @@ if __FILE__ == $0
 	end
 	p grid
 
-	grid.toPgm(GRID_SIZE, GRID_SIZE, coords.size, "grid.pgm")
+	#grid.toPgm(GRID_SIZE, GRID_SIZE, coords.size, "grid.pgm")
 	coords.each_with_index do |coordpair, index|
 		# add each coordinate to the 
 	end
