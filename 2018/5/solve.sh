@@ -8,4 +8,6 @@ done < <( echo {a..z} | tr ' ' '\n' ) \
 	| sed 's/|/\\|/g'
 	)
 
-sed ":loop s/${RegexToMatchPairsOfLettersOfDifferingCase}//; t loop" input | wc -c
+remainder=$(sed ":loop s/${RegexToMatchPairsOfLettersOfDifferingCase}//; t loop" input)
+#echo $remainder
+printf $remainder | wc -c
