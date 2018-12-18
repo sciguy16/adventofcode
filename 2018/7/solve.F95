@@ -43,6 +43,16 @@ program solve
 
 	call printGraph(graph)
 
+
+	! Start by getting a list of vertices with no incoming edges
+	! Mark those vertices as complete and write down their sorted positions
+
+	! Look for edges that start from these vertices and write down their end points
+	! these end points are our next sorted vertices
+
+	! etc.
+
+
 	! initialise the list of available vertices. Entries will be true if a
 	! vertex has at least one incoming edge (so it is not a valid choice) and
 	! false otherwise (false => valid choice)
