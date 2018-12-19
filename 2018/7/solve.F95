@@ -1,5 +1,5 @@
-#define TEST
-#define DEBUG
+!#define TEST
+!#define DEBUG
 
 #ifdef TEST
 #define INFILE "testinput.csv"
@@ -17,24 +17,25 @@ program solve
 	! variables
 	logical, dimension(NUMVERTICES,NUMVERTICES) :: graph
 	logical, dimension(NUMVERTICES) :: availableVertices
-	logical, dimension(NUMVERTICES) :: existingVertices
+	logical, dimension(NUMVERTICES) :: completedVertices
 
 	integer, dimension(NUMVERTICES) :: sorted
+	integer, dimension(NUMVERTICES) :: theOrder
+
+	integer, dimension(1) :: minlocResult
 
 	integer :: source, dest
 	integer :: orderCount
-	integer :: i, j
+	integer :: i
 
 	! functions
 
 	open(1, FILE=INFILE, status="old")
 
-	do i = 1, NUMVERTICES
-			do j=1, NUMVERTICES
-					graph(i,j) = .false.
-			end do
-	end do
+	! initialise the graph
+	graph(:,:) = .false.
 
+	! read in the file and convert it to an adjacency matrix
 	do i=1, NUMEDGES
 		read(1,*) source, dest
 		graph(source, dest) = .true.
@@ -43,92 +44,104 @@ program solve
 
 	call printGraph(graph)
 
+	! initialise ordercount
+	orderCount = 1
 
 	! Start by getting a list of vertices with no incoming edges
+	availableVertices(:) = .false.
+	completedVertices(:) = .false.
+	do i = 1, NUMVERTICES
+		if( .not. any( graph(:, i) .eqv. .true. ) ) then
+			! there are no incoming edges
+			availableVertices(i) = .true.
+		end if
+	end do
+#ifdef DEBUG
+	print*, availableVertices
+#endif
 	! Mark those vertices as complete and write down their sorted positions
-
-	! Look for edges that start from these vertices and write down their end points
-	! these end points are our next sorted vertices
-
-	! etc.
-
-
-	! initialise the list of available vertices. Entries will be true if a
-	! vertex has at least one incoming edge (so it is not a valid choice) and
-	! false otherwise (false => valid choice)
-	orderCount = 1
-	existingVertices(:) = .true.
-	availableVertices = hasIncomingEdges(graph, existingVertices)
-	do while (any( availableVertices(:) .eqv. .false. ) .and. any( existingVertices(:) .eqv. .true. ))
+	do i = 1, NUMVERTICES
+		if (availableVertices(i) .eqv. .true. ) then
+			! this vertex should be next in the sort
+			sorted(i) = orderCount
+			completedVertices(i) = .true.
 #ifdef DEBUG
-		print*, "There are still available vertices:", availableVertices
-		print*, "There are still existing vertices:", existingVertices
+			print*, "Sorted ", i, "at ", orderCount
 #endif
-		! Iterate over the available vertices and write down the order in which
-		! they appear and then delete then from the graph
-		do i = 1, NUMVERTICES
-			if (availableVertices(i) .eqv. .false. .and. existingVertices(i) .eqv. .true. ) then
-				! valid vertex
-#ifdef DEBUG
-				print*, "Next vertex is:", i
-#endif
-				orderCount = orderCount + 1
-				
-				! delete i from graph
-				!do j = 1, NUMVERTICES
-				!		graph(i, j) = .false.
-				!end do
-				existingVertices(i) = .false.
-			end if
-		end do
-
-		call printGraph(graph)
-		availableVertices = hasIncomingEdges(graph, existingVertices)
+			orderCount = orderCount + 1
+		end if
 	end do
 
+	do while ( .true. )
+		! update availableVertices based on previousVertices
+		availableVertices(:) = .false.
 
-	contains
-
-
-	function hasIncomingEdges(graph, existingVertices)
-		implicit none
-
-		! Takes in a graph and returns a list specifying whether each vertex has
-		! any incoming edges or not
-
-		! inputs
-		logical, intent(in), dimension(NUMVERTICES,NUMVERTICES) :: graph
-		logical, intent(in), dimension(NUMVERTICES) :: existingVertices
-
-		! outputs
-		logical, dimension(NUMVERTICES) :: hasIncomingEdges
-
-		! variables
-		integer :: i
-
-		! Determine vertices with no incoming edges
-		! That is, take each vertex and look for any .true. in graph(:,vertex)
 		do i = 1, NUMVERTICES
-			if (any( graph(:, i) .eqv. .true. ) ) then
-				! vertex has an incoming edge
+			! if node is not completed...
+			if ( completedVertices(i) .eqv. .false. ) then
+				! ... and if all incoming edges are from completed nodes
+				! IF NOT any( incoming AND NOT completed ) should work...
 #ifdef DEBUG
-				print*, "Vertex", i, "has at least one incoming edge"
+				print*, "graph(:,i) is ", graph(:,i)
+				print*, "completed  is ", completedVertices(:)
 #endif
-				hasIncomingEdges(i) = .true.
-			else
+				if ( .not. any( graph(:, i) .and. .not. completedVertices(:) ) ) then
+					! let's make it available
 #ifdef DEBUG
-				print*, "Vertex", i, "does not have any incoming edges"
+					print*, "Making ", char(i + 64), " available"
 #endif
-				if (existingVertices(i)) then
-					hasIncomingEdges(i) = .false.
-				else
-					hasIncomingEdges(i) = .true.
+					availableVertices(i) = .true.
 				end if
 			end if
 		end do
 
-	end function hasIncomingEdges
 
+#ifdef DEBUG
+		print*, "Available vertices: ", availableVertices
+#endif
+
+		! stop of availableVertices is empty
+		if ( .not. any( availableVertices(:) .eqv. .true. ) ) then
+#ifdef DEBUG
+			print*, sorted
+#endif
+			! jump to where we print the answer in the correct order
+			goto 100
+		end if
+
+		! sort availableVertices
+		do i = 1, NUMVERTICES
+			if ( availableVertices(i) .eqv. .true. ) then
+				sorted(i) = orderCount
+				completedVertices(i) = .true.
+
+#ifdef DEBUG
+				print*, "Sorting vertex ", i, "at position ", orderCount
+#endif
+
+				orderCount = orderCount + 1
+				! now break out of this loop and recalculate the lists
+				exit
+			end if
+		end do
+
+	end do
+
+100	print*, " [+] Topological sorting complete!"
+	! print them out
+	do i = 1, NUMVERTICES
+		minlocResult = minloc(sorted)
+		theOrder(i) = minlocResult(1)
+		sorted(minlocResult(1)) = 99999
+	end do
+	print*, "Sorted order:", theOrder
+
+	print*, "Result: ",  CHAR(theOrder(:) + 64)
+#ifdef TEST
+	print*, "Correct answer is: CABDFE"
+#endif
+
+contains
 
 
 	subroutine printGraph(graph)
@@ -142,5 +155,6 @@ program solve
 			print*, i, graph(i,:)
 		end do
 	end subroutine printGraph
+
 
 end program solve
