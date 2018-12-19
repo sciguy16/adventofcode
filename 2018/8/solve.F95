@@ -10,17 +10,20 @@
 program solve
 	  implicit none
 
-	  integer :: instruction
-	  integer :: IOstatus
+	  integer :: totalMeta
 
 
 	  open(1, FILE=INFILE, status="old")
-	  instruction = getInstruction()
-	  do while (instruction /= -1)
-		  print*, instruction
-		  instruction = getInstruction()
-	  end do
+	  !instruction = getInstruction()
+	  !do while (instruction /= -1)
+	!	  print*, instruction
+	!	  instruction = getInstruction()
+	
+	 ! end do
+
+	  totalMeta = processChild(0)
 	  print*," [+] Finished processing file!"
+	  print*, " [+] total meta is ", totalMeta
 	  close(1)
 
 	contains
@@ -33,11 +36,47 @@ program solve
 	!   - accumulator += ProcessChild(accumulator)
 	! win!
 	
+	recursive function processChild(accumulatorInput) result(accumulator)
+			implicit none
+
+			! inputs
+			integer, intent(in) :: accumulatorInput
+
+			! variables
+			integer :: accumulator
+			integer :: i
+			integer :: numChildNodes, metadata
+
+			accumulator = accumulatorInput
+
+			numChildNodes = getInstruction()
+			metadata = getInstruction()
+			if ( numChildNodes == -1 .or. metadata == -1 ) then
+					print*, "Error error. Very bad :("
+					stop
+			end if
+
+			print*, "numchild:", numChildNodes, "meta:",metadata
+
+
+			accumulator = accumulator + metadata
+			if( numChildNodes == 0 ) then
+					! we have reached the end, skip to end of the function
+					goto 100
+			end if
+
+			do i = 1, numChildNodes
+					accumulator = accumulator + processChild(accumulator)
+			end do
+			100 return
+	end function processChild
+			
 	function getInstruction()
 			implicit none
 			! gets the next instruction, or -1 if we reached the end
 	
 			integer :: getInstruction
+	  		integer :: IOstatus
 
 			read(1,*, IOSTAT=IOstatus) getInstruction
 			if ( IOstatus == 0 ) then
