@@ -1,5 +1,5 @@
-#define TEST
-#define DEBUG
+!#define TEST
+!#define DEBUG
 
 #ifdef TEST
 #define INFILE "testinput.csv"
@@ -13,8 +13,11 @@ program solve
 	implicit none
 
 	! variables
-	integer, dimension(NUMPOINTS, 2) :: points, speeds
-	integer :: i
+	integer, parameter :: RegInt_K = selected_int_kind(30)
+
+	integer(kind=RegInt_K), dimension(NUMPOINTS, 2) :: points, speeds
+	integer(kind=RegInt_K) :: i
+	integer(kind=RegInt_K) :: previousArea, newArea
 
 	open(10, FILE=INFILE, status="old")
 	do i = 1, NUMPOINTS
@@ -24,28 +27,82 @@ program solve
 
 #ifdef DEBUG
 	do i = 1, NUMPOINTS
-		print "(I3, I3, I3, I3)", points(i,:), speeds(i,:)
+		print "(I8, I8, I3, I3)", points(i,:), speeds(i,:)
 	end do
 #endif
-	call printStars(points)
+	!call printStars(points)
 
-	do i = 1, 3
-		call printStars( points + i*speeds )
+	previousArea = area(points)
+	i = 0
+	do while ( .true. ) !i .lt. 10 )
+		newArea = area( points + i*speeds )
+#ifdef DEBUG
+		print*, " [+] Time is now", i
+		print*, " [+] New area is:", newArea
+#endif
+		if ( newArea > previousArea ) then
+			call printStars( points + (i - 1)*speeds )
+			print*," [+] Starfield migration simulation completed in", i-1, "seconds"
+			exit
+		end if
+		previousArea = newArea
+		i = i + 1
 	end do
 
 contains
+
+	function area(stars)
+		implicit none
+		! computes the area of the smallest rectangle containing the
+		! stars
+
+		! inputs
+		integer(kind=RegInt_K), intent(in), dimension(:,:) :: stars
+
+		! outputs
+		integer(kind=RegInt_K) :: area
+
+		! variables
+		integer(kind=RegInt_K) :: minX, minY, maxX, maxY
+		integer(kind=RegInt_K), dimension(4) :: boundsArray
+
+		boundsArray = bounds(stars)
+		minX = boundsArray(1)
+		minY = boundsArray(2)
+		maxX = boundsArray(3)
+		maxY = boundsArray(4)
+
+		area = ( maxX - minX ) * ( maxY - minY )
+	end function area
 
 	function bounds(stars) result(boundsRes)
 		implicit none
 
 		! inputs
-		integer, intent(in), dimension(:,:) :: stars
+		integer(kind=RegInt_K), intent(in), dimension(:,:) :: stars
 
 		! outputs
-		integer,  dimension(4) :: boundsRes
+		! returns an array ( minX, minY, maxX, maxY )
+		integer(kind=RegInt_K),  dimension(4) :: boundsRes
 
+		! variables
+		integer(kind=RegInt_K) :: minX, minY, maxX, maxY
+		integer(kind=RegInt_K), dimension(2) :: mins, maxs
 
-		boundsRes = (/ 1, 2, 3, 4 /)
+		! find the boundary of the area
+		mins = minval(stars, 1)
+		maxs = maxval(stars, 1)
+		minX = mins(1)
+		maxX = maxs(1)
+
+		minY = mins(2)
+		maxY = maxs(2)
+#ifdef DEBUG
+		print*, "mins and maxes: ", minX, maxX, minY, maxY
+#endif
+
+		boundsRes = (/ minX, minY, maxX, maxY /)
+
 	end function bounds
 
 
@@ -53,12 +110,12 @@ contains
 		implicit none
 		
 		! inputs
-		integer, intent(in), dimension(NUMPOINTS,2) :: stars
+		integer(kind=RegInt_K), intent(in), dimension(NUMPOINTS,2) :: stars
 		
 		! variables
-		integer :: minX, minY, maxX, maxY
-		integer :: i, j
-		integer, dimension(2) :: mins, maxs
+		integer(kind=RegInt_K) :: minX, minY, maxX, maxY
+		integer(kind=RegInt_K) :: i, j
+		integer(kind=RegInt_K), dimension(2) :: mins, maxs
 
 		! find the boundary of the area
 		mins = minval(stars, 1)
@@ -89,8 +146,8 @@ contains
 
 	function anyPoint(array, point)
 		! inputs
-		integer, dimension(:,:) :: array
-		integer, dimension(2) :: point
+		integer(kind=RegInt_K), dimension(:,:) :: array
+		integer(kind=RegInt_K), dimension(2) :: point
 
 		! output
 		logical :: anyPoint
