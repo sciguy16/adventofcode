@@ -24,6 +24,8 @@ program solve
 	integer(kind=RegInt_K), parameter :: three = 3
 	integer(kind=RegInt_k), parameter :: puzzlin = PUZZLEINPUT
 
+	integer(kind=RegInt_K), dimension(2) :: firstSol
+
 	print*," [+] Verifying cell generator..."
 
 	call verifyGridGenerator()
@@ -40,9 +42,48 @@ program solve
 #ifdef TEST
 	print*, calcGridSum(summedArea, 21, 61, 3, 3)
 #endif
-	print*, findLargestGridSum(summedArea, three, three)
+	firstSol = findLargestGridSum(summedArea, three, three)
+	print*, " [+] Solved the first challenge:", firstSol, ": 3 :", &
+			calcGridSum(summedArea, firstSol(1), firstSol(2), three, three)
+
+	! solve the second part of the puzzle
+	call findTheLargestEstEstEst(summedArea)
+
 
 contains
+
+	subroutine findTheLargestEstEstEst(summedArea)
+		implicit none
+		integer, parameter :: RegInt_K = selected_int_kind(30)
+
+		! inputs
+		integer(kind=RegInt_K), intent(in), dimension(GRIDSIZE,GRIDSIZE) :: summedArea
+
+		! no outputs
+
+		! variables
+		integer(kind=RegInt_K) :: curSize, curSum
+		integer(kind=RegInt_K) :: bestX, bestY, bestSize, bestSum
+		integer(kind=RegInt_K), dimension(2) :: curPos
+
+		bestSum = 0
+
+		do curSize = 1, GRIDSIZE
+			!do height = 1, GRIDSIZE
+				! check all squares of size width*height
+				curPos = findLargestGridSum(summedArea, curSize, curSize)
+				curSum = calcGridSum(summedArea, curPos(1), curPos(2), curSize, curSize)
+				if ( curSum .gt. bestSum ) then
+					bestSum = curSum
+					bestX = curPos(1)
+					bestY = curPos(2)
+					bestSize = curSize
+				end if
+			!end do
+		end do
+		print*, " [+] got me favourite:", bestX, bestY, ":", bestSize, ":", bestSum
+	end subroutine findTheLargestEstEstEst
+
 	function findLargestGridSum(summedArea, width, height) result(pos)
 		implicit none
 		integer, parameter :: RegInt_K = selected_int_kind(30)
@@ -59,10 +100,12 @@ contains
 		integer(kind=RegInt_K) :: curSum
 		integer(kind=RegInt_K) :: bestSum, bestX, bestY
 
-		bestSum = 0
+		bestX = 1
+		bestY = 1
+		bestSum = -999
 		! iterate over the grid looking for a nice big sum
-		do x = 1, GRIDSIZE - width
-			do y = 1, GRIDSIZE - height
+		do x = 1, GRIDSIZE - width 
+			do y = 1, GRIDSIZE - height 
 				curSum = calcGridSum(summedArea, x, y, width, height)
 				if ( curSum .gt. bestSum ) then
 					bestSum = curSum
@@ -72,7 +115,7 @@ contains
 			end do
 		end do
 
-		print*, " [+] Found a good one!", bestX, bestY, ":", bestSum
+		!print*, " [+] Found a good one!", width, ":", bestX, bestY, ":", bestSum
 
 		pos = (/ bestX, bestY /)
 	end function findLargestGridSum
@@ -96,6 +139,10 @@ contains
 		if ( x + width - 1 .gt. GRIDSIZE .or. &
 				y + height - 1 .gt. GRIDSIZE ) then
 			print*,"Error: width or height is so so bad :("
+			print*, "Width:", width
+			print*, "Height:", height
+			print*, "x:", x
+			print*, "y:", y
 			stop
 		end if
 		if ( x .lt. 1 .or. y .lt. 1 ) then
