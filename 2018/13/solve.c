@@ -34,16 +34,22 @@ struct mineCart {
 };
 
 struct coord load_map(char* map, size_t mapLen);
+
 void print_map(char* map, struct coord mapSize,
 		struct mineCart* carts, size_t maxCarts);
+
 size_t new_cart( struct mineCart* carts, size_t numCarts, size_t maxCarts,
 		enum directions direction, int x, int y);
+
 size_t strip_carts(char* map, struct coord mapSize, size_t mapLen,
 		struct mineCart* carts, size_t maxCarts);
+
 size_t step( char* map, struct coord mapSize, struct mineCart* carts,
 		size_t numCarts );
+
 void sort_carts( struct mineCart* carts, size_t numCarts,
 		struct coord mapSize, int* cartOrder );
+
 size_t delete_carts( struct mineCart* carts, size_t numCarts,
 		int x, int y );
 
@@ -477,6 +483,7 @@ size_t step( char* map, struct coord mapSize, struct mineCart* carts,
 						break;
 				}
 				break;
+
 			case '\\':
 				switch( carts[ currentCart ].direction )
 				{
@@ -494,6 +501,7 @@ size_t step( char* map, struct coord mapSize, struct mineCart* carts,
 						break;
 				}
 				break;
+
 			case '+':
 				// left, straight, right, loop
 				switch( carts[ currentCart ].direction )
@@ -515,6 +523,7 @@ size_t step( char* map, struct coord mapSize, struct mineCart* carts,
 								break;
 						}
 						break;
+
 					case DOWN:
 						switch( carts[ currentCart ].junction )
 						{
@@ -532,6 +541,7 @@ size_t step( char* map, struct coord mapSize, struct mineCart* carts,
 								break;
 						}
 						break;
+
 					case LEFT:
 						switch( carts[ currentCart ].junction )
 						{
@@ -549,6 +559,7 @@ size_t step( char* map, struct coord mapSize, struct mineCart* carts,
 								break;
 						}
 						break;
+
 					case RIGHT:
 						switch( carts[ currentCart ].junction )
 						{
@@ -578,7 +589,6 @@ AFTERSWITCH:
 			carts[ currentCart ].position.y = newPosition.y;
 		}
 	}
-
 	return numCarts;
 }
 
