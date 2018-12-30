@@ -25,17 +25,19 @@
 enum blocks {
 	GOBLIN, ELF, WALL, EMPTY
 };
+enum combatStates {
+	COMBAT_END, COMBAT_NOT_END
+};
+enum directions {
+	UP, LEFT, RIGHT, DOWN, NONE
+};
 
 // structs are good
 struct coord {
 	int x;
 	int y;
-};
-struct combatant {
-	struct coord position;
-	int hp;
-};
 
+};
 
 // yay globals (of doom)
  // map
@@ -54,9 +56,7 @@ struct coord mapsize;
 
  // combatants
 size_t numelves;
-struct combatant* elves;
 size_t numgoblins;
-struct combatant* goblins;
 
 // functions
 void error( char* message );
@@ -66,7 +66,10 @@ enum blocks uint16_to_block( uint16_t block );
 uint8_t block_to_mask( enum blocks block );
 char block_to_symbol( enum blocks block );
 void print_map( void );
-void battle(void);
+enum combatStates battle(void);
+void find_enemies( enum blocks enemy,
+		struct coord* enemies, size_t numenemies );
+enum directions adjacent( enum blocks enemy, int row, int col );
 
 int main( void )
 {
@@ -82,12 +85,27 @@ int main( void )
 
 	battle();
 
+	print_map();
+
+	/*
+	while( units_alive() > 0 )
+	{
+		battle();
+		print_map();
+	}
+	*/
+
 	return 0;
 }
 
 
-void battle(void)
+enum combatStates battle(void)
 {
+
+#ifdef DEBUG
+	printf( " [+] Entering the battle...\n" );
+#endif
+
 	/* during each round, each unit that is still alive takes a turn and
 	* resolves all of its actions
 	*
@@ -123,8 +141,101 @@ void battle(void)
 	*
 	* each unit (goblin or elf) has 3 attack power and starts with 200 hit points
 	*/
+
+	// variables
+	enum blocks block, enemy;
+	int row, col;
+
+	size_t numenemies;
+	size_t maxenemies = numgoblins > numelves?
+		numgoblins: numelves;
+
+	struct coord enemies[maxenemies];
+
+	// Assume that there is at least one unit alive, as that is the condition
+	// on the while loop in main()
+	
+	// Iterate over all units
+	for( row = 0; row < mapsize.y; row++ )
+	{
+		for( col = 0; col < mapsize.x; col++ )
+		{
+			block = uint16_to_block( map[ row * mapsize.x + col ] );
+			if( block == EMPTY || block == WALL )
+			{
+				// empty blocks and walls probably don't need to take a turn at
+				// combat
+				continue;
+			}
+			
+			// enemy is the opposite of what we are
+			enemy = block == GOBLIN? ELF: GOBLIN;
+			numenemies = block == GOBLIN? numelves: numgoblins;
+
+			// check to see whether an adjacent square is an enemy - if this is
+			// the case then we bypass movement and go straight to the attack
+			// phase
+			if( adjacent( enemy, row, col ) != NONE )
+			{
+				goto ATTACK;
+			}
+
+			// no one is adjacent, so let's look for someone to pick a fight
+			// with
+			find_enemies( enemy, enemies, numenemies );
+
+ATTACK:
+			// enter attack phase
+#ifdef DEBUG
+			printf( " [+] Entering attack phase...\n" );
+#endif
+		}
+	}	
+	
+	// if no targets remain then end combat
+	return COMBAT_END;
 }
 
+void find_enemies( enum blocks enemy,
+		struct coord* enemies, size_t numenemies )
+{
+	// finds the enemies
+	int row, col;
+	enum blocks block;
+	size_t enemycount = 0;
+	for( row = 0; row < mapsize.y; row++ )
+	{
+		for( col = 0; col < mapsize.x; col++ )
+		{
+			block = uint16_to_block(
+				map[ row * mapsize.x + col ] );
+			if( block == enemy )
+			{
+				enemies[ enemycount ].x = col;
+				enemies[ enemycount ].y = row;
+				enemycount++;
+
+				// make sure we are not overflowing the array
+				if( enemycount > numenemies )
+				{
+					error( "many an anemone has too many enemies, like the "
+							"enemies we have just found :(" );
+				}
+			}
+		}
+	}
+	if( enemycount != numenemies )
+	{
+		error( "did not find the right number of enemies" );
+	}
+}
+
+enum directions adjacent( enum blocks enemy, int row, int col )
+{
+	// check to see whether there is an adjacent bloke of type "enemy"
+	
+	return NONE;
+}
 
 void error( char* message )
 {
@@ -151,6 +262,11 @@ void load_map( char infile[] )
 
 	enum blocks block_type;
 
+	// initialise the global counters for the numbers of goblins and elves
+	numelves = 0;
+	numgoblins = 0;
+
+	// initialise a counter for the height
 	height = 0;
 
 	while( fgets( buffer, buflen, f ) )
@@ -185,6 +301,14 @@ void load_map( char infile[] )
 			block_type = char_to_block( buffer[ i ] );
 			map[ (height - 1) * width + i ] =
 				( block_to_mask( block_type ) << 8 ) + 200;
+			if( block_type == GOBLIN )
+			{
+				numgoblins++;
+			}
+			else if ( block_type == ELF )
+			{
+				numelves++;
+			}
 		}
 #ifdef DEBUG
 		printf("buffer (%ld): %s\n", strlen(buffer), buffer );
@@ -196,7 +320,9 @@ void load_map( char infile[] )
 	mapsize.y = height;
 #ifdef DEBUG
 	printf( " [+] Loaded %dx%d map!\n", mapsize.x, mapsize.y );
+	printf( " [+] There are %zu goblins and %zu elves\n", numgoblins, numelves );
 #endif
+
 }
 
 uint8_t block_to_mask( enum blocks block )
