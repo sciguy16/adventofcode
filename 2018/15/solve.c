@@ -40,7 +40,7 @@ struct coord {
 };
 
 // yay globals (of doom)
- // map
+// map
 size_t maplength;
 uint16_t* map;
 struct coord mapsize;
@@ -54,7 +54,7 @@ struct coord mapsize;
  * : 0001 0000 = elf
  */
 
- // combatants
+// combatants
 size_t numelves;
 size_t numgoblins;
 
@@ -89,12 +89,12 @@ int main( void )
 	print_map();
 
 	/*
-	while( units_alive() > 0 )
-	{
-		battle();
-		print_map();
-	}
-	*/
+	   while( units_alive() > 0 )
+	   {
+	   battle();
+	   print_map();
+	   }
+	   */
 
 	return 0;
 }
@@ -108,40 +108,40 @@ enum combatStates battle(void)
 #endif
 
 	/* during each round, each unit that is still alive takes a turn and
-	* resolves all of its actions
-	*
-	* a turn consists of two actions:
-	*  - try to move in range of an enemy
-	*  - attack if in range
-	*
-	* - no diagonal attacks or movements
-	* - ties are broken in reading order
-	* 
-	* turn structure:
-	*  - identify all enemy units
-	*    * if no targets remain then combat ends
-	*  - identify all open squares in range of each target
-	*    * adjacent to any target (up, down, left, right)
-	*    * not wall or other unit
-	*    * if not in range of target and there are no open squares in range
-	*      of a target then the unit ends its turn
-	*  - if in range of a target, do not move, do attack
-	*    * otherwise move
-	*  - move:
-	*    * choose closest in range square (manhatten)
-	*    * if cannot reach a square then end turn
-	*    * break ties in reading order
-	*    * take a single step towards the chosen square
-	*  - attack:
-	*    * determine all enemy units adjacent
-	*    * if none then end turn
-	*    * choose target with fewest hit points
-	*    * deal damage equal to attack power to target
-	*      - if target's hit points are reduced to 0 or below then target dies
-	*        and its square becomes '.' (it takes no further turns)
-	*
-	* each unit (goblin or elf) has 3 attack power and starts with 200 hit points
-	*/
+	 * resolves all of its actions
+	 *
+	 * a turn consists of two actions:
+	 *  - try to move in range of an enemy
+	 *  - attack if in range
+	 *
+	 * - no diagonal attacks or movements
+	 * - ties are broken in reading order
+	 * 
+	 * turn structure:
+	 *  - identify all enemy units
+	 *    * if no targets remain then combat ends
+	 *  - identify all open squares in range of each target
+	 *    * adjacent to any target (up, down, left, right)
+	 *    * not wall or other unit
+	 *    * if not in range of target and there are no open squares in range
+	 *      of a target then the unit ends its turn
+	 *  - if in range of a target, do not move, do attack
+	 *    * otherwise move
+	 *  - move:
+	 *    * choose closest in range square (manhatten)
+	 *    * if cannot reach a square then end turn
+	 *    * break ties in reading order
+	 *    * take a single step towards the chosen square
+	 *  - attack:
+	 *    * determine all enemy units adjacent
+	 *    * if none then end turn
+	 *    * choose target with fewest hit points
+	 *    * deal damage equal to attack power to target
+	 *      - if target's hit points are reduced to 0 or below then target dies
+	 *        and its square becomes '.' (it takes no further turns)
+	 *
+	 * each unit (goblin or elf) has 3 attack power and starts with 200 hit points
+	 */
 
 	// variables
 	enum blocks block, enemy;
@@ -165,47 +165,53 @@ enum combatStates battle(void)
 
 	// Assume that there is at least one unit alive, as that is the condition
 	// on the while loop in main()
-	
+
 	// Iterate over all units
 	for( unit = 0; unit < numunits; unit++ )
-	//for( row = 0; row < mapsize.y; row++ )
 	{
-	//	for( col = 0; col < mapsize.x; col++ )
-	//	{
-			unitcoord = allunits[ unit ];
-			block = uint16_to_block(
-					map[ unitcoord.y * mapsize.x + unitcoord.x ] );
-			if( block == EMPTY || block == WALL )
-			{
-				// empty blocks and walls probably don't need to take a turn at
-				// combat
-				continue;
-			}
-			
-			// enemy is the opposite of what we are
-			enemy = block == GOBLIN? ELF: GOBLIN;
-			numenemies = block == GOBLIN? numelves: numgoblins;
+		unitcoord = allunits[ unit ];
+		block = uint16_to_block(
+				map[ unitcoord.y * mapsize.x + unitcoord.x ] );
+		if( block == EMPTY || block == WALL )
+		{
+			// empty blocks and walls probably don't need to take a turn at
+			// combat - this is needed because a unit might have died since
+			// the turn order was calculated
+			continue;
+		}
 
-			// check to see whether an adjacent square is an enemy - if this is
-			// the case then we bypass movement and go straight to the attack
-			// phase
-			if( adjacent( enemy, unitcoord ) != NONE )
-			{
-				goto ATTACK;
-			}
+		// enemy is the opposite of what we are
+		enemy = block == GOBLIN? ELF: GOBLIN;
+		numenemies = block == GOBLIN? numelves: numgoblins;
 
-			// no one is adjacent, so let's look for someone to pick a fight
-			// with
-			find_enemies( enemy, enemies, numenemies );
+		if( numenemies == 0 )
+		{
+			// there aren't any enemies. This probably means that one side has
+			// won
+			return COMBAT_END;
+		}
+
+		// check to see whether an adjacent square is an enemy - if this is
+		// the case then we bypass movement and go straight to the attack
+		// phase
+		if( adjacent( enemy, unitcoord ) != NONE )
+		{
+			goto ATTACK;
+		}
+
+		// no one is adjacent, so let's look for someone to pick a fight
+		// with
+		find_enemies( enemy, enemies, numenemies );
+
+
 
 ATTACK:
-			// enter attack phase
+		// enter attack phase
 #ifdef DEBUG
-			printf( " [+] Entering attack phase...\n" );
+		printf( " [+] Entering attack phase...\n" );
 #endif
-	//	}
 	}	
-	
+
 	// if no targets remain then end combat
 	return COMBAT_END;
 }
@@ -218,7 +224,7 @@ size_t get_turn_order( struct coord* allunits, size_t maxunits )
 	enum blocks block;
 
 	unitcount = 0;
-	
+
 	for( row = 0; row < mapsize.y; row++ )
 	{
 		for( col = 0; col < mapsize.x; col++ )
@@ -253,7 +259,7 @@ void find_enemies( enum blocks enemy,
 		for( col = 0; col < mapsize.x; col++ )
 		{
 			block = uint16_to_block(
-				map[ row * mapsize.x + col ] );
+					map[ row * mapsize.x + col ] );
 			if( block == enemy )
 			{
 				enemies[ enemycount ].x = col;
@@ -278,7 +284,7 @@ void find_enemies( enum blocks enemy,
 enum directions adjacent( enum blocks enemy, struct coord unitcoord )
 {
 	// check to see whether there is an adjacent bloke of type "enemy"
-	
+
 	return NONE;
 }
 
@@ -466,11 +472,11 @@ enum blocks char_to_block( char block )
 void print_map( void )
 {
 	// prints the map
-	
+
 	// iterate over each row of the map, printing out the relevant symbols for
 	// each type of square occupant. Also print the health points for goblins
 	// and elves beside the rows for debugging purposes
-	
+
 	int row, col;
 	size_t i;
 	char symb;
@@ -495,7 +501,7 @@ void print_map( void )
 			hp = map[ row * mapsize.x + col ] & HP_MASK;
 
 			block = uint16_to_block(
-						map[ row * mapsize.x + col ] );
+					map[ row * mapsize.x + col ] );
 			symb = block_to_symbol( block );
 			printf("%c", symb);
 
