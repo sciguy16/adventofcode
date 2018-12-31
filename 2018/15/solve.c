@@ -69,7 +69,8 @@ void print_map( void );
 enum combatStates battle(void);
 void find_enemies( enum blocks enemy,
 		struct coord* enemies, size_t numenemies );
-enum directions adjacent( enum blocks enemy, int row, int col );
+enum directions adjacent( enum blocks enemy, struct coord unitcoord );
+size_t get_turn_order( struct coord* allunits, size_t maxunits );
 
 int main( void )
 {
@@ -144,23 +145,36 @@ enum combatStates battle(void)
 
 	// variables
 	enum blocks block, enemy;
-	int row, col;
+	//int row, col;
+	int unit;
 
 	size_t numenemies;
+	size_t numunits;
 	size_t maxenemies = numgoblins > numelves?
 		numgoblins: numelves;
 
 	struct coord enemies[maxenemies];
+	struct coord allunits[ numgoblins + numelves ];
+	struct coord unitcoord;
+
+	numunits = get_turn_order(allunits, numgoblins + numelves);
+
+#ifdef DEBUG
+	printf(" [+] Generated a turn order for %zu units\n", numunits);
+#endif
 
 	// Assume that there is at least one unit alive, as that is the condition
 	// on the while loop in main()
 	
 	// Iterate over all units
-	for( row = 0; row < mapsize.y; row++ )
+	for( unit = 0; unit < numunits; unit++ )
+	//for( row = 0; row < mapsize.y; row++ )
 	{
-		for( col = 0; col < mapsize.x; col++ )
-		{
-			block = uint16_to_block( map[ row * mapsize.x + col ] );
+	//	for( col = 0; col < mapsize.x; col++ )
+	//	{
+			unitcoord = allunits[ unit ];
+			block = uint16_to_block(
+					map[ unitcoord.y * mapsize.x + unitcoord.x ] );
 			if( block == EMPTY || block == WALL )
 			{
 				// empty blocks and walls probably don't need to take a turn at
@@ -175,7 +189,7 @@ enum combatStates battle(void)
 			// check to see whether an adjacent square is an enemy - if this is
 			// the case then we bypass movement and go straight to the attack
 			// phase
-			if( adjacent( enemy, row, col ) != NONE )
+			if( adjacent( enemy, unitcoord ) != NONE )
 			{
 				goto ATTACK;
 			}
@@ -189,11 +203,42 @@ ATTACK:
 #ifdef DEBUG
 			printf( " [+] Entering attack phase...\n" );
 #endif
-		}
+	//	}
 	}	
 	
 	// if no targets remain then end combat
 	return COMBAT_END;
+}
+
+size_t get_turn_order( struct coord* allunits, size_t maxunits )
+{
+	// go through the map and write down the turn order for all units
+	int row, col;
+	size_t unitcount;
+	enum blocks block;
+
+	unitcount = 0;
+	
+	for( row = 0; row < mapsize.y; row++ )
+	{
+		for( col = 0; col < mapsize.x; col++ )
+		{
+			block = uint16_to_block( map[ row * mapsize.x + col ] );
+			if( block == ELF || block == GOBLIN )
+			{
+				// it's the big unit! let's add its coords to our list
+				allunits[unitcount].x = row;
+				allunits[unitcount].y = col;
+				unitcount++;
+			}
+		}
+	}
+	if( unitcount != maxunits )
+	{
+		// there is an inconsistency somewhere
+		error( "There is an inconsistency in the number of big units" );
+	}
+	return unitcount;
 }
 
 void find_enemies( enum blocks enemy,
@@ -230,7 +275,7 @@ void find_enemies( enum blocks enemy,
 	}
 }
 
-enum directions adjacent( enum blocks enemy, int row, int col )
+enum directions adjacent( enum blocks enemy, struct coord unitcoord )
 {
 	// check to see whether there is an adjacent bloke of type "enemy"
 	
