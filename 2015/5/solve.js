@@ -8,26 +8,25 @@ function is_nice(string) {
 			vcount++;
 	}
 	if(vcount < 3) {
-		console.log("Insufficient vowellage");
+		console.log(string + ": Insufficient vowellage");
 		return false;
 	}
 
 	// Contains at least one double letter
 	if(!string.match(/(.)\1/)) {
-		console.log("No doubles");
+		console.log(string + ": No doubles");
 		return false;
 	}
 	// Does not contain ab, cd, pq, or xy
 	bad = [ "ab", "cd", "pq", "xy" ];
 	for(var i = 0; i < 4; i++) {
-		console.log("bad[i] is " + bad[i]);
-		if(string.indexOf(bad[i]) > 0) {
-			console.log("Contains a bad sequence :(");
+		if(string.indexOf(bad[i]) > -1) {
+			console.log(string + ": Contains a bad sequence :(");
 			return false;
 		}
 	}
 
-	console.log("nice");
+	console.log(string + ": nice");
 	
 	return true;
 }
@@ -42,13 +41,24 @@ function test() {
 }
 
 function count_nice(file) {
-	return 4;
+	var lines = require('fs').readFileSync('input.txt', 'utf-8')
+		.split('\n');
+	console.log(lines);
+	var count = 0;
+	for(var i = 0; i < lines.length; i++) {
+		if(lines[i] && is_nice(lines[i])) {
+			count += 1;
+		}
+	}
+
+	return count;
 }
 
 function main() {
 	console.log("Starting naughty-nice decider");
 	test();
 	var count = count_nice("input.txt");
+	console.log("The number of nice words is:", count);
 }
 
 
