@@ -4,11 +4,20 @@
 #include<stdbool.h>
 
 #define SIZE 1000
-void initialise(bool[SIZE][SIZE]);
+#define LIGHTS bool lights[SIZE][SIZE]
+
+enum MODES {
+	ON,
+	OFF,
+	TOGGLE,
+};
+
+void initialise(LIGHTS);
+void set(LIGHTS, int, int, int, int, enum MODES);
 
 int main(void)
 {
-	bool lights[SIZE][SIZE];
+	LIGHTS;
 	initialise(lights);
 
 	printf("Yay\n");
@@ -32,23 +41,64 @@ int main(void)
 		int miny = y1 < y2 ? y1 : y2;
 		int maxy = y1 < y2 ? y2 : y1;
 
+		enum MODES m;
 		if(strncmp("turn on", instruction, 7) == 0) {
 			printf("on\n");
+			m = ON;
 		} else if(strncmp("turn off", instruction, 8) == 0) {
 			printf("off\n");
+			m = OFF;
 		} else if(strncmp("toggle", instruction, 6) == 0) {
 			printf("toggle\n");
+			m = TOGGLE;
 		} else {
 			fprintf(stderr, "Invalid instruction\n");
 			fclose(fp);
 			return -2;
 		}
+		set(lights, minx, maxx, miny, maxy, m);
 	}
 	printf("End of file reached\n");
+
+	int c = count(lights);
+	printf("The number of lights left on is: %d\n", c);
 	fclose(fp);
 }
 
-void initialise(bool lights[SIZE][SIZE])
+void set(LIGHTS, int minx, int maxx, int miny, int maxy, enum MODES mode)
+{
+	for(int x = minx; x <= maxx; ++x) {
+		for(int y = miny; y <= maxy; ++y) {
+			switch(mode)
+			{
+				case ON:
+					lights[x][y] = true;
+					break;
+				case OFF:
+					lights[x][y] = false;
+					break;
+				case TOGGLE:
+					lights[x][y] ^= true;
+					break;
+				default:
+					fprintf(stderr, "A Badnyss Has B'fallen Thys Lande");
+			}
+		}
+	}
+}
+
+int count(LIGHTS)
+{
+	int c = 0;
+	for(int x = 0; x < SIZE; ++x) {
+		for(int y = 0; y < SIZE; ++y) {
+			c += (int) lights[x][y];
+		}
+	}
+	return c;
+}
+
+void initialise(LIGHTS)
 {
 	for(int i = 0; i < SIZE; ++i) {
 		for(int j = 0; j < SIZE; ++j) {
