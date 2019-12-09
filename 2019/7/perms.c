@@ -8,7 +8,11 @@ void printperm(char*);
 
 int main(void)
 {
+#ifdef FEEDBACK
+	char str[] = "56789";
+#else
 	char str[] = "01234";
+#endif
 	int n = strlen(str);
 	permute(str, 0, n-1);
 	return 0;
