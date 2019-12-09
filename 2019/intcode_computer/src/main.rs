@@ -6,6 +6,7 @@ fn main() {
     init_log();
     println!("Day 2, part 1: {}", solve_2a());
     println!("Day 2, part 2: {}", solve_2b());
+    println!("Day 5, part 1: {}", solve_5a());
     println!("Day 7, part 2: {}", solve_7b());
 }
 
@@ -65,6 +66,56 @@ fn solve_2b() -> i32 {
     panic!("Unable to solve the puzzle :(");
 }
 
+fn solve_5a() -> i32 {
+    let program = vec![
+        3,225,1,225,6,6,1100,1,238,225,104,0,101,67,166,224,1001,
+        224,-110,224,4,224,102,8,223,223,1001,224,4,224,1,224,223,
+        223,2,62,66,224,101,-406,224,224,4,224,102,8,223,223,101,3,
+        224,224,1,224,223,223,1101,76,51,225,1101,51,29,225,1102,57,
+        14,225,1102,64,48,224,1001,224,-3072,224,4,224,102,8,223,
+        223,1001,224,1,224,1,224,223,223,1001,217,90,224,1001,224,
+        -101,224,4,224,1002,223,8,223,1001,224,2,224,1,223,224,223,
+        1101,57,55,224,1001,224,-112,224,4,224,102,8,223,223,1001,
+        224,7,224,1,223,224,223,1102,5,62,225,1102,49,68,225,102,40,
+        140,224,101,-2720,224,224,4,224,1002,223,8,223,1001,224,4,
+        224,1,223,224,223,1101,92,43,225,1101,93,21,225,1002,170,31,
+        224,101,-651,224,224,4,224,102,8,223,223,101,4,224,224,1,
+        223,224,223,1,136,57,224,1001,224,-138,224,4,224,102,8,223,
+        223,101,2,224,224,1,223,224,223,1102,11,85,225,4,223,99,0,0,
+        0,677,0,0,0,0,0,0,0,0,0,0,0,1105,0,99999,1105,227,247,1105,
+        1,99999,1005,227,99999,1005,0,256,1105,1,99999,1106,227,
+        99999,1106,0,265,1105,1,99999,1006,0,99999,1006,227,274,
+        1105,1,99999,1105,1,280,1105,1,99999,1,225,225,225,1101,294,
+        0,0,105,1,0,1105,1,99999,1106,0,300,1105,1,99999,1,225,225,
+        225,1101,314,0,0,106,0,0,1105,1,99999,1107,226,226,224,102,
+        2,223,223,1006,224,329,1001,223,1,223,1007,226,677,224,1002,
+        223,2,223,1005,224,344,101,1,223,223,108,677,677,224,1002,
+        223,2,223,1006,224,359,101,1,223,223,1008,226,226,224,1002,
+        223,2,223,1005,224,374,1001,223,1,223,108,677,226,224,1002,
+        223,2,223,1006,224,389,101,1,223,223,7,226,226,224,102,2,
+        223,223,1006,224,404,101,1,223,223,7,677,226,224,1002,223,2,
+        223,1005,224,419,101,1,223,223,107,226,226,224,102,2,223,
+        223,1006,224,434,1001,223,1,223,1008,677,677,224,1002,223,2,
+        223,1005,224,449,101,1,223,223,108,226,226,224,102,2,223,
+        223,1005,224,464,1001,223,1,223,1108,226,677,224,1002,223,2,
+        223,1005,224,479,1001,223,1,223,8,677,226,224,102,2,223,223,
+        1006,224,494,1001,223,1,223,1108,677,677,224,102,2,223,223,
+        1006,224,509,1001,223,1,223,1007,226,226,224,1002,223,2,223,
+        1005,224,524,1001,223,1,223,7,226,677,224,1002,223,2,223,
+        1005,224,539,1001,223,1,223,8,677,677,224,102,2,223,223,
+        1005,224,554,1001,223,1,223,107,226,677,224,1002,223,2,223,
+        1006,224,569,101,1,223,223,1107,226,677,224,102,2,223,223,
+        1005,224,584,1001,223,1,223,1108,677,226,224,102,2,223,223,
+        1006,224,599,1001,223,1,223,1008,677,226,224,102,2,223,223,
+        1006,224,614,101,1,223,223,107,677,677,224,102,2,223,223,
+        1006,224,629,1001,223,1,223,1107,677,226,224,1002,223,2,223,
+        1005,224,644,101,1,223,223,8,226,677,224,102,2,223,223,1005,
+        224,659,1001,223,1,223,1007,677,677,224,102,2,223,223,1005,
+        224,674,1001,223,1,223,4,223,99,226,
+        ];
+
+    4
+}
 
 fn solve_7b() -> i32 {
     let program: Vec<i32> = vec![99, 2, 3];
@@ -79,8 +130,8 @@ fn solve_7b() -> i32 {
 enum State {
     Running,
     Term,
-    Output,
-    Input,
+    OutputReady,
+    InputWaiting,
     Err,
 }
 
@@ -111,15 +162,18 @@ impl Amplifier {
                 args.push(self.program[self.program[self.pc + 1] as usize]);
                 args.push(self.program[self.program[self.pc + 2] as usize]);
             },
+            3|4 => {
+                args.push(self.program[self.program[self.pc + 1] as usize]);
+            },
             _ => unimplemented!(),
         }
         args
     }
 
     fn step(&mut self) -> State {
-        //eprintln!("pc: {}", self.pc);
-        //eprintln!("prog: {:?}", self.program);
-        //eprintln!("ins: {}", self.program[self.pc]);
+        eprintln!("pc: {}", self.pc);
+        eprintln!("prog: {:?}", self.program);
+        eprintln!("ins: {}", self.program[self.pc]);
         match &mut self.program[self.pc] {
             1 => {
                 // ADD
@@ -139,11 +193,24 @@ impl Amplifier {
             },
             3 => {
                 // INPUT
-                unimplemented!();
+                if self.input_buffer.len() < 1 {
+                    // No input available, return and wait for more
+                    self.state = State::InputWaiting;
+                } else {
+                    let write_idx = self.program[self.pc+1] as usize;
+                    eprintln!("write idx is: {}", write_idx);
+                    eprintln!("Input buffer is: {:?}", self.input_buffer);
+                    self.program[write_idx] = self.input_buffer.remove(0);
+                    self.pc += 2;
+                }
             },
             4 => {
                 // OUTPUT
-                unimplemented!();
+                let args = self.resolve_args();
+                eprintln!("OUT: args = {:?}", args);
+                self.output_buffer.push(args[0]);
+                self.pc += 2;
+                self.state = State::OutputReady;
             },
             5 => {
                 // JUMP-IF-TRUE
@@ -179,14 +246,14 @@ impl Amplifier {
     }
 
     fn process(&mut self) -> State {
+        self.state = State::Running;
         while self.state == State::Running {
-            let s = self.step();
-            //eprintln!("Current state: {:?}", s);
-            match s {
+            let _ = self.step();
+            /*match s {
                 State::Term => break,
                 State::Running => {},
                 _ => break,
-            }
+            }*/
         }
         //eprintln!("The game: {:?}", self.state);
         self.state.clone()
@@ -244,4 +311,44 @@ mod test {
         assert_eq!(amp.program[0], 30);
         assert_eq!(amp.program[4], 2);
     }
+
+    #[test]
+    fn day_5_test_1() {
+        // Test the input and output instructions
+        let program = vec![3,0,4,0,99];
+        for idx in -10..10 {
+            let mut amp = Amplifier::new(&program);
+
+            assert_eq!(amp.process(), State::InputWaiting);
+            // Waiting for input, so we give it some and let it continue
+            eprintln!("Sending some input");
+            amp.input_buffer.push(idx);
+
+            assert_eq!(amp.process(), State::OutputReady);
+            // There's some output available, so print it and continue
+            eprintln!("Output: {:?}", amp.output_buffer);
+
+            assert_eq!(amp.process(), State::Term);
+            assert_eq!(amp.output_buffer[0], idx);
+        }
+    }
+/*
+    #[test]
+    fn day_5_test_2() {
+        // Test the parameter indirection modes
+        let program = vec![1002,4,3,4,33];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::Term);
+    }
+
+    #[test]
+    fn day_5_test_3() {
+        let program = vec![3,9,8,9,10,9,4,9,99,-1,8];
+        for idx in 5..10 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::Output);
+            let correct = if idx == 8 { 1 } else { 0 };
+            assert_eq!(amp.output_buffer[0], correct);
+        }
+    }*/
 }
