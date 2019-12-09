@@ -114,7 +114,18 @@ fn solve_5a() -> i32 {
         224,674,1001,223,1,223,4,223,99,226,
         ];
 
-    4
+    let mut amp = Amplifier::new(&program);
+    amp.input_buffer.push(1);
+    loop {
+        amp.process();
+        //println!("State: {:?}", amp.state);
+        if amp.state == State::Term {
+            break;
+        }
+    }
+    println!("Output: {:?}", amp.output_buffer);
+
+    amp.output_buffer[amp.output_buffer.len() - 1]
 }
 
 fn solve_7b() -> i32 {
@@ -157,24 +168,36 @@ impl Amplifier {
     fn resolve_args(&mut self) -> Vec<i32> {
         let mut args = Vec::new();
         // mode stuff
-        match self.program[self.pc] {
-            1|2 => {
-                args.push(self.program[self.program[self.pc + 1] as usize]);
-                args.push(self.program[self.program[self.pc + 2] as usize]);
-            },
-            3|4 => {
-                args.push(self.program[self.program[self.pc + 1] as usize]);
-            },
+        let mut param_modes = self.program[self.pc] / 100;
+        let nparams: usize = match self.program[self.pc] % 100 {
+            1|2 => 3,
+            3|4 => 1,
+            5|6 => 2,
+            7|8 => 3,
             _ => unimplemented!(),
+        };
+
+        for idx in 1..=nparams {
+            if param_modes % 10 == 0 {
+                // Position mode
+                args.push(self.program[self.program[self.pc + idx] as usize]);
+            } else {
+                // Immediate mode
+                args.push(self.program[self.pc + idx]);
+            }
+            param_modes /= 10;
         }
+
         args
     }
 
     fn step(&mut self) -> State {
-        eprintln!("pc: {}", self.pc);
-        eprintln!("prog: {:?}", self.program);
-        eprintln!("ins: {}", self.program[self.pc]);
-        match &mut self.program[self.pc] {
+        //eprintln!("pc: {}", self.pc);
+        //eprintln!("prog: {:?}", self.program);
+        //eprintln!("ins: {}", self.program[self.pc]);
+        // Split instruction from parameter modes
+        let instruction = self.program[self.pc] % 100;
+        match instruction {
             1 => {
                 // ADD
                 let args = self.resolve_args();
@@ -207,7 +230,7 @@ impl Amplifier {
             4 => {
                 // OUTPUT
                 let args = self.resolve_args();
-                eprintln!("OUT: args = {:?}", args);
+                //eprintln!("OUT: args = {:?}", args);
                 self.output_buffer.push(args[0]);
                 self.pc += 2;
                 self.state = State::OutputReady;
@@ -332,7 +355,7 @@ mod test {
             assert_eq!(amp.output_buffer[0], idx);
         }
     }
-/*
+
     #[test]
     fn day_5_test_2() {
         // Test the parameter indirection modes
@@ -340,7 +363,7 @@ mod test {
         let mut amp = Amplifier::new(&program);
         assert_eq!(amp.process(), State::Term);
     }
-
+/*
     #[test]
     fn day_5_test_3() {
         let program = vec![3,9,8,9,10,9,4,9,99,-1,8];
