@@ -158,4 +158,37 @@ mod test {
             s => panic!("Unexpected state: {:?}", s),
         }
     }
+
+    #[test]
+    fn day_2_test_2() {
+        let program = vec![1,0,0,0,99];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::Term);
+        assert_eq!(amp.program[0], 2);
+    }
+
+    #[test]
+    fn day_2_test_3() {
+        let program = vec![2,3,0,3,99];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::Term);
+        assert_eq!(amp.program[3], 6);
+    }
+
+    #[test]
+    fn day_2_test_4() {
+        let program = vec![2,4,4,5,99,0];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::Term);
+        assert_eq!(amp.program[5], 9801);
+    }
+
+    #[test]
+    fn day_2_test_5() {
+        let program = vec![1,1,1,4,99,5,6,0,99];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::Term);
+        assert_eq!(amp.program[0], 30);
+        assert_eq!(amp.program[4], 2);
+    }
 }
