@@ -476,4 +476,43 @@ mod test {
             assert_eq!(amp.process(), State::Term);
         }
     }
+
+    #[test]
+    fn day_5_test_5() {
+        // Immediate mode EQ
+        let program = vec![3,3,1108,-1,8,3,4,3,99];
+        for idx in 5..10 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::InputWaiting);
+            amp.input_buffer.push(idx);
+
+            // Check that it produces the correct output
+            assert_eq!(amp.process(), State::OutputReady);
+            let correct = if idx == 8 { 1 } else { 0 };
+            assert_eq!(amp.output_buffer[0], correct);
+
+            // Check that it terminated properly
+            assert_eq!(amp.process(), State::Term);
+        }
+    }
+
+    #[test]
+    fn day_5_test_6() {
+        // Immediate mode LT
+        let program = vec![3,3,1107,-1,8,3,4,3,99];
+        for idx in 5..10 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::InputWaiting);
+            amp.input_buffer.push(idx);
+
+            // Check that it produces the correct output
+            assert_eq!(amp.process(), State::OutputReady);
+            let correct = if idx < 8 { 1 } else { 0 };
+            assert_eq!(amp.output_buffer[0], correct);
+
+            // Check that it terminated properly
+            assert_eq!(amp.process(), State::Term);
+        }
+    }
+
 }
