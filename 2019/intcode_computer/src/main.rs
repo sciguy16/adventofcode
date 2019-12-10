@@ -13,6 +13,8 @@ fn main() {
 
     println!("Day 7, part 1: {}", solve_7a());
     println!("Day 7, part 2: {}", solve_7b());
+
+    println!("Day 9, part 1: {}", solve_9a());
 }
 
 fn init_log() {
@@ -252,6 +254,79 @@ fn solve_7b() -> i64 {
     max_feedback_loop(&program)
 }
 
+fn solve_9a() -> i64 {
+    let program = vec![
+        1102,34463338,34463338,63,1007,63,34463338,63,1005,63,53,
+        1101,3,0,1000,109,988,209,12,9,1000,209,6,209,3,203,0,1008,
+        1000,1,63,1005,63,65,1008,1000,2,63,1005,63,904,1008,1000,0,
+        63,1005,63,58,4,25,104,0,99,4,0,104,0,99,4,17,104,0,99,0,0,
+        1101,27,0,1014,1101,286,0,1023,1102,1,35,1018,1102,20,1,
+        1000,1101,26,0,1010,1101,0,289,1022,1102,1,30,1019,1102,734,
+        1,1025,1102,1,31,1012,1101,25,0,1001,1102,1,1,1021,1101,0,
+        36,1002,1101,0,527,1028,1101,895,0,1026,1102,1,23,1016,1101,
+        21,0,1003,1102,22,1,1011,1102,1,522,1029,1102,1,892,1027,
+        1102,1,0,1020,1102,1,28,1015,1102,38,1,1006,1101,0,32,1008,
+        1101,743,0,1024,1101,0,37,1007,1102,1,24,1013,1102,1,33,
+        1009,1102,39,1,1004,1102,1,34,1005,1102,1,29,1017,109,19,
+        21102,40,1,-3,1008,1016,40,63,1005,63,203,4,187,1106,0,207,
+        1001,64,1,64,1002,64,2,64,109,-7,2101,0,-7,63,1008,63,32,63,
+        1005,63,227,1106,0,233,4,213,1001,64,1,64,1002,64,2,64,109,
+        -3,2108,37,-2,63,1005,63,255,4,239,1001,64,1,64,1105,1,255,
+        1002,64,2,64,109,11,21108,41,40,-6,1005,1014,275,1001,64,1,
+        64,1106,0,277,4,261,1002,64,2,64,109,10,2105,1,-7,1105,1,
+        295,4,283,1001,64,1,64,1002,64,2,64,109,-27,1201,-2,0,63,
+        1008,63,25,63,1005,63,321,4,301,1001,64,1,64,1105,1,321,
+        1002,64,2,64,109,15,21107,42,41,0,1005,1018,341,1001,64,1,
+        64,1106,0,343,4,327,1002,64,2,64,109,-25,2108,20,10,63,1005,
+        63,359,1105,1,365,4,349,1001,64,1,64,1002,64,2,64,109,12,
+        2107,35,0,63,1005,63,385,1001,64,1,64,1106,0,387,4,371,1002,
+        64,2,64,109,4,21101,43,0,6,1008,1015,43,63,1005,63,409,4,
+        393,1106,0,413,1001,64,1,64,1002,64,2,64,109,9,21101,44,0,
+        -8,1008,1010,46,63,1005,63,437,1001,64,1,64,1106,0,439,4,
+        419,1002,64,2,64,109,5,21108,45,45,-4,1005,1019,457,4,445,
+        1106,0,461,1001,64,1,64,1002,64,2,64,109,-22,2102,1,7,63,
+        1008,63,33,63,1005,63,481,1106,0,487,4,467,1001,64,1,64,
+        1002,64,2,64,109,14,21102,46,1,-1,1008,1014,43,63,1005,63,
+        507,1106,0,513,4,493,1001,64,1,64,1002,64,2,64,109,12,2106,
+        0,1,4,519,1106,0,531,1001,64,1,64,1002,64,2,64,109,-17,1205,
+        10,547,1001,64,1,64,1106,0,549,4,537,1002,64,2,64,109,-8,
+        1202,-2,1,63,1008,63,17,63,1005,63,569,1105,1,575,4,555,
+        1001,64,1,64,1002,64,2,64,109,23,1206,-5,593,4,581,1001,64,
+        1,64,1105,1,593,1002,64,2,64,109,-14,1208,-8,24,63,1005,63,
+        613,1001,64,1,64,1105,1,615,4,599,1002,64,2,64,109,-2,1207,
+        -1,33,63,1005,63,633,4,621,1105,1,637,1001,64,1,64,1002,64,
+        2,64,109,2,21107,47,48,5,1005,1016,659,4,643,1001,64,1,64,
+        1105,1,659,1002,64,2,64,109,-11,1208,8,32,63,1005,63,681,4,
+        665,1001,64,1,64,1106,0,681,1002,64,2,64,109,2,2101,0,0,63,
+        1008,63,36,63,1005,63,703,4,687,1106,0,707,1001,64,1,64,
+        1002,64,2,64,109,12,1206,7,719,1106,0,725,4,713,1001,64,1,
+        64,1002,64,2,64,109,2,2105,1,8,4,731,1001,64,1,64,1106,0,
+        743,1002,64,2,64,109,-21,2102,1,9,63,1008,63,39,63,1005,63,
+        769,4,749,1001,64,1,64,1105,1,769,1002,64,2,64,109,11,1201,
+        -3,0,63,1008,63,24,63,1005,63,793,1001,64,1,64,1105,1,795,4,
+        775,1002,64,2,64,109,20,1205,-5,809,4,801,1105,1,813,1001,
+        64,1,64,1002,64,2,64,109,-23,1207,4,36,63,1005,63,833,1001,
+        64,1,64,1105,1,835,4,819,1002,64,2,64,109,-3,2107,33,5,63,
+        1005,63,853,4,841,1106,0,857,1001,64,1,64,1002,64,2,64,109,
+        16,1202,-9,1,63,1008,63,37,63,1005,63,879,4,863,1105,1,883,
+        1001,64,1,64,1002,64,2,64,109,12,2106,0,-1,1105,1,901,4,889,
+        1001,64,1,64,4,64,99,21101,0,27,1,21101,0,915,0,1106,0,922,
+        21201,1,48476,1,204,1,99,109,3,1207,-2,3,63,1005,63,964,
+        21201,-2,-1,1,21101,0,942,0,1105,1,922,21202,1,1,-1,21201,
+        -2,-3,1,21101,0,957,0,1105,1,922,22201,1,-1,-2,1106,0,968,
+        21202,-2,1,-2,109,-3,2106,0,0,
+        ];
+    let mut amp = Amplifier::new(&program);
+    amp.program.append(&mut vec![0; 100]);
+    amp.input_buffer.push(1);
+    while amp.process() == State::OutputReady {}
+    assert_eq!(amp.process(), State::Term);
+
+    println!("Output: {:?}", amp.output_buffer);
+    
+    amp.output_buffer[0]
+}
+
 #[derive(Clone, Debug, PartialEq)]
 enum State {
     Running,
@@ -286,7 +361,8 @@ impl Amplifier {
         let mut args = Vec::new();
         // mode stuff
         let mut param_modes = self.program[self.pc] / 100;
-        let nparams: usize = match self.program[self.pc] % 100 {
+        let instr = self.program[self.pc] % 100;
+        let nparams: usize = match instr {
             1|2 => 3,
             3|4 => 1,
             5|6 => 2,
@@ -296,10 +372,20 @@ impl Amplifier {
         };
 
         for idx in 1..=nparams {
-            match param_modes % 10 {
+            let pmode = param_modes % 10;
+            let is_write =
+                ([1, 2, 7, 8].contains(&instr) && idx == 3) ||
+                (instr == 3 && idx == 1);
+            //eprintln!("idx: {}, pmode: {}, is_write: {:?}", idx, pmode, is_write);
+            match pmode {
                 0 => {
                     // Position mode
-                    args.push(self.program[self.program[self.pc + idx] as usize]);
+                    if !is_write {
+                        args.push(
+                            self.program[self.program[self.pc + idx] as usize]);
+                    } else {
+                        args.push(self.program[self.pc + idx]);
+                    }
                 },
                 1 => {
                     // Immediate mode
@@ -307,13 +393,22 @@ impl Amplifier {
                 },
                 2 => {
                     // Relative mode
-                    args.push(
-                        self.program[
-                        self.relative_base + (
-                            self.program[self.pc + idx] % std::usize::MAX as i64
-                        ) as usize
-                        ]
-                    );
+                    if !is_write {
+                        args.push(
+                            self.program[
+                            self.relative_base + (
+                                self.program[self.pc + idx]
+                                % std::usize::MAX as i64
+                            ) as usize
+                            ]
+                        );
+                    } else {
+                        args.push(
+                            self.relative_base as i64 + (
+                                self.program[self.pc + idx]
+                                % std::usize::MAX as i64
+                            ) );
+                    }
                 },
                 _ => {
                     panic!("Invalid mode");
@@ -326,7 +421,7 @@ impl Amplifier {
     }
 
     fn step(&mut self) -> State {
-        //eprintln!("pc: {}", self.pc);
+
         //eprintln!("prog: {:?}", self.program);
         //eprintln!("ins: {}", self.program[self.pc]);
         // Split instruction from parameter modes
@@ -336,16 +431,18 @@ impl Amplifier {
             1 => {
                 // ADD
                 let args = self.resolve_args();
-                let write_idx = self.program[self.pc+3] as usize;
-                self.program[write_idx] = args[0] + args[1];
+                //let write_idx = self.program[self.pc+3] as usize;
+                //eprintln!("args[2] is {}", args[2]);
+                //assert_eq!(args[2], self.program[self.pc+3], "is bad");
+                self.program[args[2] as usize] = args[0] + args[1];
                 self.pc += 4;
                 self.state = State::Running;
             },
             2 => {
                 // MUL
                 let args = self.resolve_args();
-                let write_idx = self.program[self.pc+3] as usize;
-                self.program[write_idx] = args[0] * args[1];
+                //let write_idx = self.program[self.pc+3] as usize;
+                self.program[args[2] as usize] = args[0] * args[1];
                 self.pc += 4;
                 self.state = State::Running;
             },
@@ -356,10 +453,12 @@ impl Amplifier {
                     //eprintln!("Empty input buffer: {:?}", self.input_buffer);
                     self.state = State::InputWaiting;
                 } else {
-                    let write_idx = self.program[self.pc+1] as usize;
+                    //let write_idx = self.program[self.pc+1] as usize;
                     //eprintln!("write idx is: {}", write_idx);
                     //eprintln!("Input buffer is: {:?}", self.input_buffer);
-                    self.program[write_idx] = self.input_buffer.remove(0);
+                    let args = self.resolve_args();
+                    eprintln!("write idx is: {}", args[0]);
+                    self.program[args[0] as usize] = self.input_buffer.remove(0);
                     self.pc += 2;
                     self.state = State::Running;
                 }
@@ -834,5 +933,65 @@ mod test {
         amp.relative_base = 2000;
         assert_eq!(amp.process(), State::OutputReady);
         assert_eq!(amp.output_buffer[0], 0);
+    }
+
+    #[test]
+    fn day_9_test_3() {
+        // Quine
+        let program = vec![
+            109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99
+        ];
+        let mut amp = Amplifier::new(&program);
+        amp.program.append(&mut vec![0;1000]);
+
+        eprintln!("Length of program is {}", amp.program.len());
+        loop {
+            match amp.process() {
+                State::Term => break,
+                State::OutputReady => print!("."),
+                _ => { },
+            }
+        }
+
+        eprintln!("\nOutput is: {:?}", amp.output_buffer);
+
+        assert_eq!(
+            amp.output_buffer,
+            vec![
+            1, 204, -1, 1001, 100, 1, 100, 1008,
+            100, 16, 101, 1006, 101, 0, 99, 0,
+            ]
+        );
+    }
+
+    #[test]
+    fn day_9_test_4() {
+        let program = vec![1102,34915192,34915192,7,4,7,99,0];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::OutputReady);
+        assert_eq!(amp.process(), State::Term);
+        eprintln!("Number is: {:?}", amp.output_buffer);
+        assert_eq!(amp.output_buffer[0], 1219070632396864);
+    }
+
+    #[test]
+    fn day_9_test_5() {
+        let program = vec![104,1125899906842624,99];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::OutputReady);
+        assert_eq!(amp.process(), State::Term);
+        eprintln!("Number is: {:?}", amp.output_buffer);
+        assert_eq!(amp.output_buffer[0], 1125899906842624);
+    }
+
+    #[test]
+    fn day_9_test_6() {
+        // Reflect input to output in relative mode
+        let program = vec![109, 1, 203, 2, 204, 2, 99];
+        let mut amp = Amplifier::new(&program);
+        amp.input_buffer.push(4);
+        assert_eq!(amp.process(), State::OutputReady);
+        assert_eq!(amp.process(), State::Term);
+        assert_eq!(amp.output_buffer[0], 4);
     }
 }
