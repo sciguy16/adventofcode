@@ -128,7 +128,7 @@ fn solve_5a() -> i32 {
             break;
         }
     }
-    println!("Output: {:?}", amp.output_buffer);
+    //println!("Output: {:?}", amp.output_buffer);
 
     amp.output_buffer[amp.output_buffer.len() - 1]
 }
@@ -191,7 +191,7 @@ fn solve_5b() -> i32 {
             break;
         }
     }
-    println!("Output: {:?}", amp.output_buffer);
+    //println!("Output: {:?}", amp.output_buffer);
 
     amp.output_buffer[amp.output_buffer.len() - 1]
 }
@@ -225,12 +225,31 @@ fn solve_7a() -> i32 {
 }
 
 fn solve_7b() -> i32 {
-    let program: Vec<i32> = vec![99, 2, 3];
-    let mut a = Amplifier::new(&program);
+    let program = vec![
+        3,8,1001,8,10,8,105,1,0,0,21,34,47,72,81,102,183,264,345,
+        426,99999,3,9,102,5,9,9,1001,9,3,9,4,9,99,3,9,101,4,9,9,
+        1002,9,3,9,4,9,99,3,9,102,3,9,9,101,2,9,9,102,5,9,9,1001,9,
+        3,9,1002,9,4,9,4,9,99,3,9,101,5,9,9,4,9,99,3,9,101,3,9,9,
+        1002,9,5,9,101,4,9,9,102,2,9,9,4,9,99,3,9,1002,9,2,9,4,9,3,
+        9,101,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,
+        1002,9,2,9,4,9,3,9,1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,
+        1001,9,1,9,4,9,3,9,1001,9,2,9,4,9,3,9,101,1,9,9,4,9,99,3,9,
+        101,1,9,9,4,9,3,9,1001,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,102,
+        2,9,9,4,9,3,9,1001,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,102,2,9,
+        9,4,9,3,9,1001,9,2,9,4,9,3,9,1001,9,2,9,4,9,3,9,101,2,9,9,4,
+        9,99,3,9,101,1,9,9,4,9,3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,
+        3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,1,9,9,4,9,3,9,
+        1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,102,2,9,9,4,9,3,9,
+        1002,9,2,9,4,9,99,3,9,1001,9,2,9,4,9,3,9,101,1,9,9,4,9,3,9,
+        1001,9,1,9,4,9,3,9,102,2,9,9,4,9,3,9,101,1,9,9,4,9,3,9,1002,
+        9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,2,9,9,4,9,3,9,101,2,9,
+        9,4,9,3,9,102,2,9,9,4,9,99,3,9,102,2,9,9,4,9,3,9,1001,9,2,9,
+        4,9,3,9,102,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,
+        3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,
+        1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,99
+            ];
 
-    a.process();
-
-    4
+    max_feedback_loop(&program)
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -407,31 +426,94 @@ impl Amplifier {
     }
 }
 
-#[allow(unused)]
 fn phase_sequence(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
     assert_eq!(phases.len(), 5);
 
     let mut input: i32 = 0;
     for phase in phases {
-        eprintln!("--- -- - Phase is: {} - -- ---", phase);
+        //eprintln!("--- -- - Phase is: {} - -- ---", phase);
         let mut amp = Amplifier::new(&program);
         amp.input_buffer.push(*phase);
         amp.input_buffer.push(input);
         assert_eq!(amp.process(), State::OutputReady);
-        eprintln!("output buffer is: {:?}", amp.output_buffer);
+        //eprintln!("output buffer is: {:?}", amp.output_buffer);
         input = amp.output_buffer[0];
     }
 
     input
 }
 
-#[allow(unused)]
 fn max_phase_sequence(program: &Vec<i32>) -> i32 {
     let mut phases = vec![0, 1, 2, 3, 4];
     let mut heap = permutohedron::Heap::new(&mut phases);
     let mut biggest = 0;
     while let Some(perm) = heap.next_permutation() {
         let try_out = phase_sequence(&program, &perm);
+        if try_out > biggest {
+            biggest = try_out;
+        }
+    }
+
+    biggest
+}
+
+fn feedback_loop(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
+    assert_eq!(phases.len(), 5);
+    let mut amps: Vec<Amplifier> = Vec::with_capacity(5);
+    for phase in phases {
+        let mut a = Amplifier::new(&program);
+        a.input_buffer.push(*phase);
+        amps.push(a);
+    }
+    // Seed the first amplifier
+    amps[0].input_buffer.push(0);
+
+    let mut term_count = 0;
+    loop {
+        if term_count >= 5 {
+            // all amplifiers have finished
+            break;
+        }
+        for idx in 0..5 {
+            //eprintln!(" -- Amp {}, tc = {} --", idx, term_count);
+            if term_count >= 5 {
+                break;
+            }
+            match amps[idx].process() {
+                State::InputWaiting => {
+                    // Can't do anything if it's waiting for input, so
+                    // we pass and hope that the next loop will come
+                    // with an input
+                    //eprintln!("Waiting for input");
+                    break;
+                },
+                State::OutputReady => {
+                    // Output is ready, so we take it and push it into
+                    // the next amplifier's input stage
+                    let val = amps[idx].output_buffer.remove(0);
+                    amps[(idx + 1) % 5].input_buffer.push(val);
+                }
+                State::Term => {
+                    term_count += 1;
+                },
+                State::Err => panic!(),
+                State::Running => panic!(),
+            }
+        }
+    }
+
+    // At the end the final output has been put into the first amplifier's
+    // input buffer
+    assert_eq!(amps[0].input_buffer.len(), 1);
+    amps[0].input_buffer[0]
+}
+
+fn max_feedback_loop(program: &Vec<i32>) -> i32 {
+    let mut phases = vec![5, 6, 7, 8, 9];
+    let mut heap = permutohedron::Heap::new(&mut phases);
+    let mut biggest = 0;
+    while let Some(perm) = heap.next_permutation() {
+        let try_out = feedback_loop(&program, &perm);
         if try_out > biggest {
             biggest = try_out;
         }
@@ -501,12 +583,12 @@ mod test {
 
             assert_eq!(amp.process(), State::InputWaiting);
             // Waiting for input, so we give it some and let it continue
-            eprintln!("Sending some input");
+            //eprintln!("Sending some input");
             amp.input_buffer.push(idx);
 
             assert_eq!(amp.process(), State::OutputReady);
             // There's some output available, so print it and continue
-            eprintln!("Output: {:?}", amp.output_buffer);
+            //eprintln!("Output: {:?}", amp.output_buffer);
 
             assert_eq!(amp.process(), State::Term);
             assert_eq!(amp.output_buffer[0], idx);
@@ -692,4 +774,22 @@ mod test {
         assert_eq!(max_phase_sequence(&program), 65210);
     }
 
+    #[test]
+    fn day_7_test_4() {
+        let program = vec![
+            3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
+            27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5,
+        ];
+        assert_eq!(feedback_loop(&program, &mut vec![9, 8, 7, 6, 5]), 139629729);
+    }
+
+    #[test]
+    fn day_7_test_5() {
+        let program = vec![
+            3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
+            -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
+            53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10,
+        ];
+        assert_eq!(max_feedback_loop(&program), 18216);
+    }
 }
