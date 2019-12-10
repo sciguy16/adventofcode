@@ -27,10 +27,42 @@ def test()
   height = 2
   im = load(input, width, height)
   p im  
+  p stack(im, width, height)
+end
+
+def stack(im, width, height)
+  final = Array.new(width) { Array.new(height, 0) }
+  im.reverse.each do |layer|
+    (0...width).each do |x|
+      (0...height).each do |y|
+        case layer[x][y]
+        when 0
+          final[x][y] = 0
+        when 1
+          final[x][y] = 1
+        end
+      end
+    end
+  end
+  final
 end
 
 def count_number(layer, number)
   layer.flatten.filter{|x| x == number}.length
+end
+
+def print_raster(im, width, height)
+  (0...height).each do |y|
+    out = ""
+    (0...width).each do |x|
+      if im[x][y] == 0
+        out += '#'
+      else
+        out += ' '
+      end
+    end
+    puts out
+  end
 end
 
 def main()
@@ -54,6 +86,10 @@ def main()
   layer = layer_with_most
   puts "one: #{count_number(layer, 1)}; two: #{count_number(layer, 2)}"
   puts "prod: #{count_number(layer, 1) * count_number(layer, 2)}"
+
+  resolved = stack(im, width, height)
+  p resolved
+  print_raster(resolved, width, height)
 end
 
 main
