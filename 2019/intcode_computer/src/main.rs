@@ -316,7 +316,15 @@ impl Amplifier {
             },
             6 => {
                 // JUMP-IF-FALSE
-                unimplemented!();
+                let args = self.resolve_args();
+                eprintln!("args is: {:?}", args);
+                if args[0] == 0 {
+                    // Set instruction pointer to the second arg
+                    self.pc = args[1] as usize;
+                } else {
+                    // Skip the args and move on
+                    self.pc += 3;
+                }
             },
             7 => {
                 // LESS THAN
