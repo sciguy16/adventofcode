@@ -197,7 +197,7 @@ fn solve_5b() -> i32 {
 }
 
 fn solve_7a() -> i32 {
-    /*let program = vec![
+    let program = vec![
         3,8,1001,8,10,8,105,1,0,0,21,34,47,72,81,102,183,264,345,
         426,99999,3,9,102,5,9,9,1001,9,3,9,4,9,99,3,9,101,4,9,9,
         1002,9,3,9,4,9,99,3,9,102,3,9,9,101,2,9,9,102,5,9,9,1001,9,
@@ -220,16 +220,10 @@ fn solve_7a() -> i32 {
         3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,
         1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,99
             ];
-    let mut amp_a = Amplifier::new(&program);
-    let mut amp_b = Amplifier::new(&program);
-    let mut amp_c = Amplifier::new(&program);
-    let mut amp_d = Amplifier::new(&program);
-    let mut amp_e = Amplifier::new(&program);
 
-    */
-
-    4
+    max_phase_sequence(&program)
 }
+
 fn solve_7b() -> i32 {
     let program: Vec<i32> = vec![99, 2, 3];
     let mut a = Amplifier::new(&program);
@@ -294,12 +288,12 @@ impl Amplifier {
     }
 
     fn step(&mut self) -> State {
-        eprintln!("pc: {}", self.pc);
-        eprintln!("prog: {:?}", self.program);
-        eprintln!("ins: {}", self.program[self.pc]);
+        //eprintln!("pc: {}", self.pc);
+        //eprintln!("prog: {:?}", self.program);
+        //eprintln!("ins: {}", self.program[self.pc]);
         // Split instruction from parameter modes
         let instruction = self.program[self.pc] % 100;
-        eprintln!("Resolved instruction is {}", instruction);
+        //eprintln!("Resolved instruction is {}", instruction);
         match instruction {
             1 => {
                 // ADD
@@ -321,12 +315,12 @@ impl Amplifier {
                 // INPUT
                 if self.input_buffer.len() < 1 {
                     // No input available, return and wait for more
-                    eprintln!("Empty input buffer: {:?}", self.input_buffer);
+                    //eprintln!("Empty input buffer: {:?}", self.input_buffer);
                     self.state = State::InputWaiting;
                 } else {
                     let write_idx = self.program[self.pc+1] as usize;
-                    eprintln!("write idx is: {}", write_idx);
-                    eprintln!("Input buffer is: {:?}", self.input_buffer);
+                    //eprintln!("write idx is: {}", write_idx);
+                    //eprintln!("Input buffer is: {:?}", self.input_buffer);
                     self.program[write_idx] = self.input_buffer.remove(0);
                     self.pc += 2;
                     self.state = State::Running;
