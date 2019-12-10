@@ -258,12 +258,12 @@ impl Amplifier {
     }
 
     fn step(&mut self) -> State {
-        eprintln!("pc: {}", self.pc);
-        eprintln!("prog: {:?}", self.program);
-        eprintln!("ins: {}", self.program[self.pc]);
+        //eprintln!("pc: {}", self.pc);
+        //eprintln!("prog: {:?}", self.program);
+        //eprintln!("ins: {}", self.program[self.pc]);
         // Split instruction from parameter modes
         let instruction = self.program[self.pc] % 100;
-        eprintln!("Resolved instruction is {}", instruction);
+        //eprintln!("Resolved instruction is {}", instruction);
         match instruction {
             1 => {
                 // ADD
@@ -305,7 +305,7 @@ impl Amplifier {
             5 => {
                 // JUMP-IF-TRUE
                 let args = self.resolve_args();
-                eprintln!("args is: {:?}", args);
+                //eprintln!("args is: {:?}", args);
                 if args[0] != 0 {
                     // Set instruction pointer to the second arg
                     self.pc = args[1] as usize;
@@ -317,7 +317,7 @@ impl Amplifier {
             6 => {
                 // JUMP-IF-FALSE
                 let args = self.resolve_args();
-                eprintln!("args is: {:?}", args);
+                //eprintln!("args is: {:?}", args);
                 if args[0] == 0 {
                     // Set instruction pointer to the second arg
                     self.pc = args[1] as usize;
