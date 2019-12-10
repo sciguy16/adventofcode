@@ -267,6 +267,7 @@ struct Amplifier {
     input_buffer: Vec<i64>,
     output_buffer: Vec<i64>,
     state: State,
+    relative_base: usize,
 }
 
 impl Amplifier {
@@ -277,6 +278,7 @@ impl Amplifier {
             input_buffer: Vec::new(),
             output_buffer: Vec::new(),
             state: State::Running,
+            relative_base: 0,
         }
     }
 
@@ -289,16 +291,33 @@ impl Amplifier {
             3|4 => 1,
             5|6 => 2,
             7|8 => 3,
+            9   => 1,
             _ => unimplemented!(),
         };
 
         for idx in 1..=nparams {
-            if param_modes % 10 == 0 {
-                // Position mode
-                args.push(self.program[self.program[self.pc + idx] as usize]);
-            } else {
-                // Immediate mode
-                args.push(self.program[self.pc + idx]);
+            match param_modes % 10 {
+                0 => {
+                    // Position mode
+                    args.push(self.program[self.program[self.pc + idx] as usize]);
+                },
+                1 => {
+                    // Immediate mode
+                    args.push(self.program[self.pc + idx]);
+                },
+                2 => {
+                    // Relative mode
+                    args.push(
+                        self.program[
+                        self.relative_base + (
+                            self.program[self.pc + idx] % std::usize::MAX as i64
+                        ) as usize
+                        ]
+                    );
+                },
+                _ => {
+                    panic!("Invalid mode");
+                },
             }
             param_modes /= 10;
         }
@@ -398,6 +417,12 @@ impl Amplifier {
                     0
                 };
                 self.pc += 4;
+            },
+            9 => {
+                // Update relative base offset
+                let args = self.resolve_args();
+                self.relative_base += args[0] as usize;
+                self.pc += 2;
             },
             99 => {
                 // TERM
@@ -791,5 +816,23 @@ mod test {
             53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10,
         ];
         assert_eq!(max_feedback_loop(&program), 18216);
+    }
+
+    #[test]
+    fn day_9_test_1() {
+        let program = vec![109,19,99];
+        let mut amp = Amplifier::new(&program);
+        assert_eq!(amp.process(), State::Term);
+        assert_eq!(amp.relative_base, 19);
+    }
+
+    #[test]
+    fn day_9_test_2() {
+        let program = vec![109,19,204,-34,99];
+        let mut amp = Amplifier::new(&program);
+        amp.program.append(&mut vec![0; 2030]);
+        amp.relative_base = 2000;
+        assert_eq!(amp.process(), State::OutputReady);
+        assert_eq!(amp.output_buffer[0], 0);
     }
 }
