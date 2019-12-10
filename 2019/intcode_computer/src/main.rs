@@ -1,6 +1,7 @@
 #[allow(unused)]
 use log::{debug, info, trace};
 use simplelog;
+use permutohedron;
 
 fn main() {
     init_log();
@@ -10,6 +11,7 @@ fn main() {
     println!("Day 5, part 1: {}", solve_5a());
     println!("Day 5, part 2: {}", solve_5b());
 
+    println!("Day 7, part 1: {}", solve_7a());
     println!("Day 7, part 2: {}", solve_7b());
 }
 
@@ -194,6 +196,40 @@ fn solve_5b() -> i32 {
     amp.output_buffer[amp.output_buffer.len() - 1]
 }
 
+fn solve_7a() -> i32 {
+    /*let program = vec![
+        3,8,1001,8,10,8,105,1,0,0,21,34,47,72,81,102,183,264,345,
+        426,99999,3,9,102,5,9,9,1001,9,3,9,4,9,99,3,9,101,4,9,9,
+        1002,9,3,9,4,9,99,3,9,102,3,9,9,101,2,9,9,102,5,9,9,1001,9,
+        3,9,1002,9,4,9,4,9,99,3,9,101,5,9,9,4,9,99,3,9,101,3,9,9,
+        1002,9,5,9,101,4,9,9,102,2,9,9,4,9,99,3,9,1002,9,2,9,4,9,3,
+        9,101,2,9,9,4,9,3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,
+        1002,9,2,9,4,9,3,9,1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,
+        1001,9,1,9,4,9,3,9,1001,9,2,9,4,9,3,9,101,1,9,9,4,9,99,3,9,
+        101,1,9,9,4,9,3,9,1001,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,102,
+        2,9,9,4,9,3,9,1001,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,102,2,9,
+        9,4,9,3,9,1001,9,2,9,4,9,3,9,1001,9,2,9,4,9,3,9,101,2,9,9,4,
+        9,99,3,9,101,1,9,9,4,9,3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,
+        3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,1,9,9,4,9,3,9,
+        1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,102,2,9,9,4,9,3,9,
+        1002,9,2,9,4,9,99,3,9,1001,9,2,9,4,9,3,9,101,1,9,9,4,9,3,9,
+        1001,9,1,9,4,9,3,9,102,2,9,9,4,9,3,9,101,1,9,9,4,9,3,9,1002,
+        9,2,9,4,9,3,9,1001,9,1,9,4,9,3,9,101,2,9,9,4,9,3,9,101,2,9,
+        9,4,9,3,9,102,2,9,9,4,9,99,3,9,102,2,9,9,4,9,3,9,1001,9,2,9,
+        4,9,3,9,102,2,9,9,4,9,3,9,101,2,9,9,4,9,3,9,1001,9,1,9,4,9,
+        3,9,102,2,9,9,4,9,3,9,1002,9,2,9,4,9,3,9,102,2,9,9,4,9,3,9,
+        1002,9,2,9,4,9,3,9,1001,9,1,9,4,9,99
+            ];
+    let mut amp_a = Amplifier::new(&program);
+    let mut amp_b = Amplifier::new(&program);
+    let mut amp_c = Amplifier::new(&program);
+    let mut amp_d = Amplifier::new(&program);
+    let mut amp_e = Amplifier::new(&program);
+
+    */
+
+    4
+}
 fn solve_7b() -> i32 {
     let program: Vec<i32> = vec![99, 2, 3];
     let mut a = Amplifier::new(&program);
@@ -258,12 +294,12 @@ impl Amplifier {
     }
 
     fn step(&mut self) -> State {
-        //eprintln!("pc: {}", self.pc);
-        //eprintln!("prog: {:?}", self.program);
-        //eprintln!("ins: {}", self.program[self.pc]);
+        eprintln!("pc: {}", self.pc);
+        eprintln!("prog: {:?}", self.program);
+        eprintln!("ins: {}", self.program[self.pc]);
         // Split instruction from parameter modes
         let instruction = self.program[self.pc] % 100;
-        //eprintln!("Resolved instruction is {}", instruction);
+        eprintln!("Resolved instruction is {}", instruction);
         match instruction {
             1 => {
                 // ADD
@@ -285,6 +321,7 @@ impl Amplifier {
                 // INPUT
                 if self.input_buffer.len() < 1 {
                     // No input available, return and wait for more
+                    eprintln!("Empty input buffer: {:?}", self.input_buffer);
                     self.state = State::InputWaiting;
                 } else {
                     let write_idx = self.program[self.pc+1] as usize;
@@ -292,6 +329,7 @@ impl Amplifier {
                     eprintln!("Input buffer is: {:?}", self.input_buffer);
                     self.program[write_idx] = self.input_buffer.remove(0);
                     self.pc += 2;
+                    self.state = State::Running;
                 }
             },
             4 => {
@@ -373,6 +411,39 @@ impl Amplifier {
         //eprintln!("The game: {:?}", self.state);
         self.state.clone()
     }
+}
+
+#[allow(unused)]
+fn phase_sequence(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
+    assert_eq!(phases.len(), 5);
+
+    let mut input: i32 = 0;
+    for phase in phases {
+        eprintln!("--- -- - Phase is: {} - -- ---", phase);
+        let mut amp = Amplifier::new(&program);
+        amp.input_buffer.push(*phase);
+        amp.input_buffer.push(input);
+        assert_eq!(amp.process(), State::OutputReady);
+        eprintln!("output buffer is: {:?}", amp.output_buffer);
+        input = amp.output_buffer[0];
+    }
+
+    input
+}
+
+#[allow(unused)]
+fn max_phase_sequence(program: &Vec<i32>) -> i32 {
+    let mut phases = vec![0, 1, 2, 3, 4];
+    let mut heap = permutohedron::Heap::new(&mut phases);
+    let mut biggest = 0;
+    while let Some(perm) = heap.next_permutation() {
+        let try_out = phase_sequence(&program, &perm);
+        if try_out > biggest {
+            biggest = try_out;
+        }
+    }
+
+    biggest
 }
 
 #[cfg(test)]
@@ -599,5 +670,32 @@ mod test {
         }
     }
 
+    #[test]
+    fn day_7_test_1() {
+        let program = vec![
+            3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0
+        ];
+
+        assert_eq!(phase_sequence(&program, &vec![4, 3, 2, 1, 0]), 43210);
+    }
+
+    #[test]
+    fn day_7_test_2() {
+        let program = vec![
+            3,23,3,24,1002,24,10,24,1002,23,-1,23,
+            101,5,23,23,1,24,23,23,4,23,99,0,0,
+        ];
+
+        assert_eq!(max_phase_sequence(&program), 54321);
+    }
+
+    #[test]
+    fn day_7_test_3() {
+        let program = vec![
+            3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,
+            1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0,
+        ];
+        assert_eq!(max_phase_sequence(&program), 65210);
+    }
 
 }
