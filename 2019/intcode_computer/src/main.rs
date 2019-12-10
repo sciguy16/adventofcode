@@ -263,6 +263,7 @@ impl Amplifier {
         eprintln!("ins: {}", self.program[self.pc]);
         // Split instruction from parameter modes
         let instruction = self.program[self.pc] % 100;
+        eprintln!("Resolved instruction is {}", instruction);
         match instruction {
             1 => {
                 // ADD
@@ -303,7 +304,15 @@ impl Amplifier {
             },
             5 => {
                 // JUMP-IF-TRUE
-                unimplemented!();
+                let args = self.resolve_args();
+                eprintln!("args is: {:?}", args);
+                if args[0] != 0 {
+                    // Set instruction pointer to the second arg
+                    self.pc = args[1] as usize;
+                } else {
+                    // Skip the args and move on
+                    self.pc += 3;
+                }
             },
             6 => {
                 // JUMP-IF-FALSE
@@ -508,6 +517,44 @@ mod test {
             // Check that it produces the correct output
             assert_eq!(amp.process(), State::OutputReady);
             let correct = if idx < 8 { 1 } else { 0 };
+            assert_eq!(amp.output_buffer[0], correct);
+
+            // Check that it terminated properly
+            assert_eq!(amp.process(), State::Term);
+        }
+    }
+
+    #[test]
+    fn day_5_test_7() {
+        // Position mode jump
+        let program = vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9];
+        for idx in -2..2 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::InputWaiting);
+            amp.input_buffer.push(idx);
+
+            // Check that it produces the correct output
+            assert_eq!(amp.process(), State::OutputReady);
+            let correct = if idx != 0 { 1 } else { 0 };
+            assert_eq!(amp.output_buffer[0], correct);
+
+            // Check that it terminated properly
+            assert_eq!(amp.process(), State::Term);
+        }
+    }
+
+    #[test]
+    fn day_5_test_8() {
+        // Immediate mode jump
+        let program = vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1];
+        for idx in -2..2 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::InputWaiting);
+            amp.input_buffer.push(idx);
+
+            // Check that it produces the correct output
+            assert_eq!(amp.process(), State::OutputReady);
+            let correct = if idx != 0 { 1 } else { 0 };
             assert_eq!(amp.output_buffer[0], correct);
 
             // Check that it terminated properly
