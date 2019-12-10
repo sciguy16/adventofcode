@@ -311,7 +311,14 @@ impl Amplifier {
             },
             7 => {
                 // LESS THAN
-                unimplemented!();
+                let args = self.resolve_args();
+                let write_idx = self.program[self.pc+3] as usize;
+                self.program[write_idx] = if args[0] < args[1] {
+                    1
+                } else {
+                    0
+                };
+                self.pc += 4;
             },
             8 => {
                 // EQ
@@ -444,6 +451,25 @@ mod test {
             // Check that it produces the correct output
             assert_eq!(amp.process(), State::OutputReady);
             let correct = if idx == 8 { 1 } else { 0 };
+            assert_eq!(amp.output_buffer[0], correct);
+
+            // Check that it terminated properly
+            assert_eq!(amp.process(), State::Term);
+        }
+    }
+
+    #[test]
+    fn day_5_test_4() {
+        // Position mode LT 8
+        let program = vec![3,9,7,9,10,9,4,9,99,-1,8];
+        for idx in 5..10 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::InputWaiting);
+            amp.input_buffer.push(idx);
+
+            // Check that it produces the correct output
+            assert_eq!(amp.process(), State::OutputReady);
+            let correct = if idx < 8 { 1 } else { 0 };
             assert_eq!(amp.output_buffer[0], correct);
 
             // Check that it terminated properly
