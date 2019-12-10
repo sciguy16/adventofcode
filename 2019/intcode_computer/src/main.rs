@@ -21,7 +21,7 @@ fn init_log() {
     TermLogger::new(level, Config::default(), TerminalMode::Stderr).unwrap();
 }
 
-fn solve_2a() -> i32 {
+fn solve_2a() -> i64 {
     let mut program = vec![
         1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,1,10,19,2,6,19,23,1,23,5,27,1,27,13,
         31,2,6,31,35,1,5,35,39,1,39,10,43,2,6,43,47,1,47,5,51,1,51,9,55,2,55,6,
@@ -42,7 +42,7 @@ fn solve_2a() -> i32 {
     amp.program[0]
 }
 
-fn solve_2b() -> i32 {
+fn solve_2b() -> i64 {
     let program = vec![
         1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,1,10,19,2,6,19,23,1,23,5,27,1,27,13,
         31,2,6,31,35,1,5,35,39,1,39,10,43,2,6,43,47,1,47,5,51,1,51,9,55,2,55,6,
@@ -71,7 +71,7 @@ fn solve_2b() -> i32 {
     panic!("Unable to solve the puzzle :(");
 }
 
-fn solve_5a() -> i32 {
+fn solve_5a() -> i64 {
     let program = vec![
         3,225,1,225,6,6,1100,1,238,225,104,0,101,67,166,224,1001,
         224,-110,224,4,224,102,8,223,223,1001,224,4,224,1,224,223,
@@ -133,7 +133,7 @@ fn solve_5a() -> i32 {
     amp.output_buffer[amp.output_buffer.len() - 1]
 }
 
-fn solve_5b() -> i32 {
+fn solve_5b() -> i64 {
     let program = vec![
         3,225,1,225,6,6,1100,1,238,225,104,0,101,67,166,224,1001,
         224,-110,224,4,224,102,8,223,223,1001,224,4,224,1,224,223,
@@ -196,7 +196,7 @@ fn solve_5b() -> i32 {
     amp.output_buffer[amp.output_buffer.len() - 1]
 }
 
-fn solve_7a() -> i32 {
+fn solve_7a() -> i64 {
     let program = vec![
         3,8,1001,8,10,8,105,1,0,0,21,34,47,72,81,102,183,264,345,
         426,99999,3,9,102,5,9,9,1001,9,3,9,4,9,99,3,9,101,4,9,9,
@@ -224,7 +224,7 @@ fn solve_7a() -> i32 {
     max_phase_sequence(&program)
 }
 
-fn solve_7b() -> i32 {
+fn solve_7b() -> i64 {
     let program = vec![
         3,8,1001,8,10,8,105,1,0,0,21,34,47,72,81,102,183,264,345,
         426,99999,3,9,102,5,9,9,1001,9,3,9,4,9,99,3,9,101,4,9,9,
@@ -262,15 +262,15 @@ enum State {
 }
 
 struct Amplifier {
-    program: Vec<i32>,
+    program: Vec<i64>,
     pc: usize,
-    input_buffer: Vec<i32>,
-    output_buffer: Vec<i32>,
+    input_buffer: Vec<i64>,
+    output_buffer: Vec<i64>,
     state: State,
 }
 
 impl Amplifier {
-    fn new(program: &Vec<i32>) -> Self {
+    fn new(program: &Vec<i64>) -> Self {
         Self {
             program: program.clone(),
             pc: 0,
@@ -280,7 +280,7 @@ impl Amplifier {
         }
     }
 
-    fn resolve_args(&mut self) -> Vec<i32> {
+    fn resolve_args(&mut self) -> Vec<i64> {
         let mut args = Vec::new();
         // mode stuff
         let mut param_modes = self.program[self.pc] / 100;
@@ -426,10 +426,10 @@ impl Amplifier {
     }
 }
 
-fn phase_sequence(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
+fn phase_sequence(program: &Vec<i64>, phases: &Vec<i64>) -> i64 {
     assert_eq!(phases.len(), 5);
 
-    let mut input: i32 = 0;
+    let mut input: i64 = 0;
     for phase in phases {
         //eprintln!("--- -- - Phase is: {} - -- ---", phase);
         let mut amp = Amplifier::new(&program);
@@ -443,7 +443,7 @@ fn phase_sequence(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
     input
 }
 
-fn max_phase_sequence(program: &Vec<i32>) -> i32 {
+fn max_phase_sequence(program: &Vec<i64>) -> i64 {
     let mut phases = vec![0, 1, 2, 3, 4];
     let mut heap = permutohedron::Heap::new(&mut phases);
     let mut biggest = 0;
@@ -457,7 +457,7 @@ fn max_phase_sequence(program: &Vec<i32>) -> i32 {
     biggest
 }
 
-fn feedback_loop(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
+fn feedback_loop(program: &Vec<i64>, phases: &Vec<i64>) -> i64 {
     assert_eq!(phases.len(), 5);
     let mut amps: Vec<Amplifier> = Vec::with_capacity(5);
     for phase in phases {
@@ -508,7 +508,7 @@ fn feedback_loop(program: &Vec<i32>, phases: &Vec<i32>) -> i32 {
     amps[0].input_buffer[0]
 }
 
-fn max_feedback_loop(program: &Vec<i32>) -> i32 {
+fn max_feedback_loop(program: &Vec<i64>) -> i64 {
     let mut phases = vec![5, 6, 7, 8, 9];
     let mut heap = permutohedron::Heap::new(&mut phases);
     let mut biggest = 0;
