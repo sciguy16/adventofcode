@@ -570,4 +570,34 @@ mod test {
         }
     }
 
+    #[test]
+    fn day_5_test_9() {
+        // "Larger example"
+        let program = vec![
+            3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,
+            0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,
+            20,4,20,1105,1,46,98,99
+        ];
+        for idx in 5..10 {
+            let mut amp = Amplifier::new(&program);
+            assert_eq!(amp.process(), State::InputWaiting);
+            amp.input_buffer.push(idx);
+
+            // Check that it produces the correct output
+            assert_eq!(amp.process(), State::OutputReady);
+            let correct = if idx == 8 {
+                1000
+            } else if idx < 8 {
+                999
+            } else {
+                1001
+            };
+            assert_eq!(amp.output_buffer[0], correct);
+
+            // Check that it terminated properly
+            assert_eq!(amp.process(), State::Term);
+        }
+    }
+
+
 }
