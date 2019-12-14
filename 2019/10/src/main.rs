@@ -1,11 +1,12 @@
 use std::fmt;
+use std::ops;
 use ndarray::{
     ArrayBase,
     Array2,
 };
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-struct Point(i32, i32);
+struct Point(usize, usize);
 
 #[derive(Debug)]
 struct Map {
@@ -49,6 +50,16 @@ impl fmt::Display for Map {
     }
 }
 
+impl ops::Index<Point> for Map {
+    type Output = bool;
+
+    fn index(&self, point: Point) -> &Self::Output {
+        // Convenience impl that allows points to be referenced directly
+        // from Map by Points.
+        &self.asteroids[[point.0, point.1]]
+    }
+}
+
 fn row_from(source: &str) -> Vec<bool> {
     let mut row: Vec<bool> = Vec::with_capacity(source.len());
     for point in source.trim().chars() {
@@ -70,6 +81,13 @@ fn main() {
 }
 
 fn can_be_seen(origin: Point, target: Point, map: &Map) -> bool {
+    // The target has to be an asteroid
+    if !map[target] {
+        return false;
+    }
+
+    // Find integral points on the line segment joining 'orign' to
+    // 'point' and check whether there's an asteroid there
     false
 }
 
@@ -95,6 +113,11 @@ mod test {
 
         println!("Map: {:?}", map);
         println!("Formatted properly:\n{}", map);
+
+        let origin = Point(0, 0);
+        let point = Point(3, 3);
+        assert!(can_be_seen(origin, point, &map));
+        assert!(!can_be_seen(origin, Point(4, 4), &map));
 
         panic!();
     }
