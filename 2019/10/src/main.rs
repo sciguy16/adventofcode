@@ -1,13 +1,11 @@
+use std::fmt;
 use ndarray::{
     ArrayBase,
     Array2,
 };
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+struct Point(i32, i32);
 
 #[derive(Debug)]
 struct Map {
@@ -36,6 +34,21 @@ impl Map {
     }
 }
 
+impl fmt::Display for Map {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for row in self.asteroids.outer_iter() {
+            write!(f, "{}\n", row
+                   //.map(|x| { String::from(x) })
+                   .fold(String::new(), |acc, x| format!("{}{}", acc, match x {
+                       true => '#',
+                       false => '.',
+                   }))
+                  )?;
+        }
+        Ok(())
+    }
+}
+
 fn row_from(source: &str) -> Vec<bool> {
     let mut row: Vec<bool> = Vec::with_capacity(source.len());
     for point in source.trim().chars() {
@@ -52,10 +65,7 @@ fn row_from(source: &str) -> Vec<bool> {
 
 fn main() {
     let map = Map::new("input.txt", 5, 5); // TODO fix this
-    let z = Point {
-        x: 0,
-        y: 0,
-    };
+    let z = Point(0, 0);
     println!("Can be seen: {:?}", can_be_seen(z, z, &map));
 }
 
@@ -84,6 +94,7 @@ mod test {
             );
 
         println!("Map: {:?}", map);
+        println!("Formatted properly:\n{}", map);
 
         panic!();
     }
