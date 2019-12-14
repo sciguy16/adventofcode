@@ -41,6 +41,7 @@ def stack(im, width, height)
         when 1
           final[x][y] = 1
         end
+        print_intermediate_raster(final, width, height)
       end
     end
   end
@@ -60,6 +61,17 @@ def print_raster(im, width, height)
       else
         out += ' '
       end
+    end
+    puts out
+  end
+end
+
+def print_intermediate_raster(im, width, height)
+  puts ""
+  (0...height).each do |y|
+    out = ""
+    (0...width).each do |x|
+      out += im[x][y].to_s
     end
     puts out
   end
