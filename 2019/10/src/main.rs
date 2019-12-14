@@ -1,3 +1,5 @@
+use std::cmp::{min, max};
+use std::convert;
 use std::fmt;
 use std::ops;
 use ndarray::{
@@ -7,6 +9,12 @@ use ndarray::{
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 struct Point(usize, usize);
+
+impl convert::From::<(usize, usize)> for Point {
+    fn from((x, y): (usize, usize)) -> Self {
+        Self(x, y)
+    }
+}
 
 #[derive(Debug)]
 struct Map {
@@ -80,15 +88,56 @@ fn main() {
     println!("Can be seen: {:?}", can_be_seen(z, z, &map));
 }
 
+fn count_visible(origin: Point, map: &Map) -> usize {
+    map.asteroids.indexed_iter().fold(0, |acc, x| {
+        acc + match can_be_seen(origin, (x.0).into(), &map) {
+            true => 1,
+            false => 0,
+        }
+    })
+}
+
 fn can_be_seen(origin: Point, target: Point, map: &Map) -> bool {
     // The target has to be an asteroid
     if !map[target] {
         return false;
     }
 
+    // Self doesn't count
+    if origin == target {
+        return false;
+    }
+
     // Find integral points on the line segment joining 'orign' to
     // 'point' and check whether there's an asteroid there
-    false
+
+    // y - y1 = m(x - x1) for any point (x1, y1) on the line.
+    // => y = m(x - x1) + y1
+    // Can find the integral points by iterating from min(x1, x2) to
+    // max(x1, x2) and checking whether the corresponding y is integral
+    // and then whether there is an asteroid
+    let x1 = origin.0 as f32;
+    let y1 = origin.1 as f32;
+    let x2 = target.0 as f32;
+    let y2 = target.1 as f32;
+    let m: f32 = (y1 - y2) / (x1 - x2);
+    let line = |x: usize| -> f32 {
+        m*((x - origin.0) as f32) + origin.1 as f32
+    };
+    for x in (min(origin.0, target.0) + 1)..max(origin.0, target.0) {
+        println!("x: {}, y: {}", x, line(x));
+        let y = line(x);
+        if y.fract() == 0f32 {
+            // y has zero fractional part so it's basically an integer
+            let y = y as usize;
+            if map[Point(x, y)] {
+                // There's an asteroid blocking the view
+                println!("View is blocked");
+                return false;
+            }
+        }
+    }
+    true
 }
 
 #[cfg(test)]
@@ -115,9 +164,13 @@ mod test {
         println!("Formatted properly:\n{}", map);
 
         let origin = Point(0, 0);
-        let point = Point(3, 3);
-        assert!(can_be_seen(origin, point, &map));
+        assert!(can_be_seen(origin, Point(2, 2), &map));
         assert!(!can_be_seen(origin, Point(4, 4), &map));
+
+        println!("Calculating count");
+
+        let count = count_visible(Point(0, 1), &map);
+        assert_eq!(count, 7);
 
         panic!();
     }
