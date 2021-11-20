@@ -1,0 +1,4 @@
+day14
+*.hi
+*.o
+target/
