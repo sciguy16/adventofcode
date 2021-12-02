@@ -186,32 +186,31 @@ fn part_two(relations_slice: &[Relation]) -> usize {
     count
 }
 
-fn get_bag_types(relations: &[Relation]) -> HashSet<String> {
-    // Build a Vec of all the children and parents for relations
-    // and then dedup them
-    let mut bag_types: HashSet<String> = relations
-        .iter()
-        .map(|r| r.children.keys())
-        .flatten()
-        .cloned()
-        .collect();
-    println!("\n------\nchildren: {:?}", bag_types);
-
-    for rel in relations {
-        bag_types.insert(rel.parent.clone());
-    }
-
-    //types_vec.sort();
-    //types_vec.dedup();
-
-    println!("\n-----\nbag types: {:?}", bag_types);
-
-    bag_types
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
+    fn get_bag_types(relations: &[Relation]) -> HashSet<String> {
+        // Build a Vec of all the children and parents for relations
+        // and then dedup them
+        let mut bag_types: HashSet<String> = relations
+            .iter()
+            .map(|r| r.children.keys())
+            .flatten()
+            .cloned()
+            .collect();
+        println!("\n------\nchildren: {:?}", bag_types);
+
+        for rel in relations {
+            bag_types.insert(rel.parent.clone());
+        }
+
+        //types_vec.sort();
+        //types_vec.dedup();
+
+        println!("\n-----\nbag types: {:?}", bag_types);
+
+        bag_types
+    }
 
     fn test_data() -> Vec<Relation> {
         let data = [

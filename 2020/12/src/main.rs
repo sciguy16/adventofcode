@@ -1,5 +1,3 @@
-#![feature(array_map)]
-
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};

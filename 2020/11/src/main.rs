@@ -1,5 +1,3 @@
-#![feature(array_map)]
-
 use ndarray::{Array2, Axis};
 use std::error::Error;
 use std::fmt::Display;

@@ -1,5 +1,3 @@
-#![feature(iterator_fold_self)]
-
 use std::collections::HashSet;
 use std::error::Error;
 use std::fs::File;
@@ -17,7 +15,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let forms = parse_forms(&data).unwrap();
     let res = count_them(&forms);
     println!("Sum of answers is: {}", res);
-
 
     let forms = parse_forms_2(&data).unwrap();
     let res = count_them(&forms);
@@ -70,9 +67,7 @@ fn parse_forms_2(inp: &[String]) -> Result<Vec<Form>, &'static str> {
             form = groups
                 .iter()
                 .cloned()
-                .fold_first(|x, y| {
-                    x.intersection(&y).cloned().collect::<Form>()
-                })
+                .reduce(|x, y| x.intersection(&y).cloned().collect::<Form>())
                 .or_else(|| Some(Form::new()))
                 .to_owned()
                 .unwrap();
