@@ -1,5 +1,5 @@
 [package]
-name = "treejectory"
+name = "day03_treejectory"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"

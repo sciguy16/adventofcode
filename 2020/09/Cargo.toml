@@ -1,5 +1,5 @@
 [package]
-name = "encoding"
+name = "day09_encoding"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"

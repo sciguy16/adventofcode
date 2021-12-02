@@ -3,10 +3,6 @@
 version = 3
 
 [[package]]
-name = "adapter"
-version = "0.1.0"
-
-[[package]]
 name = "aho-corasick"
 version = "0.7.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -22,15 +18,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
-name = "boarding"
-version = "0.1.0"
-
-[[package]]
-name = "customs"
-version = "0.1.0"
-
-[[package]]
 name = "day01"
+version = "0.1.0"
+
+[[package]]
+name = "day01_report_repair"
 version = "0.1.0"
 
 [[package]]
@@ -38,20 +30,67 @@ name = "day02"
 version = "0.1.0"
 
 [[package]]
-name = "encoding"
-version = "0.1.0"
-
-[[package]]
-name = "halting"
-version = "0.1.0"
-
-[[package]]
-name = "haversacks"
+name = "day02_password"
 version = "0.1.0"
 dependencies = [
  "lazy_static",
  "regex",
 ]
+
+[[package]]
+name = "day03_treejectory"
+version = "0.1.0"
+
+[[package]]
+name = "day04_passports"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
+name = "day05_boarding"
+version = "0.1.0"
+
+[[package]]
+name = "day06_customs"
+version = "0.1.0"
+
+[[package]]
+name = "day07_haversacks"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
+name = "day08_halting"
+version = "0.1.0"
+
+[[package]]
+name = "day09_encoding"
+version = "0.1.0"
+
+[[package]]
+name = "day10_adapter"
+version = "0.1.0"
+
+[[package]]
+name = "day11_seating"
+version = "0.1.0"
+dependencies = [
+ "ndarray",
+]
+
+[[package]]
+name = "day12_rain"
+version = "0.1.0"
+
+[[package]]
+name = "day13_shuttle"
+version = "0.1.0"
 
 [[package]]
 name = "lazy_static"
@@ -116,26 +155,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "passports"
-version = "0.1.0"
-dependencies = [
- "lazy_static",
- "regex",
-]
-
-[[package]]
-name = "password"
-version = "0.1.0"
-dependencies = [
- "lazy_static",
- "regex",
-]
-
-[[package]]
-name = "rain"
-version = "0.1.0"
-
-[[package]]
 name = "rawpointer"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -157,22 +176,3 @@ name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
-
-[[package]]
-name = "report_repair"
-version = "0.1.0"
-
-[[package]]
-name = "seating"
-version = "0.1.0"
-dependencies = [
- "ndarray",
-]
-
-[[package]]
-name = "shuttle"
-version = "0.1.0"
-
-[[package]]
-name = "treejectory"
-version = "0.1.0"
