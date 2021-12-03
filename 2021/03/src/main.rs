@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
@@ -152,6 +153,69 @@ fn part_one_transposed(report: &ReportTransposed) -> usize {
     gamma * epsilon
 }
 
+fn part_two(report: &[u16], mask_len: usize) -> usize {
+    let mut oxygen_numbers = report.to_vec();
+    let mut co2_numbers = report.to_vec();
+
+    let mut mask: u16 = 1 << (mask_len - 1);
+    loop {
+        println!("Mask: {:016b}", mask);
+        println!("o2: {:?}", oxygen_numbers);
+        println!("co: {:?}", co2_numbers);
+        // Find most common bit in mask'th column in each vec
+        let oxygen_set_bits =
+            oxygen_numbers.iter().filter(|ele| *ele & mask != 0).count();
+        let oxygen_bit: bool = match oxygen_set_bits
+            .cmp(&(oxygen_numbers.len() - oxygen_set_bits))
+        {
+            Ordering::Less => false,
+            Ordering::Equal => true,
+            Ordering::Greater => true,
+        };
+
+        let co2_set_bits =
+            co2_numbers.iter().filter(|ele| *ele & mask != 0).count();
+        let co2_bit: bool =
+            match co2_set_bits.cmp(&(co2_numbers.len() - co2_set_bits)) {
+                Ordering::Less => true,
+                Ordering::Equal => false,
+                Ordering::Greater => false,
+            };
+
+        // Keep only the numbers with the discovered bit in the mask'th position
+        if oxygen_numbers.len() > 1 {
+            oxygen_numbers.retain(|ele| (*ele & mask != 0) ^ !oxygen_bit);
+        }
+        oxygen_numbers
+            .iter()
+            .for_each(|ele| println!("o2 retain: {:05b}", ele));
+        if co2_numbers.len() > 1 {
+            co2_numbers.retain(|ele| (*ele & mask != 0) ^ !co2_bit);
+        }
+        co2_numbers
+            .iter()
+            .for_each(|ele| println!("co retain: {:05b}", ele));
+
+        if oxygen_numbers.len() == 1 {
+            println!("Down to one oxygen: {}", oxygen_numbers[0]);
+        }
+        if co2_numbers.len() == 1 {
+            println!("Down to one co2: {}", co2_numbers[0]);
+        }
+
+        mask >>= 1;
+        if mask == 0 {
+            break;
+        }
+    }
+    assert_eq!(oxygen_numbers.len(), 1);
+    assert_eq!(co2_numbers.len(), 1);
+    let ox = oxygen_numbers[0];
+    let co = co2_numbers[0];
+    println!("ox: {}, co: {}", ox, co);
+    ox as usize * co as usize
+}
+
 fn main() {
     println!("Hello, world!");
     let input = include_str!("../input.txt");
@@ -168,7 +232,12 @@ fn main() {
     let ans = part_one_transposed(&report);
     println!("Part one transposed: {}", ans);
 
-    //let ans = part_two(&report);
+    let report = input
+        .lines()
+        .map(|line| u16::from_str_radix(line, 2).unwrap())
+        .collect::<Vec<_>>();
+
+    let ans = part_two(&report, 12);
     println!("Part two: {}", ans);
 }
 
@@ -208,5 +277,18 @@ mod test {
         println!("Report: \n{}", report);
         let ans = part_one_transposed(&report);
         assert_eq!(ans, 198);
+    }
+
+    #[test]
+    fn test_part_two() {
+        let report = TEST_DATA
+            .lines()
+            .map(|line| u16::from_str_radix(line, 2).unwrap())
+            .collect::<Vec<_>>();
+
+        println!("{:?}", report);
+
+        let ans = part_two(&report, 5);
+        assert_eq!(ans, 230);
     }
 }
