@@ -118,23 +118,25 @@ impl Display for ReportTransposed {
 }
 
 fn part_one_transposed(report: &ReportTransposed) -> usize {
-    let accumulator = vec![0_isize; report.cols.len()];
     let gamma = report
         .cols
         .iter()
-        .fold(accumulator, |acc, col| {
-            let acc = acc
-                .iter()
-                .zip(col.iter())
-                .map(|(acc, col)| if *col { acc + 1 } else { acc - 1 })
-                .collect();
-            println!("acc: {:?}", acc);
-            acc
+        .map(|col| {
+            col.iter()
+                .fold(0isize, |acc, bit| if *bit { acc + 1 } else { acc - 1 })
         })
-        .iter()
-        .inspect(|ele| println!("element: {}", ele))
-        .map(|ele| *ele > 0)
-        .fold(0usize, |acc, bit| (acc << 1) + (bit as usize));
+        .collect::<Vec<isize>>();
+
+    let gamma: usize = {
+        let mut num: usize = 0;
+        for bit in gamma {
+            num <<= 1;
+            if bit > 0 {
+                num |= 1;
+            }
+        }
+        num
+    };
 
     let mask: usize = {
         let mut mask = 0;
