@@ -159,9 +159,6 @@ fn part_two(report: &[u16], mask_len: usize) -> usize {
 
     let mut mask: u16 = 1 << (mask_len - 1);
     loop {
-        println!("Mask: {:016b}", mask);
-        println!("o2: {:?}", oxygen_numbers);
-        println!("co: {:?}", co2_numbers);
         // Find most common bit in mask'th column in each vec
         let oxygen_set_bits =
             oxygen_numbers.iter().filter(|ele| *ele & mask != 0).count();
@@ -186,21 +183,8 @@ fn part_two(report: &[u16], mask_len: usize) -> usize {
         if oxygen_numbers.len() > 1 {
             oxygen_numbers.retain(|ele| (*ele & mask != 0) ^ !oxygen_bit);
         }
-        oxygen_numbers
-            .iter()
-            .for_each(|ele| println!("o2 retain: {:05b}", ele));
         if co2_numbers.len() > 1 {
             co2_numbers.retain(|ele| (*ele & mask != 0) ^ !co2_bit);
-        }
-        co2_numbers
-            .iter()
-            .for_each(|ele| println!("co retain: {:05b}", ele));
-
-        if oxygen_numbers.len() == 1 {
-            println!("Down to one oxygen: {}", oxygen_numbers[0]);
-        }
-        if co2_numbers.len() == 1 {
-            println!("Down to one co2: {}", co2_numbers[0]);
         }
 
         mask >>= 1;
@@ -208,11 +192,10 @@ fn part_two(report: &[u16], mask_len: usize) -> usize {
             break;
         }
     }
-    assert_eq!(oxygen_numbers.len(), 1);
-    assert_eq!(co2_numbers.len(), 1);
+
     let ox = oxygen_numbers[0];
     let co = co2_numbers[0];
-    println!("ox: {}, co: {}", ox, co);
+
     ox as usize * co as usize
 }
 
