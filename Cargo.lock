@@ -38,6 +38,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "day03"
+version = "0.1.0"
+
+[[package]]
 name = "day03_treejectory"
 version = "0.1.0"
 

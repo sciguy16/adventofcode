@@ -1,3 +1,4 @@
+use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -57,6 +58,98 @@ fn part_one<const N: usize>(report: &[ReportEntry<N>]) -> usize {
     gamma * epsilon
 }
 
+struct Row(Vec<bool>);
+
+impl FromStr for Row {
+    type Err = Box<dyn std::error::Error>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let inner = s
+            .chars()
+            .map_while(|chr| match chr {
+                '0' => Some(false),
+                '1' => Some(true),
+                _ => None,
+            })
+            .collect::<Vec<bool>>();
+        Ok(Row(inner))
+    }
+}
+
+#[derive(Debug)]
+struct ReportTransposed {
+    cols: Vec<Vec<bool>>,
+}
+
+impl FromStr for ReportTransposed {
+    type Err = Box<dyn std::error::Error>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut cols = Vec::new();
+        let mut first = true;
+        for lines in s.lines() {
+            let row: Row = lines.parse()?;
+            if first {
+                // fill the cols with enough empty Vecs
+                for _ in &row.0 {
+                    cols.push(Vec::new());
+                }
+                first = false;
+            }
+            for (col, entry) in cols.iter_mut().zip(row.0.iter()) {
+                col.push(*entry)
+            }
+        }
+
+        Ok(Self { cols })
+    }
+}
+
+impl Display for ReportTransposed {
+    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+        for col in &self.cols {
+            for row in col {
+                write!(fmt, "{}", *row as usize)?;
+            }
+            writeln!(fmt)?;
+        }
+        Ok(())
+    }
+}
+
+fn part_one_transposed(report: &ReportTransposed) -> usize {
+    let accumulator = vec![0_isize; report.cols.len()];
+    let gamma = report
+        .cols
+        .iter()
+        .fold(accumulator, |acc, col| {
+            let acc = acc
+                .iter()
+                .zip(col.iter())
+                .map(|(acc, col)| if *col { acc + 1 } else { acc - 1 })
+                .collect();
+            println!("acc: {:?}", acc);
+            acc
+        })
+        .iter()
+        .inspect(|ele| println!("element: {}", ele))
+        .map(|ele| *ele > 0)
+        .fold(0usize, |acc, bit| (acc << 1) + (bit as usize));
+
+    let mask: usize = {
+        let mut mask = 0;
+        for _ in &report.cols {
+            mask <<= 1;
+            mask |= 1;
+        }
+        mask
+    };
+
+    let epsilon = !gamma & mask;
+
+    gamma * epsilon
+}
+
 fn main() {
     println!("Hello, world!");
     let input = include_str!("../input.txt");
@@ -68,6 +161,10 @@ fn main() {
 
     let ans = part_one(&report);
     println!("Part one: {}", ans);
+
+    let report: ReportTransposed = input.parse().unwrap();
+    let ans = part_one_transposed(&report);
+    println!("Part one transposed: {}", ans);
 
     //let ans = part_two(&report);
     println!("Part two: {}", ans);
@@ -100,6 +197,14 @@ mod test {
         println!("{:?}", report);
 
         let ans = part_one(&report);
+        assert_eq!(ans, 198);
+    }
+
+    #[test]
+    fn test_part_one_transposed() {
+        let report: ReportTransposed = TEST_DATA.parse().unwrap();
+        println!("Report: \n{}", report);
+        let ans = part_one_transposed(&report);
         assert_eq!(ans, 198);
     }
 }
