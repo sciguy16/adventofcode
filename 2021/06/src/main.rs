@@ -68,6 +68,8 @@ fn main() {
 
     let ans = part_one(&fish, 80);
     println!("part one: {}", ans);
+    let ans = part_one(&fish, 256);
+    println!("part two: {}", ans);
 }
 
 #[cfg(test)]
@@ -105,5 +107,12 @@ mod test {
         assert_eq!(ans, 26);
         let ans = part_one(&lanternfish, 80);
         assert_eq!(ans, 5934);
+    }
+
+    #[test]
+    fn test_part_two() {
+        let lanternfish = parse_lanternfish(TEST_DATA).unwrap();
+        let ans = part_one(&lanternfish, 256);
+        assert_eq!(ans, 26984457539);
     }
 }
