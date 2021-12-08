@@ -75,6 +75,13 @@ name = "day05_boarding"
 version = "0.1.0"
 
 [[package]]
+name = "day06"
+version = "0.1.0"
+dependencies = [
+ "eyre",
+]
+
+[[package]]
 name = "day06_customs"
 version = "0.1.0"
 
