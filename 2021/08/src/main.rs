@@ -65,15 +65,100 @@ fn part_two(combinations: &Combinations) -> usize {
     let mut total = 0;
 
     for combination in &combinations.0 {
+        let combination = {
+            let samples = combination.samples.clone().map(|s| {
+                let mut chars = s.chars().collect::<Vec<_>>();
+                chars.sort_unstable();
+                chars.iter().collect::<String>()
+            });
+            let digits = combination.digits.clone().map(|s| {
+                let mut chars = s.chars().collect::<Vec<_>>();
+                chars.sort_unstable();
+                chars.iter().collect::<String>()
+            });
+
+            Combination { samples, digits }
+        };
         // do stuff
-        let digits = &combination.digits;
+        let digits = &combination.samples;
         let one = digits.iter().find(|d| d.len() == 2).unwrap();
         let four = digits.iter().find(|d| d.len() == 4).unwrap();
         let seven = digits.iter().find(|d| d.len() == 3).unwrap();
         let eight = digits.iter().find(|d| d.len() == 7).unwrap();
 
         // a is in 7 but not 1
-        let a = seven.chars().find(|c| !one.contains(*c)).unwrap();
+        let _a = seven.chars().find(|c| !one.contains(*c)).unwrap();
+
+        // length 5: 2, 3, 5
+        let length_5 = combination
+            .samples
+            .iter()
+            .filter(|d| d.len() == 5)
+            .collect::<Vec<_>>();
+
+        // length 6: 0, 6, 9
+        let length_6 = combination
+            .samples
+            .iter()
+            .filter(|d| d.len() == 6)
+            .collect::<Vec<_>>();
+
+        // of the length 5 numbers, only 3 contains all segments used in 7
+        let three = *length_5
+            .iter()
+            .find(|d| seven.chars().all(|seg| d.contains(seg)))
+            .unwrap();
+
+        // of the length 6 numbers, only 6 is missing a segment from 1
+        let six = *length_6
+            .iter()
+            .find(|d| !one.chars().all(|seg| d.contains(seg)))
+            .unwrap();
+
+        // of the length 5 numbers, only 5 is fully contained in 6
+        let five = *length_5
+            .iter()
+            .find(|d| d.chars().all(|seg| six.contains(seg)))
+            .unwrap();
+
+        // only one length 5 number remains: 2
+        let two = *length_5
+            .iter()
+            .find(|d| ![three, five].contains(d))
+            .unwrap();
+
+        // of the length 6 numbers, 4 embeds into 9 but not 0 or 6
+        let nine = *length_6
+            .iter()
+            .find(|d| four.chars().all(|seg| d.contains(seg)))
+            .unwrap();
+
+        // only one length 6 number remains: 9
+        let zero = *length_6.iter().find(|d| ![nine, six].contains(d)).unwrap();
+
+        // now that we have all of the numbers, it only remmains to substitute
+        // them for the display digits
+        let value = |d: &str| match d {
+            x if x == zero => 0usize,
+            x if x == one => 1,
+            x if x == two => 2,
+            x if x == three => 3,
+            x if x == four => 4,
+            x if x == five => 5,
+            x if x == six => 6,
+            x if x == seven => 7,
+            x if x == eight => 8,
+            x if x == nine => 9,
+            x => panic!("{} not found", x),
+        };
+
+        let thousands = value(&combination.digits[0]);
+        let hundreds = value(&combination.digits[1]);
+        let tens = value(&combination.digits[2]);
+        let ones = value(&combination.digits[3]);
+        let number = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
+        println!("number: {}", number);
+        total += number;
     }
 
     total
