@@ -133,10 +133,10 @@ fn part_two(combinations: &Combinations) -> usize {
             .find(|d| four.chars().all(|seg| d.contains(seg)))
             .unwrap();
 
-        // only one length 6 number remains: 9
+        // only one length 6 number remains: 0
         let zero = *length_6.iter().find(|d| ![nine, six].contains(d)).unwrap();
 
-        // now that we have all of the numbers, it only remmains to substitute
+        // now that we have all of the numbers, it only remains to substitute
         // them for the display digits
         let value = |d: &str| match d {
             x if x == zero => 0usize,
