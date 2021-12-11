@@ -141,6 +141,14 @@ name = "day10_adapter"
 version = "0.1.0"
 
 [[package]]
+name = "day11"
+version = "0.1.0"
+dependencies = [
+ "nalgebra",
+ "owo-colors",
+]
+
+[[package]]
 name = "day11_seating"
 version = "0.1.0"
 dependencies = [
