@@ -175,6 +175,14 @@ name = "day12_rain"
 version = "0.1.0"
 
 [[package]]
+name = "day13"
+version = "0.1.0"
+dependencies = [
+ "itertools",
+ "nalgebra",
+]
+
+[[package]]
 name = "day13_shuttle"
 version = "0.1.0"
 
