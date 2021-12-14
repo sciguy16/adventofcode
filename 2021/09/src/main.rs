@@ -72,6 +72,7 @@ impl<const R: usize, const C: usize> HeightMap<R, C> {
                 }
             }
         }
+        println!("Found {} minima!", min.len().blue().bold());
         min
     }
 
