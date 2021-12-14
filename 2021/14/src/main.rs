@@ -4,9 +4,9 @@ use std::str::FromStr;
 
 #[derive(Copy, Clone)]
 struct InsertionRule {
-    left: char,
-    right: char,
-    output: char,
+    left: u8,
+    right: u8,
+    output: u8,
 }
 
 impl Display for InsertionRule {
@@ -20,7 +20,7 @@ impl FromStr for InsertionRule {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // CH -> B
-        let chars = s.chars().collect::<Vec<_>>();
+        let chars = s.chars().map(|c| c as u8).collect::<Vec<_>>();
 
         Ok(Self {
             left: chars[0],
@@ -31,21 +31,21 @@ impl FromStr for InsertionRule {
 }
 
 impl InsertionRule {
-    pub fn matches(&self, left: char, right: char) -> bool {
+    pub fn matches(&self, left: u8, right: u8) -> bool {
         self.left == left && self.right == right
     }
 }
 
 #[derive(Clone)]
 struct Polymer {
-    inner: Vec<char>,
+    inner: Vec<u8>,
     rules: Vec<InsertionRule>,
 }
 
 impl Display for Polymer {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         for c in &self.inner {
-            write!(fmt, "{}", c)?;
+            write!(fmt, "{}", *c as char)?;
         }
         writeln!(fmt)
     }
@@ -59,7 +59,7 @@ impl FromStr for Polymer {
         // then blank
         // then subsequent lines are insertion rules
         let mut lines = s.lines();
-        let inner = lines.next().unwrap().chars().collect();
+        let inner = lines.next().unwrap().chars().map(|c| c as u8).collect();
         lines.next();
 
         let mut rules = Vec::new();
@@ -84,7 +84,7 @@ impl Polymer {
         }
     }
 
-    pub fn apply_fast(&mut self, rules: &[InsertionRule], buf: &mut Vec<char>) {
+    pub fn apply_fast(&mut self, rules: &[InsertionRule], buf: &mut Vec<u8>) {
         buf.clear();
         for idx in 0..self.inner.len() - 1 {
             // iterate backwards through the list so that it can be
@@ -106,7 +106,7 @@ impl Polymer {
         std::mem::swap(&mut self.inner, buf);
     }
 
-    pub fn counts(&self) -> BTreeMap<char, usize> {
+    pub fn counts(&self) -> BTreeMap<u8, usize> {
         let mut counts = BTreeMap::new();
 
         for c in &self.inner {
@@ -196,9 +196,9 @@ CN -> C"#;
     fn test_rule_parse() {
         let r = "CH -> B";
         let r = r.parse::<InsertionRule>().unwrap();
-        assert_eq!(r.left, 'C');
-        assert_eq!(r.right, 'H');
-        assert_eq!(r.output, 'B');
+        assert_eq!(r.left, b'C');
+        assert_eq!(r.right, b'H');
+        assert_eq!(r.output, b'B');
     }
 
     #[test]
@@ -206,15 +206,15 @@ CN -> C"#;
         let mut inp: Polymer = TEST_DATA.parse().unwrap();
         println!("starting polymer: {}", inp);
         let r = InsertionRule {
-            left: 'N',
-            right: 'C',
-            output: 'J',
+            left: b'N',
+            right: b'C',
+            output: b'J',
         };
         inp.apply(&[r]);
         println!("after: {}", inp);
         assert_eq!(inp.to_string().trim(), "NNJCB");
 
-        inp.inner = "NNCBNNCBNNCB".chars().collect();
+        inp.inner = "NNCBNNCBNNCB".chars().map(|c| c as u8).collect();
         inp.apply(&[r]);
         assert_eq!(inp.to_string().trim(), "NNJCBNNJCBNNJCB");
     }
@@ -224,16 +224,16 @@ CN -> C"#;
         let mut inp: Polymer = TEST_DATA.parse().unwrap();
         println!("starting polymer: {}", inp);
         let r = InsertionRule {
-            left: 'N',
-            right: 'C',
-            output: 'J',
+            left: b'N',
+            right: b'C',
+            output: b'J',
         };
         let mut buf = Vec::new();
         inp.apply_fast(&[r], &mut buf);
         println!("after: {}", inp);
         assert_eq!(inp.to_string().trim(), "NNJCB");
 
-        inp.inner = "NNCBNNCBNNCB".chars().collect();
+        inp.inner = "NNCBNNCBNNCB".chars().map(|c| c as u8).collect();
         inp.apply(&[r]);
         assert_eq!(inp.to_string().trim(), "NNJCBNNJCBNNJCB");
     }
