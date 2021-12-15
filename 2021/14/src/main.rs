@@ -121,8 +121,10 @@ impl Polymer {
     }
 }
 
+#[derive(Eq, PartialEq, Debug)]
 struct PolymerBTree {
     inner: BTreeMap<(char, char), isize>,
+    last: char,
 }
 
 impl Display for PolymerBTree {
@@ -142,7 +144,20 @@ impl From<&Polymer> for PolymerBTree {
             *inner.entry((pair[0], pair[1])).or_default() += 1;
         }
 
-        Self { inner }
+        let last = *poly.inner.last().unwrap();
+
+        Self { inner, last }
+    }
+}
+
+impl From<&str> for PolymerBTree {
+    fn from(s: &str) -> Self {
+        let mut inner = BTreeMap::new();
+        for pair in s.chars().collect::<Vec<_>>().windows(2) {
+            *inner.entry((pair[0], pair[1])).or_default() += 1;
+        }
+        let last = s.chars().last().unwrap();
+        Self { inner, last }
     }
 }
 
@@ -156,14 +171,20 @@ impl PolymerBTree {
         // merge buf into self, then clear buf
         buf.clear();
         for (left, right) in self.inner.keys() {
+            print!("{}{}", left, right);
+            let count = self.inner.get(&(*left, *right)).unwrap();
             if let Some(r) = rules.iter().find(|r| r.matches(*left, *right)) {
-                println!("Apply {}", r);
-                // subtract one from current pair
-                *buf.entry((*left, *right)).or_default() -= 1;
-                // add one to (left, out) and (out, right)
-                *buf.entry((*left, r.output)).or_default() += 1;
-                *buf.entry((r.output, *right)).or_default() += 1;
+                print!(" [apply {}]: ", r);
+                // subtract THE ORIGINAL COUNT from current pair
+                let cnt =
+                    buf.get(&(*left, *right)).copied().unwrap_or_default();
+                print!("({}{}) {} => {}  ", left, right, cnt, cnt - 1);
+                *buf.entry((*left, *right)).or_default() -= count;
+                // add THE ORIGINAL COUNT to (left, out) and (out, right)
+                *buf.entry((*left, r.output)).or_default() += count;
+                *buf.entry((r.output, *right)).or_default() += count;
             }
+            println!();
         }
         println!("Deltas: {:?}", buf);
         for (pair, delta) in buf.iter() {
@@ -175,6 +196,24 @@ impl PolymerBTree {
         }
         // Retain only elements that occur at least once
         self.inner.retain(|_k, v| *v > 0);
+    }
+
+    pub fn counts(&self) -> BTreeMap<char, isize> {
+        // self is a btreemap like:
+        // (A, B) => 5
+        // (B, C) => 3
+        // (A, C) => 1
+        // (C, B) => 6
+        // it's not a cycle so just counting up the left or right elements
+        // probably won't work...
+        let mut counts = BTreeMap::new();
+        for ((l, _r), c) in self.inner.iter() {
+            *counts.entry(*l).or_default() += c;
+        }
+        // Final element is always going to be the same! Add one to it!
+        *counts.entry(self.last).or_default() += 1;
+
+        counts
     }
 }
 
@@ -208,9 +247,10 @@ fn part_two(inp: &Polymer, limit: usize) -> usize {
         println!("step {}: {}", step + 1, poly);
     }
 
-    // println!("counts: {:?}", counts);
-    let most = poly.inner.iter().max_by_key(|(_k, v)| *v).unwrap();
-    let least = poly.inner.iter().min_by_key(|(_k, v)| *v).unwrap();
+    let counts = poly.counts();
+    println!("counts: {:?}", counts);
+    let most = counts.iter().max_by_key(|(_k, v)| *v).unwrap();
+    let least = counts.iter().min_by_key(|(_k, v)| *v).unwrap();
 
     println!("most: {:?}, least: {:?}", most, least);
 
@@ -342,14 +382,23 @@ CN -> C"#;
         assert_eq!(*poly.inner.get(&('J', 'C')).unwrap(), 1);
         assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
         poly.apply(r, &mut buf);
-        // after NGNGNJCB
+        // after NGNNGNJCB
         println!("{}", poly);
-        assert_eq!(poly.inner.len(), 5);
+        assert_eq!(poly.inner.len(), 6);
         assert_eq!(*poly.inner.get(&('N', 'G')).unwrap(), 2);
         assert_eq!(*poly.inner.get(&('G', 'N')).unwrap(), 2);
+        assert_eq!(*poly.inner.get(&('N', 'N')).unwrap(), 1);
         assert_eq!(*poly.inner.get(&('N', 'J')).unwrap(), 1);
         assert_eq!(*poly.inner.get(&('J', 'C')).unwrap(), 1);
         assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
+
+        // Now run part 1 on the original test input
+        let mut original_poly = inp;
+        for step in 0..3 {
+            original_poly.apply(r);
+            println!("step {}: {}", step, original_poly);
+        }
+        assert_eq!(original_poly.to_string().trim(), "NGNNGNJCB");
     }
 
     #[test]
@@ -360,16 +409,16 @@ CN -> C"#;
         assert_eq!(ans, 1588);
     }
 
-    //#[test]
+    #[test]
     fn test_part_2() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_two(&inp, 40);
-        assert_eq!(ans, 42188189693529);
+        assert_eq!(ans, 2188189693529);
     }
 
-    //  #[test]
+    #[test]
     fn test_two_methods_interleaved() {
-        let inp = TEST_DATA.parse().unwrap();
+        let inp: Polymer = TEST_DATA.parse().unwrap();
         let mut btreepoly = PolymerBTree::from(&inp);
         let mut poly = inp.clone();
         let mut buf = BTreeMap::new();
@@ -378,16 +427,20 @@ CN -> C"#;
         for step in 0..10 {
             poly.apply(&inp.rules);
             btreepoly.apply(&inp.rules, &mut buf);
-            println!("step {}: {}{}", step + 1, poly, btreepoly)
+            println!("step {}: {}{}", step + 1, poly, btreepoly);
+
+            // compare partial result at each stage
+            let to_compare = PolymerBTree::from(&poly);
+            assert_eq!(to_compare, btreepoly, "FAIL");
         }
 
         let to_compare = PolymerBTree::from(&poly);
         println!("to compare: {}", to_compare);
 
-        panic!()
+        assert_eq!(to_compare.inner, btreepoly.inner);
     }
 
-    //    #[test]
+    //#[test]
     fn compare_part_one_and_part_two() {
         let inp = TEST_DATA.parse().unwrap();
         println!("starting polymer: {}", inp);
@@ -395,5 +448,13 @@ CN -> C"#;
         assert_eq!(ans, 1588);
         let ans = part_two(&inp, 10);
         assert_eq!(ans, 1588);
+    }
+
+    #[test]
+    fn polymer_btree_from_str() {
+        let inp: Polymer = TEST_DATA.parse().unwrap();
+        let btreepoly = PolymerBTree::from(&inp);
+        let to_compare: PolymerBTree = "NNCB".into();
+        assert_eq!(btreepoly, to_compare);
     }
 }
