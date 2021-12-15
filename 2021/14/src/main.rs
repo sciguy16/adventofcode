@@ -71,6 +71,7 @@ impl FromStr for Polymer {
 }
 
 impl Polymer {
+    #[allow(dead_code)]
     pub fn apply(&mut self, rules: &[InsertionRule]) {
         for idx in (0..self.inner.len() - 1).rev() {
             // iterate backwards through the list so that it can be

@@ -1,6 +1,6 @@
-use eyre::{bail, eyre, Result};
+use eyre::{eyre, Result};
 use itertools::Itertools;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::fmt::{self, Display};
 
 /// Mask looks like "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X"

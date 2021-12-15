@@ -1,8 +1,5 @@
 use std::str::FromStr;
 
-struct Displays(Vec<Display>);
-struct Display([char; 7]);
-
 struct Combinations(Vec<Combination>);
 impl FromStr for Combinations {
     type Err = Box<dyn std::error::Error>;
