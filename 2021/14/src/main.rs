@@ -4,18 +4,14 @@ use std::str::FromStr;
 
 #[derive(Copy, Clone)]
 struct InsertionRule {
-    left: u8,
-    right: u8,
-    output: u8,
+    left: char,
+    right: char,
+    output: char,
 }
 
 impl Display for InsertionRule {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
-        write!(
-            fmt,
-            "{}{} -> {}",
-            self.left as char, self.right as char, self.output as char
-        )
+        write!(fmt, "{}{} -> {}", self.left, self.right, self.output)
     }
 }
 
@@ -24,7 +20,7 @@ impl FromStr for InsertionRule {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // CH -> B
-        let chars = s.chars().map(|c| c as u8).collect::<Vec<_>>();
+        let chars = s.chars().collect::<Vec<_>>();
 
         Ok(Self {
             left: chars[0],
@@ -35,21 +31,21 @@ impl FromStr for InsertionRule {
 }
 
 impl InsertionRule {
-    pub fn matches(&self, left: u8, right: u8) -> bool {
+    pub fn matches(&self, left: char, right: char) -> bool {
         self.left == left && self.right == right
     }
 }
 
 #[derive(Clone)]
 struct Polymer {
-    inner: Vec<u8>,
+    inner: Vec<char>,
     rules: Vec<InsertionRule>,
 }
 
 impl Display for Polymer {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         for c in &self.inner {
-            write!(fmt, "{}", *c as char)?;
+            write!(fmt, "{}", c)?;
         }
         writeln!(fmt)
     }
@@ -63,7 +59,7 @@ impl FromStr for Polymer {
         // then blank
         // then subsequent lines are insertion rules
         let mut lines = s.lines();
-        let inner = lines.next().unwrap().chars().map(|c| c as u8).collect();
+        let inner = lines.next().unwrap().chars().collect();
         lines.next();
 
         let mut rules = Vec::new();
@@ -88,7 +84,7 @@ impl Polymer {
         }
     }
 
-    pub fn apply_fast(&mut self, rules: &[InsertionRule], buf: &mut Vec<u8>) {
+    pub fn apply_fast(&mut self, rules: &[InsertionRule], buf: &mut Vec<char>) {
         buf.clear();
         for idx in 0..self.inner.len() - 1 {
             // iterate backwards through the list so that it can be
@@ -110,7 +106,7 @@ impl Polymer {
         std::mem::swap(&mut self.inner, buf);
     }
 
-    pub fn counts(&self) -> BTreeMap<u8, usize> {
+    pub fn counts(&self) -> BTreeMap<char, usize> {
         let mut counts = BTreeMap::new();
 
         for c in &self.inner {
@@ -126,7 +122,7 @@ impl Polymer {
 }
 
 struct PolymerBTree {
-    inner: BTreeMap<(u8, u8), isize>,
+    inner: BTreeMap<(char, char), isize>,
 }
 
 impl Display for PolymerBTree {
@@ -154,7 +150,7 @@ impl PolymerBTree {
     pub fn apply(
         &mut self,
         rules: &[InsertionRule],
-        buf: &mut BTreeMap<(u8, u8), isize>,
+        buf: &mut BTreeMap<(char, char), isize>,
     ) {
         // Apply rules to each pair, tracking the changes in buf
         // merge buf into self, then clear buf
@@ -257,9 +253,9 @@ CN -> C"#;
     fn test_rule_parse() {
         let r = "CH -> B";
         let r = r.parse::<InsertionRule>().unwrap();
-        assert_eq!(r.left, b'C');
-        assert_eq!(r.right, b'H');
-        assert_eq!(r.output, b'B');
+        assert_eq!(r.left, 'C');
+        assert_eq!(r.right, 'H');
+        assert_eq!(r.output, 'B');
     }
 
     #[test]
@@ -267,15 +263,15 @@ CN -> C"#;
         let mut inp: Polymer = TEST_DATA.parse().unwrap();
         println!("starting polymer: {}", inp);
         let r = InsertionRule {
-            left: b'N',
-            right: b'C',
-            output: b'J',
+            left: 'N',
+            right: 'C',
+            output: 'J',
         };
         inp.apply(&[r]);
         println!("after: {}", inp);
         assert_eq!(inp.to_string().trim(), "NNJCB");
 
-        inp.inner = "NNCBNNCBNNCB".chars().map(|c| c as u8).collect();
+        inp.inner = "NNCBNNCBNNCB".chars().collect();
         inp.apply(&[r]);
         assert_eq!(inp.to_string().trim(), "NNJCBNNJCBNNJCB");
     }
@@ -285,16 +281,16 @@ CN -> C"#;
         let mut inp: Polymer = TEST_DATA.parse().unwrap();
         println!("starting polymer: {}", inp);
         let r = InsertionRule {
-            left: b'N',
-            right: b'C',
-            output: b'J',
+            left: 'N',
+            right: 'C',
+            output: 'J',
         };
         let mut buf = Vec::new();
         inp.apply_fast(&[r], &mut buf);
         println!("after: {}", inp);
         assert_eq!(inp.to_string().trim(), "NNJCB");
 
-        inp.inner = "NNCBNNCBNNCB".chars().map(|c| c as u8).collect();
+        inp.inner = "NNCBNNCBNNCB".chars().collect();
         inp.apply(&[r]);
         assert_eq!(inp.to_string().trim(), "NNJCBNNJCBNNJCB");
     }
@@ -305,19 +301,19 @@ CN -> C"#;
         println!("starting polymer: {}", inp);
         let r = &[
             InsertionRule {
-                left: b'N',
-                right: b'C',
-                output: b'J',
+                left: 'N',
+                right: 'C',
+                output: 'J',
             },
             InsertionRule {
-                left: b'N',
-                right: b'N',
-                output: b'G',
+                left: 'N',
+                right: 'N',
+                output: 'G',
             },
             InsertionRule {
-                left: b'G',
-                right: b'N',
-                output: b'N',
+                left: 'G',
+                right: 'N',
+                output: 'N',
             },
         ];
         let mut buf = BTreeMap::new();
@@ -325,35 +321,35 @@ CN -> C"#;
 
         // before: NNCB
         assert_eq!(poly.inner.len(), 3);
-        assert_eq!(*poly.inner.get(&(b'N', b'N')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'N', b'C')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'C', b'B')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'N')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'C')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
         poly.apply(r, &mut buf);
         // after: NGNJCB
         assert_eq!(poly.inner.len(), 5);
-        assert_eq!(*poly.inner.get(&(b'N', b'G')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'G', b'N')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'N', b'J')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'J', b'C')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'C', b'B')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'G')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('G', 'N')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'J')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('J', 'C')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
         poly.apply(r, &mut buf);
         // after NGNNJCB
         assert_eq!(poly.inner.len(), 6);
-        assert_eq!(*poly.inner.get(&(b'N', b'G')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'G', b'N')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'N', b'N')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'N', b'J')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'J', b'C')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'C', b'B')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'G')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('G', 'N')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'N')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'J')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('J', 'C')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
         poly.apply(r, &mut buf);
         // after NGNGNJCB
         println!("{}", poly);
         assert_eq!(poly.inner.len(), 5);
-        assert_eq!(*poly.inner.get(&(b'N', b'G')).unwrap(), 2);
-        assert_eq!(*poly.inner.get(&(b'G', b'N')).unwrap(), 2);
-        assert_eq!(*poly.inner.get(&(b'N', b'J')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'J', b'C')).unwrap(), 1);
-        assert_eq!(*poly.inner.get(&(b'C', b'B')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('N', 'G')).unwrap(), 2);
+        assert_eq!(*poly.inner.get(&('G', 'N')).unwrap(), 2);
+        assert_eq!(*poly.inner.get(&('N', 'J')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('J', 'C')).unwrap(), 1);
+        assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
     }
 
     #[test]
