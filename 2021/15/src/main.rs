@@ -42,19 +42,24 @@ impl<const R: usize, const C: usize> From<CavernMatrix<R, C>>
         assert_eq!(R, C);
         // Only consider movements down and left, because any other
         // movement will be strictly longer than the shortest route
+        // The above is false, we must consider all movements.
 
         let mut edges = Vec::<(u32, u32, u32)>::new();
         for r in 0..R {
             for c in 0..C {
                 // insert edges from current (r, c) to the elements
                 // immediately below and immediately right
+                // Also insert corresponding reverse edges
+                let cost_reverse = mat.inner[(r, c)];
                 if r < R - 1 {
                     let cost_down = mat.inner[(r + 1, c)];
                     edges.push((index(r, c), index(r + 1, c), cost_down));
+                    edges.push((index(r + 1, c), index(r, c), cost_reverse));
                 }
                 if c < C - 1 {
                     let cost_right = mat.inner[(r, c + 1)];
                     edges.push((index(r, c), index(r, c + 1), cost_right));
+                    edges.push((index(r, c + 1), index(r, c), cost_reverse));
                 }
             }
         }
