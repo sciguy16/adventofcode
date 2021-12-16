@@ -33,7 +33,7 @@ impl<const R: usize, const C: usize> CavernMatrix<R, C> {
         // adding the increase factor as appropriate
         for row_copy in 0..5 {
             for col_copy in 0..5 {
-                println!("Starting copy ({},{})", row_copy, col_copy);
+                //println!("Starting copy ({},{})", row_copy, col_copy);
                 for r in 0..R {
                     for c in 0..C {
                         if row_copy == 0 && col_copy == 0 {
@@ -80,20 +80,15 @@ fn index(r: usize, c: usize) -> u32 {
     (r << 8 | c) as u32
 }
 
-fn reverse_index(i: u32) -> (usize, usize) {
-    ((i >> 8) as usize, (i & 0xff) as usize)
-}
-
 struct CavernGraph<const R: usize, const C: usize> {
     inner: Graph<(usize, usize), u32>,
-    cost_matrix: CavernMatrix<R, C>,
     dimension: usize,
 }
 
-impl<const R: usize, const C: usize> From<CavernMatrix<R, C>>
+impl<const R: usize, const C: usize> From<&CavernMatrix<R, C>>
     for CavernGraph<R, C>
 {
-    fn from(mat: CavernMatrix<R, C>) -> Self {
+    fn from(mat: &CavernMatrix<R, C>) -> Self {
         assert_eq!(R, C);
         // Only consider movements down and left, because any other
         // movement will be strictly longer than the shortest route
@@ -121,7 +116,6 @@ impl<const R: usize, const C: usize> From<CavernMatrix<R, C>>
         let inner = Graph::from_edges(edges.iter());
         Self {
             inner,
-            cost_matrix: mat,
             dimension: R,
         }
     }
@@ -130,7 +124,7 @@ impl<const R: usize, const C: usize> From<CavernMatrix<R, C>>
 fn part_one<const R: usize, const C: usize>(
     graph: &CavernGraph<R, C>,
 ) -> usize {
-    println!("{:?}", graph.inner);
+    //println!("{:?}", graph.inner);
 
     let start = index(0, 0);
     let end = index(graph.dimension - 1, graph.dimension - 1);
@@ -138,25 +132,25 @@ fn part_one<const R: usize, const C: usize>(
         dijkstra(&graph.inner, start.into(), Some(end.into()), |e| {
             *e.weight()
         });
-    println!("start: {start}, end: {end} = 0x{:x}", end);
-    println!("node map: {:?}", node_map);
+    //println!("start: {start}, end: {end} = 0x{:x}", end);
+    //println!("node map: {:?}", node_map);
     let cost = *node_map.get(&end.into()).unwrap();
-    println!("cost: {}", cost);
-    assert!(cost < 368, "Your answer is too high");
+    //println!("cost: {}", cost);
+    assert!(cost < 368 || R > 100, "Your answer is too high");
+    assert!(cost > 939 || R <= 100, "Your answer is too low");
     cost as usize
-}
-
-fn part_two<const R: usize, const C: usize>(_inp: &CavernGraph<R, C>) -> usize {
-    0
 }
 
 fn main() {
     let input = include_str!("../input.txt");
     let data: CavernMatrix<100, 100> = input.parse().unwrap();
-    let data = CavernGraph::from(data);
-    let ans = part_one(&data);
+    let graph = CavernGraph::from(&data);
+    let ans = part_one(&graph);
     println!("part one: {}", ans);
-    let ans = part_two(&data);
+    let bigger = data.embiggen();
+    let graph = CavernGraph::from(&bigger);
+    println!("graph dimension: {}", graph.dimension);
+    let ans = part_one(&graph);
     println!("part two: {}", ans);
 }
 
@@ -229,17 +223,19 @@ mod test {
     #[test]
     fn test_part_1() {
         let inp: CavernMatrix<10, 10> = TEST_DATA.parse().unwrap();
-        let graph = CavernGraph::from(inp);
+        let graph = CavernGraph::from(&inp);
         let ans = part_one(&graph);
         assert_eq!(ans, 40);
     }
 
-    /*#[test]
+    #[test]
     fn test_part_2() {
-        let inp = TEST_DATA;
-        let ans = part_two(inp);
-        assert_eq!(ans, 4);
-    }*/
+        let inp: CavernMatrix<10, 10> = TEST_DATA.parse().unwrap();
+        let bigger: CavernMatrix<50, 50> = inp.embiggen();
+        let graph = CavernGraph::from(&bigger);
+        let ans = part_one(&graph);
+        assert_eq!(ans, 315);
+    }
 
     #[test]
     fn test_embiggen() {
