@@ -1,4 +1,5 @@
-#![feature(let_else)]
+#![allow(unused)]
+
 use bitvec::prelude::*;
 use std::str::FromStr;
 
