@@ -1,4 +1,5 @@
 use color_eyre::Result;
+use std::collections::BTreeSet;
 use std::str::FromStr;
 
 struct DataType {
@@ -39,12 +40,11 @@ fn part_one(inp: &DataType) -> u64 {
 
 fn part_two(inp: &DataType) -> u64 {
     // find sum of top 3
-    let mut food = inp
+    let food = inp
         .inner
         .iter()
         .map(|elf| elf.iter().sum())
-        .collect::<Vec<_>>();
-    food.sort_unstable();
+        .collect::<BTreeSet<_>>();
     food.iter().rev().take(3).sum()
 }
 
