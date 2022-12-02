@@ -4,3 +4,4 @@ members = ["2020/*", "2021/*", "2022/*"]
 
 [profile.release]
 overflow-checks = true
+debug = true

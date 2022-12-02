@@ -1,16 +1,6 @@
 use color_eyre::eyre::eyre;
 use color_eyre::Result;
-use std::cmp::Ordering;
 use std::str::FromStr;
-
-const fn score_from_result(result: Ordering) -> u64 {
-    use Ordering::*;
-    match result {
-        Less => 0,    // lose
-        Equal => 3,   // draw
-        Greater => 6, // win
-    }
-}
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 enum Move {
@@ -20,7 +10,7 @@ enum Move {
 }
 
 impl Move {
-    pub fn score(self) -> u64 {
+    pub const fn score(self) -> u64 {
         match self {
             Move::Rock => 1,
             Move::Paper => 2,
@@ -28,7 +18,7 @@ impl Move {
         }
     }
 
-    pub fn move_to_get_outcome(self, outcome: RoundOutcome) -> Self {
+    pub const fn move_to_get_outcome(self, outcome: RoundOutcome) -> Self {
         use Move::*;
         use RoundOutcome::*;
         match (self, outcome) {
@@ -41,27 +31,19 @@ impl Move {
             (Scissors, Win) => Rock,
         }
     }
-}
 
-impl Ord for Move {
-    fn cmp(&self, other: &Self) -> Ordering {
+    pub const fn fight(&self, other: Self) -> RoundOutcome {
         use Move::*;
-        use Ordering::*;
+        use RoundOutcome::*;
         match (self, other) {
-            (Rock, Paper) => Less,
-            (Rock, Scissors) => Greater,
-            (Paper, Scissors) => Less,
-            (Paper, Rock) => Greater,
-            (Scissors, Rock) => Less,
-            (Scissors, Paper) => Greater,
-            _ => Equal,
+            (Rock, Paper) => Lose,
+            (Rock, Scissors) => Win,
+            (Paper, Scissors) => Lose,
+            (Paper, Rock) => Win,
+            (Scissors, Rock) => Lose,
+            (Scissors, Paper) => Win,
+            _ => Draw,
         }
-    }
-}
-
-impl PartialOrd for Move {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
 
@@ -86,7 +68,7 @@ enum RoundOutcome {
 }
 
 impl RoundOutcome {
-    pub fn score(self) -> u64 {
+    pub const fn score(self) -> u64 {
         use RoundOutcome::*;
         match self {
             Lose => 0,
@@ -139,7 +121,7 @@ fn part_one(inp: &DataType) -> u64 {
         .iter()
         .map(|(them, me, _)| {
             // Get result and then add score for result to score for my move
-            score_from_result(me.cmp(them)) + me.score()
+            me.fight(*them).score() + me.score()
         })
         .sum()
 }
@@ -191,10 +173,11 @@ C Z
     #[test]
     fn test_move_cmp() {
         use Move::*;
+        use RoundOutcome::*;
 
-        assert!(Rock > Scissors);
-        assert!(Scissors > Paper);
-        assert!(Paper > Rock);
+        assert!(Rock.fight(Scissors) == Win);
+        assert!(Scissors.fight(Paper) == Win);
+        assert!(Paper.fight(Rock) == Win);
         assert!(Paper == Paper);
     }
 }
