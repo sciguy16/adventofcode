@@ -741,5 +741,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "y22day03"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+]
+
+[[package]]
 name = "year2021day14"
 version = "0.1.0"
