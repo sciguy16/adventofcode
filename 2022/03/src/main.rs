@@ -1,6 +1,5 @@
 use color_eyre::Result;
 use std::collections::HashSet;
-use std::hash::{BuildHasher, Hasher};
 use std::str::FromStr;
 
 trait Priority {
@@ -8,6 +7,7 @@ trait Priority {
 }
 
 impl Priority for char {
+    #[inline]
     fn priority(&self) -> u64 {
         match self {
             'a'..='z' => (*self as u64) - ('a' as u64) + 1,
@@ -17,32 +17,7 @@ impl Priority for char {
     }
 }
 
-#[derive(Default)]
-struct IdentityHasher {
-    state: u64,
-}
-
-impl Hasher for IdentityHasher {
-    fn write(&mut self, _: &[u8]) {
-        todo!()
-    }
-    fn write_u32(&mut self, ch: u32) {
-        self.state = ch.into();
-    }
-    fn finish(&self) -> u64 {
-        self.state
-    }
-}
-
-impl BuildHasher for IdentityHasher {
-    type Hasher = Self;
-
-    fn build_hasher(&self) -> Self::Hasher {
-        Self::default()
-    }
-}
-
-type Set = HashSet<char, IdentityHasher>;
+type Set = HashSet<char>;
 
 struct DataType {
     inner: Vec<(Set, Set, Set)>,
@@ -70,6 +45,7 @@ impl FromStr for DataType {
     }
 }
 
+#[inline]
 fn part_one(inp: &DataType) -> u64 {
     inp.inner
         .iter()
@@ -83,6 +59,7 @@ fn part_one(inp: &DataType) -> u64 {
         .sum()
 }
 
+#[inline]
 fn part_two(inp: &DataType) -> u64 {
     inp.inner
         .chunks_exact(3)
