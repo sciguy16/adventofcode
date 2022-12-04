@@ -6,4 +6,4 @@ members = ["2020/*", "2021/*", "2022/*"]
 overflow-checks = true
 debug = true
 opt-level = 3 # sometimes 's' might help
-panic = "abort"
+# panic = "abort"

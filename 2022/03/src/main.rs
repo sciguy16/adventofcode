@@ -51,9 +51,8 @@ fn part_one(inp: &DataType) -> u64 {
         .iter()
         .filter_map(|(left, right, _)| {
             let mut intersection = left.intersection(right);
-            intersection.next()
+            intersection.next().map(Priority::priority)
         })
-        .map(Priority::priority)
         .sum()
 }
 
@@ -63,9 +62,10 @@ fn part_two(inp: &DataType) -> u64 {
         .chunks_exact(3)
         .filter_map(|chunk| {
             let [(_,_,a), (_,_,b), (_,_,c)] = chunk else {unreachable!()};
-            a.intersection(b).find(|ch| c.contains(ch))
+            a.intersection(b)
+                .find(|ch| c.contains(ch))
+                .map(Priority::priority)
         })
-        .map(Priority::priority)
         .sum()
 }
 
