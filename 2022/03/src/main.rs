@@ -32,7 +32,7 @@ impl FromStr for DataType {
                 .lines()
                 .map(str::trim)
                 .map(|s| {
-                    assert!(s.len() % 2 == 0);
+                    // assert!(s.len() % 2 == 0);
                     let ch = s.chars();
                     (
                         ch.clone().take(s.len() / 2).collect(),
@@ -49,11 +49,9 @@ impl FromStr for DataType {
 fn part_one(inp: &DataType) -> u64 {
     inp.inner
         .iter()
-        .map(|(left, right, _)| {
+        .filter_map(|(left, right, _)| {
             let mut intersection = left.intersection(right);
-            let ch = intersection.next().unwrap();
-            assert!(intersection.next().is_none());
-            ch
+            intersection.next()
         })
         .map(Priority::priority)
         .sum()
@@ -63,13 +61,11 @@ fn part_one(inp: &DataType) -> u64 {
 fn part_two(inp: &DataType) -> u64 {
     inp.inner
         .chunks_exact(3)
-        .map(|chunk| {
+        .filter_map(|chunk| {
             let [(_,_,a), (_,_,b), (_,_,c)] = chunk else {unreachable!()};
-            a.intersection(b)
-                .find(|ch| c.contains(ch))
-                .expect("No 2-way intersection")
-                .priority()
+            a.intersection(b).find(|ch| c.contains(ch))
         })
+        .map(Priority::priority)
         .sum()
 }
 
