@@ -1,5 +1,6 @@
 use color_eyre::Result;
 use std::collections::HashSet;
+use std::hash::{BuildHasher, Hasher};
 use std::str::FromStr;
 
 trait Priority {
@@ -16,8 +17,35 @@ impl Priority for char {
     }
 }
 
+#[derive(Default)]
+struct IdentityHasher {
+    state: u64,
+}
+
+impl Hasher for IdentityHasher {
+    fn write(&mut self, _: &[u8]) {
+        todo!()
+    }
+    fn write_u32(&mut self, ch: u32) {
+        self.state = ch.into();
+    }
+    fn finish(&self) -> u64 {
+        self.state
+    }
+}
+
+impl BuildHasher for IdentityHasher {
+    type Hasher = Self;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        Self::default()
+    }
+}
+
+type Set = HashSet<char, IdentityHasher>;
+
 struct DataType {
-    inner: Vec<(HashSet<char>, HashSet<char>, HashSet<char>)>,
+    inner: Vec<(Set, Set, Set)>,
 }
 
 impl FromStr for DataType {
