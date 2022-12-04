@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 use std::str::FromStr;
 
 trait Priority {
@@ -17,7 +17,7 @@ impl Priority for char {
 }
 
 struct DataType {
-    inner: Vec<(BTreeSet<char>, BTreeSet<char>, BTreeSet<char>)>,
+    inner: Vec<(HashSet<char>, HashSet<char>, HashSet<char>)>,
 }
 
 impl FromStr for DataType {
