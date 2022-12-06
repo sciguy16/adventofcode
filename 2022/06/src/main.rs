@@ -2,10 +2,16 @@ use color_eyre::Result;
 use std::collections::HashSet;
 
 fn solve(inp: &[u8], length: usize) -> usize {
+    // reusing this allocation reduces the runtime from 1.8ms to 1.7ms
+    let mut hashset = HashSet::<u8>::with_capacity(length);
     inp.windows(length)
         .enumerate()
         .find(|(_, window)| {
-            window.iter().collect::<HashSet<_>>().len() == length
+            hashset.clear();
+            window.iter().for_each(|x| {
+                hashset.insert(*x);
+            });
+            hashset.len() == length
         })
         .unwrap()
         .0
