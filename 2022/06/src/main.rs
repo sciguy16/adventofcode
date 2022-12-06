@@ -1,9 +1,7 @@
 use color_eyre::Result;
 use std::collections::HashSet;
 
-type DataType = [u8];
-
-fn solve(inp: &DataType, length: usize) -> usize {
+fn solve(inp: &[u8], length: usize) -> usize {
     inp.windows(length)
         .enumerate()
         .find(|(_, window)| {
