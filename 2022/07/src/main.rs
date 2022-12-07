@@ -12,23 +12,10 @@ struct Directory {
 }
 
 impl Directory {
-    pub fn calculate_sizes(
-        &self,
-        name: String,
-        //total_size: &mut usize,
-        sizes: &mut Vec<usize>,
-    ) -> usize {
-        let size = self
-            .inner
-            .iter()
-            .map(|(name, v)| v.calculate_sizes(name.to_string(), sizes))
-            .sum();
-        // dbg!(&sizes);
-        // assert!(!sizes.contains_key(&name), "{name} is repeated!");
+    pub fn calculate_sizes(&self, sizes: &mut Vec<usize>) -> usize {
+        let size = self.inner.values().map(|v| v.calculate_sizes(sizes)).sum();
         sizes.push(size);
-        // if size <= THRESHOLD {
-        //     *total_size += size;
-        // }
+
         size
     }
 }
@@ -58,15 +45,10 @@ impl DirEntry {
         }
     }
 
-    pub fn calculate_sizes(
-        &self,
-        name: String,
-        // total_size: &mut usize,
-        sizes: &mut Vec<usize>,
-    ) -> usize {
+    pub fn calculate_sizes(&self, sizes: &mut Vec<usize>) -> usize {
         match self {
             DirEntry::File { size } => *size,
-            DirEntry::Dir { entries } => entries.calculate_sizes(name, sizes),
+            DirEntry::Dir { entries } => entries.calculate_sizes(sizes),
         }
     }
 }
@@ -102,7 +84,7 @@ impl FromStr for Directory {
                             }
                             None => Err(eyre!("Malformed command"))?,
                         }
-                        println!("cd: now in {path:?}");
+                        // println!("cd: now in {path:?}");
                     }
                     Some("ls") => {
                         // list files, no argument
@@ -141,43 +123,31 @@ impl FromStr for Directory {
 }
 
 fn solve(inp: &Directory) -> (usize, usize) {
-    // let mut dir_sizes = HashMap::<String, usize>::new();
-
-    let mut total_size = 0;
-
     let mut used_space = 0;
 
     let mut dir_sizes = Vec::new();
 
-    for (name, entry) in &inp.inner {
+    for entry in inp.inner.values() {
         match entry {
             DirEntry::Dir { entries } => {
-                let size =
-                    entries.calculate_sizes(name.to_string(), &mut dir_sizes);
+                let size = entries.calculate_sizes(&mut dir_sizes);
                 used_space += size;
             }
             DirEntry::File { size } => used_space += size,
         }
     }
 
-    dbg!(used_space);
-    dbg!(&dir_sizes);
+    // dbg!(used_space);
+    // dbg!(&dir_sizes);
 
-    let total_size = dir_sizes
-        .iter()
-        .filter(|s| **s <= THRESHOLD)
-        .inspect(|x| {
-            dbg!(x);
-        })
-        .sum::<usize>();
-    // + size_of_loose_files
+    let total_size =
+        dir_sizes.iter().filter(|s| **s <= THRESHOLD).sum::<usize>();
 
-    // let used_space: usize = dir_sizes.iter().sum();
-    dbg!(used_space);
+    // dbg!(used_space);
     let available_space = FS_SIZE - used_space;
     let need_to_delete = SPACE_NEEDED - available_space;
-    dbg!(available_space);
-    dbg!(need_to_delete);
+    // dbg!(available_space);
+    // dbg!(need_to_delete);
 
     // need to delete smallest file larger than need_to_delete
     let dir_to_del = dir_sizes
@@ -193,7 +163,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
     let input = include_str!("../input.txt");
     let data = input.parse()?;
-    dbg!(&data);
+    // dbg!(&data);
     let (ans1, ans2) = solve(&data);
     println!("part one: {ans1}");
     println!("part two: {ans2}");
