@@ -62,10 +62,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         BufReader::new(file).lines().map(|x| x.unwrap()).collect();
 
     let count = part_one(&data);
-    println!("Number of valid passwords: {}", count);
+    println!("Number of valid passwords: {count}");
 
     let count = part_two(&data);
-    println!("New number of valid passwords: {}", count);
+    println!("New number of valid passwords: {count}");
 
     Ok(())
 }
@@ -73,50 +73,41 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn part_one(lines: &[String]) -> usize {
     lines
         .iter()
-        .map(|l| parse_password_policy(&l).unwrap())
-        .filter(|(policy, pass)| policy.is_valid(&pass))
+        .map(|l| parse_password_policy(l).unwrap())
+        .filter(|(policy, pass)| policy.is_valid(pass))
         .count()
 }
 
 fn part_two(lines: &[String]) -> usize {
     lines
         .iter()
-        .map(|l| parse_password_policy(&l).unwrap())
-        .filter(|(policy, pass)| policy.is_valid_two(&pass))
+        .map(|l| parse_password_policy(l).unwrap())
+        .filter(|(policy, pass)| policy.is_valid_two(pass))
         .count()
 }
 
 /// Parse a password policy line, returning a pair of the password
 /// policy and the associated password
 fn parse_password_policy(line: &str) -> Option<(PasswordPolicy, &str)> {
-    PASSWORD_POLICY_REGEX
-        .captures_iter(line)
-        .filter_map(|cap| {
-            let groups = (cap.get(1), cap.get(2), cap.get(3), cap.get(4));
-            match groups {
-                (
-                    Some(min_occurrences),
-                    Some(max_occurrences),
-                    Some(letter),
-                    Some(pass),
-                ) => Some((
-                    PasswordPolicy {
-                        letter: letter.as_str().chars().next().unwrap(),
-                        min_occurrences: min_occurrences
-                            .as_str()
-                            .parse()
-                            .unwrap(),
-                        max_occurrences: max_occurrences
-                            .as_str()
-                            .parse()
-                            .unwrap(),
-                    },
-                    pass.as_str(),
-                )),
-                _ => None,
-            }
-        })
-        .next()
+    PASSWORD_POLICY_REGEX.captures_iter(line).find_map(|cap| {
+        let groups = (cap.get(1), cap.get(2), cap.get(3), cap.get(4));
+        match groups {
+            (
+                Some(min_occurrences),
+                Some(max_occurrences),
+                Some(letter),
+                Some(pass),
+            ) => Some((
+                PasswordPolicy {
+                    letter: letter.as_str().chars().next().unwrap(),
+                    min_occurrences: min_occurrences.as_str().parse().unwrap(),
+                    max_occurrences: max_occurrences.as_str().parse().unwrap(),
+                },
+                pass.as_str(),
+            )),
+            _ => None,
+        }
+    })
 }
 
 #[cfg(test)]
@@ -127,7 +118,7 @@ mod test {
     fn test_parse() {
         let line = "1-3 a: abcde";
 
-        let (pol, pass) = parse_password_policy(&line).unwrap();
+        let (pol, pass) = parse_password_policy(line).unwrap();
 
         assert_eq!(pol.letter, 'a');
         assert_eq!(pol.min_occurrences, 1);

@@ -141,7 +141,7 @@ fn part_two<const R: usize, const C: usize>(hm: &HeightMap<R, C>) -> usize {
     let mut basin_sizes = hm.basin_sizes();
     basin_sizes.sort_unstable();
     basin_sizes.reverse();
-    println!("basins: {:?}", basin_sizes);
+    println!("basins: {basin_sizes:?}");
     basin_sizes.iter().take(3).product()
 }
 

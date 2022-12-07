@@ -13,10 +13,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     let res = part_one(&data, 25);
-    println!("Got answer: {}", res);
+    println!("Got answer: {res}");
 
     let res2 = part_two(&data, res);
-    println!("part 2: {}", res2);
+    println!("part 2: {res2}");
 
     Ok(())
 }
@@ -30,12 +30,12 @@ fn part_one(data: &[u64], distance: usize) -> u64 {
 
     let mut biggest = 0;
     for index in distance..data.len() {
-        print!("index: {}\t", index);
+        print!("index: {index}\t");
         if data[index] > biggest
             && !number_can(&data[(index - distance)..=(index - 1)], data[index])
         {
             biggest = data[index];
-            println!("got new biggest: {}", biggest);
+            println!("got new biggest: {biggest}");
 
             println!("first number, actually");
             break;
@@ -54,7 +54,7 @@ fn part_two(data: &[u64], target: u64) -> u64 {
             match sum.cmp(&target) {
                 Ordering::Equal => {
                     // we win
-                    println!("Win: {:?}", slice);
+                    println!("Win: {slice:?}");
                     return *slice.iter().min().unwrap()
                         + *slice.iter().max().unwrap();
                 }

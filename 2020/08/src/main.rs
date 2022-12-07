@@ -78,10 +78,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     assert_eq!(data.len(), 633);
     let res = part_one(&data);
-    println!("The value of `acc` is: {}", res);
+    println!("The value of `acc` is: {res}");
 
     let res = part_two(&data);
-    println!("The value of acc in a terminated run is: {}", res);
+    println!("The value of acc in a terminated run is: {res}");
 
     Ok(())
 }
@@ -90,7 +90,7 @@ fn part_one(program: &[Instruction]) -> i64 {
     let mut cpu = Cpu::new(program);
     let mut visited: HashSet<i64> = Default::default();
 
-    println!("Visited: {:?}", visited);
+    println!("Visited: {visited:?}");
 
     while !visited.contains(&cpu.ip()) {
         // Loop until we revisit a processed instruction

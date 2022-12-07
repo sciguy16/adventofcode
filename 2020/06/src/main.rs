@@ -14,11 +14,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let forms = parse_forms(&data).unwrap();
     let res = count_them(&forms);
-    println!("Sum of answers is: {}", res);
+    println!("Sum of answers is: {res}");
 
     let forms = parse_forms_2(&data).unwrap();
     let res = count_them(&forms);
-    println!("Sum of answers part 2 is: {}", res);
+    println!("Sum of answers part 2 is: {res}");
     Ok(())
 }
 
@@ -48,7 +48,7 @@ fn parse_forms(inp: &[String]) -> Result<Vec<Form>, &'static str> {
             if !('a'..='z').contains(&chr) {
                 return Err("Invalid letter found");
             }
-            print!("{}", chr);
+            print!("{chr}");
             form.insert(chr);
         }
     }
@@ -63,7 +63,7 @@ fn parse_forms_2(inp: &[String]) -> Result<Vec<Form>, &'static str> {
 
     for line in inp {
         if line.is_empty() {
-            println!("groups: {:?}", groups);
+            println!("groups: {groups:?}");
             form = groups
                 .iter()
                 .cloned()
@@ -71,7 +71,7 @@ fn parse_forms_2(inp: &[String]) -> Result<Vec<Form>, &'static str> {
                 .or_else(|| Some(Form::new()))
                 .to_owned()
                 .unwrap();
-            println!("---{:?}", form);
+            println!("---{form:?}");
             forms.push(form);
             form = Default::default();
             groups = Default::default();
@@ -83,7 +83,7 @@ fn parse_forms_2(inp: &[String]) -> Result<Vec<Form>, &'static str> {
             if !('a'..='z').contains(&chr) {
                 return Err("Invalid letter found");
             }
-            print!("{}", chr);
+            print!("{chr}");
             form.insert(chr);
         }
         groups.push(form);

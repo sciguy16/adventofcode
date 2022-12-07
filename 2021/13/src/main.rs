@@ -119,7 +119,7 @@ fn part_one(imager: &ThermalImager) -> usize {
 
     let f = *imager.folds.first().unwrap();
     imager.fold(f);
-    println!("{:?}", imager);
+    println!("{imager:?}");
 
     imager.dots.len()
 }
@@ -132,7 +132,7 @@ fn part_two(imager: &ThermalImager) -> usize {
         imager.fold(*fold);
     }
 
-    println!("code: {}", imager);
+    println!("code: {imager}");
 
     4
 }
@@ -141,10 +141,10 @@ fn main() {
     let input = include_str!("../input.txt");
     let data = input.parse().unwrap();
     let ans = part_one(&data);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let _ans = part_two(&data);
     let ans = "PZEHRAER";
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
@@ -176,7 +176,7 @@ fold along x=5"#;
     #[test]
     fn test_part_1() {
         let inp: ThermalImager = TEST_DATA.parse().unwrap();
-        println!("inp: {:?}", inp);
+        println!("inp: {inp:?}");
         let ans = part_one(&inp);
         assert_eq!(ans, 17);
     }

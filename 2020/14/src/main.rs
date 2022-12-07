@@ -61,22 +61,23 @@ impl Mask {
         #[cfg(test)]
         {
             println!("mask: {:0b}", self.floating);
-            println!("indices: {:?}", bit_indices);
-            println!("addr: {:064b}\n", addr);
+            println!("indices: {bit_indices:?}");
+            println!("addr: {addr:064b}\n");
         }
 
+        #[allow(clippy::let_and_return)]
         bit_indices
             .iter()
             .powerset()
             .map(|indices| {
                 #[cfg(test)]
-                println!("subset: {:?}", indices);
+                println!("subset: {indices:?}");
                 let msk = indices.iter().fold(0, |acc, idx| acc | (1 << **idx));
                 #[cfg(test)]
-                println!("msk:  {:064b}", msk);
+                println!("msk:  {msk:064b}");
                 let ret = addr | msk;
                 #[cfg(test)]
-                println!("addr: {:064b}\n", ret);
+                println!("addr: {ret:064b}\n");
                 ret
             })
             .collect::<Vec<_>>()
@@ -186,7 +187,7 @@ fn parse_instructions(prog: &str) -> Result<Vec<Instruction>> {
         .filter(|line| line.len() > 2)
         .map(|line| {
             if let Some(msk) = line.strip_prefix("mask = ") {
-                Mask::try_from(msk).map(|msk| Instruction::Mask(msk))
+                Mask::try_from(msk).map(Instruction::Mask)
             } else if let Some(set) = line.strip_prefix("mem[") {
                 let mut spliterator = set.split("] = ");
                 let addr: u64 = spliterator
@@ -223,7 +224,7 @@ impl Memory {
     }
 
     pub fn sum(&self) -> u128 {
-        self.inner.values().fold(0, |a, b| a as u128 + *b as u128)
+        self.inner.values().fold(0, |a, b| a + *b as u128)
     }
 }
 
@@ -280,12 +281,12 @@ fn part_two(prog: &[Instruction]) -> Result<u128> {
 
 fn main() {
     let input = include_str!("../input.txt");
-    let prog = parse_instructions(&input).unwrap();
+    let prog = parse_instructions(input).unwrap();
     let result = part_one(&prog).unwrap();
-    println!("Part one: {}", result);
+    println!("Part one: {result}");
 
     let result = part_two(&prog).unwrap();
-    println!("Part two: {}", result);
+    println!("Part two: {result}");
 }
 
 #[cfg(test)]
@@ -296,7 +297,7 @@ mod test {
     fn parse_mask() {
         let inp = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X";
         let mask = Mask::try_from(inp).unwrap();
-        println!("mask:                            {}\n{}", inp, mask);
+        println!("mask:                            {inp}\n{mask}");
         assert_eq!(
             mask.and_mask,
             0b1111111111111111111111111111111111111111111111111111111111111101
@@ -324,7 +325,7 @@ mem[8] = 11
 mem[7] = 101
 mem[8] = 0
 "#;
-        let instructions = parse_instructions(&prog).unwrap();
+        let instructions = parse_instructions(prog).unwrap();
         let result = part_one(&instructions).unwrap();
         assert_eq!(result, 165);
     }
@@ -332,14 +333,14 @@ mem[8] = 0
     #[test]
     fn parse_mask2() {
         let mask = "000000000000000000000000000000X1001X";
-        println!("mask:                                  {}", mask);
+        println!("mask:                                  {mask}");
         let expected = Mask {
             floating: 0b000000000000000000000000000000100001,
             overwrite: 0b000000000000000000000000000000010010,
             ..Default::default()
         };
         let mask = Mask::try_from(mask).unwrap();
-        println!("Calculated:\n{}\nexpected:\n{}", mask, expected);
+        println!("Calculated:\n{mask}\nexpected:\n{expected}");
         assert_eq!(mask.floating, expected.floating);
         assert_eq!(mask.overwrite, expected.overwrite);
     }
@@ -349,7 +350,7 @@ mem[8] = 0
         let addr: u64 = 0b000000000000000000000000000000011010;
         let mask = "00000000000000000000000000000000X0XX";
         let mask = Mask::try_from(mask).unwrap();
-        println!("mask:\n{}\n", mask);
+        println!("mask:\n{mask}\n");
         let mut expected: Vec<u64> = vec![
             0b000000000000000000000000000000010000, // (decimal 16)
             0b000000000000000000000000000000010001, // (decimal 17)
@@ -366,7 +367,7 @@ mem[8] = 0
         let mut addresses = mask.apply_addr(addr);
         addresses.sort();
 
-        println!("{:?}", addresses);
+        println!("{addresses:?}");
         assert_eq!(addresses, expected);
     }
 
@@ -376,7 +377,7 @@ mem[8] = 0
 mem[42] = 100
 mask = 00000000000000000000000000000000X0XX
 mem[26] = 1"#;
-        let instructions = parse_instructions(&prog).unwrap();
+        let instructions = parse_instructions(prog).unwrap();
         let result = part_two(&instructions).unwrap();
         assert_eq!(result, 208);
     }

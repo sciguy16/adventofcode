@@ -15,13 +15,13 @@ fn main() {
         .collect();
 
     let res = part_one(start_time, &buses);
-    println!("Part one: {}", res);
+    println!("Part one: {res}");
 
     let buses: Vec<Option<usize>> =
         buses_str.split(',').map(|s| s.parse().ok()).collect();
 
     let res = part_two(100000000000000, &buses);
-    println!("Part two: {}", res);
+    println!("Part two: {res}");
 }
 
 fn part_one(start_time: usize, buses: &[usize]) -> usize {
@@ -30,7 +30,7 @@ fn part_one(start_time: usize, buses: &[usize]) -> usize {
         // zero then that is the first valid bus
         if let Some(id) = buses.iter().find(|b| time % **b == 0) {
             // got a valid bus ID
-            println!("Found a valid bus ID `{}` at time `{}`!", id, time);
+            println!("Found a valid bus ID `{id}` at time `{time}`!");
             return id * (time - start_time);
         }
     }
@@ -39,12 +39,11 @@ fn part_one(start_time: usize, buses: &[usize]) -> usize {
 
 fn part_two(start_time: usize, buses: &[Option<usize>]) -> usize {
     for time in start_time..usize::MAX {
-        if buses
+        if !buses
             .iter()
             .enumerate()
             .filter(|x| x.1.is_some())
-            .find(|(idx, bus)| (time + idx) % bus.unwrap() != 0)
-            .is_none()
+            .any(|(idx, bus)| (time + idx) % bus.unwrap() != 0)
         {
             // There are no buses which do not match the pattern, so we
             // win!
@@ -76,7 +75,7 @@ mod test {
             .split(',')
             .map(|s| s.parse().ok())
             .collect();
-        println!("buses: {:?}", buses);
+        println!("buses: {buses:?}");
 
         let res = part_two(0, &buses);
         assert_eq!(res, 1068781);

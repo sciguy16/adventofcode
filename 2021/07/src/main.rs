@@ -17,16 +17,15 @@ impl FromStr for CrabMarines {
 }
 
 fn part_one(crabmarines: &CrabMarines) -> isize {
-    println!("crabmarines: {:?}", crabmarines);
+    println!("crabmarines: {crabmarines:?}");
     let smallest = *crabmarines.0.iter().min().unwrap();
     let largest = *crabmarines.0.iter().max().unwrap();
 
     let mut least_fuel = isize::MAX;
     for pos in smallest..=largest {
-        let pos: isize = pos.try_into().unwrap();
         let fuel = crabmarines.0.iter().map(|p| (*p - pos).abs()).sum();
         if fuel < least_fuel {
-            println!("New best: {} uses {}", pos, fuel);
+            println!("New best: {pos} uses {fuel}");
             least_fuel = fuel;
         }
     }
@@ -35,13 +34,12 @@ fn part_one(crabmarines: &CrabMarines) -> isize {
 }
 
 fn part_two(crabmarines: &CrabMarines) -> isize {
-    println!("crabmarines: {:?}", crabmarines);
+    println!("crabmarines: {crabmarines:?}");
     let smallest = *crabmarines.0.iter().min().unwrap();
     let largest = *crabmarines.0.iter().max().unwrap();
 
     let mut least_fuel = isize::MAX;
     for pos in smallest..=largest {
-        let pos: isize = pos.try_into().unwrap();
         let fuel = crabmarines
             .0
             .iter()
@@ -51,7 +49,7 @@ fn part_two(crabmarines: &CrabMarines) -> isize {
             })
             .sum();
         if fuel < least_fuel {
-            println!("New best: {} uses {}", pos, fuel);
+            println!("New best: {pos} uses {fuel}");
             least_fuel = fuel;
         }
     }
@@ -65,9 +63,9 @@ fn main() {
 
     let crabmarines: CrabMarines = input.parse().unwrap();
     let ans = part_one(&crabmarines);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&crabmarines);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]

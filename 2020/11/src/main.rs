@@ -31,7 +31,7 @@ impl From<&[String]> for Automaton {
         let width = inp[0].len();
         let height = inp.len();
 
-        println!("Initialising a {}x{} automaton", width, height);
+        println!("Initialising a {width}x{height} automaton");
         // (rows, cols)
         let mut grid =
             Array2::<CellType>::from_elem((height, width), CellType::Floor);
@@ -366,13 +366,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         BufReader::new(file).lines().map(|x| x.unwrap()).collect();
 
     let automaton = Automaton::from(&data[..]);
-    println!("Starting automaton:\n{}\n\n", automaton);
+    println!("Starting automaton:\n{automaton}\n\n");
 
     let res = part_one(automaton.clone());
-    println!("Part one: {}", res);
+    println!("Part one: {res}");
 
     let res = part_two(automaton);
-    println!("Part two: {}", res);
+    println!("Part two: {res}");
 
     Ok(())
 }
@@ -386,7 +386,7 @@ fn part_one(mut automaton: Automaton) -> usize {
     while automaton.evolve() != 0 {
         iter_count += 1;
     }
-    println!("Reached a stopping point after {} iterations!", iter_count);
+    println!("Reached a stopping point after {iter_count} iterations!");
     //println!("{}", automaton);
 
     // Count the occupied seats
@@ -406,7 +406,7 @@ fn part_two(mut automaton: Automaton) -> usize {
     while automaton.evolve_2() != 0 {
         iter_count += 1;
     }
-    println!("Reached a stopping point after {} iterations!", iter_count);
+    println!("Reached a stopping point after {iter_count} iterations!");
     //println!("{}", automaton);
 
     // Count the occupied seats
@@ -475,7 +475,7 @@ mod test {
     fn test_part_one() {
         let automaton = test_automaton();
 
-        println!("Automaton:\n{}", automaton);
+        println!("Automaton:\n{automaton}");
         let res = part_one(automaton);
 
         assert_eq!(res, 37);
@@ -529,7 +529,7 @@ mod test {
     fn test_part_two() {
         let automaton = test_automaton();
 
-        println!("Automaton:\n{}", automaton);
+        println!("Automaton:\n{automaton}");
         let res = part_two(automaton);
 
         assert_eq!(res, 26);

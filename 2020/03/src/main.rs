@@ -51,7 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     let two = part_two(&map);
-    println!("The product is: {}", two);
+    println!("The product is: {two}");
 
     Ok(())
 }
@@ -90,6 +90,7 @@ fn part_two(map: &TreeMap) -> usize {
 
     let mut running_product: usize = 1;
 
+    #[allow(clippy::uninlined_format_args)]
     for case in cases.iter() {
         let (trees, empty) = part_one(map, case.1, case.0);
         running_product *= trees;
@@ -125,11 +126,11 @@ mod test {
     #[test]
     fn test_part_one() {
         let map = generate_test_map();
-        eprintln!("{:?}", map);
+        eprintln!("{map:?}");
         // Go right 3, down 1
         let (trees, empty) = part_one(&map, 1, 3);
 
-        println!("Trees: {}, empty: {}", trees, empty);
+        println!("Trees: {trees}, empty: {empty}");
         assert_eq!(trees, 7);
     }
 

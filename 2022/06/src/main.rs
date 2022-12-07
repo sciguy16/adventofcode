@@ -23,9 +23,9 @@ fn main() -> Result<()> {
     let input = include_bytes!("../input.txt");
     let data = input;
     let ans = solve(&data[..], 4);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = solve(&data[..], 14);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
     Ok(())
 }
 

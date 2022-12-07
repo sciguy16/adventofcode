@@ -1,4 +1,5 @@
 #![feature(generic_const_exprs)]
+#![allow(incomplete_features)]
 use nalgebra::DMatrix;
 use petgraph::algo::dijkstra;
 use petgraph::Graph;
@@ -146,12 +147,12 @@ fn main() {
     let data: CavernMatrix<100, 100> = input.parse().unwrap();
     let graph = CavernGraph::from(&data);
     let ans = part_one(&graph);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let bigger = data.embiggen();
     let graph = CavernGraph::from(&bigger);
     println!("graph dimension: {}", graph.dimension);
     let ans = part_one(&graph);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
@@ -251,7 +252,7 @@ mod test {
                 .next()
                 .unwrap()
                 .chars()
-                .map(|c| format!("{} ", c))
+                .map(|c| format!("{c} "))
                 .collect::<String>()
         );
         println!("{}", bigger.inner);

@@ -47,10 +47,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     let res = part_one(&seats);
-    println!("Largest seat ID: {}", res);
+    println!("Largest seat ID: {res}");
 
     let res = part_two(&seats);
-    println!("Missing seat is: {}", res);
+    println!("Missing seat is: {res}");
 
     Ok(())
 }

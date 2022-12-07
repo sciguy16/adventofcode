@@ -17,7 +17,7 @@ impl FromStr for Movement {
             "up" => Movement::Up(second),
             "down" => Movement::Down(second),
             "forward" => Movement::Forward(second),
-            o => panic!("Invalid direction {}", o),
+            o => panic!("Invalid direction {o}"),
         })
     }
 }
@@ -44,7 +44,7 @@ fn part_one(movements: &[Movement]) -> isize {
             Movement::Forward(d) => coords.x += d,
         }
     }
-    println!("Coords: {:?}", coords);
+    println!("Coords: {coords:?}");
     coords.prod()
 }
 
@@ -76,10 +76,10 @@ fn main() {
         .collect::<Vec<_>>();
 
     let ans = part_one(&movements);
-    println!("Part one: {}", ans);
+    println!("Part one: {ans}");
 
     let ans = part_two(&movements);
-    println!("Part two: {}", ans);
+    println!("Part two: {ans}");
 }
 
 #[cfg(test)]

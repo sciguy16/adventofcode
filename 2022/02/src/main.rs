@@ -141,9 +141,9 @@ fn main() -> Result<()> {
     let input = include_str!("../input.txt");
     let data = input.parse()?;
     let ans = part_one(&data);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&data);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
     Ok(())
 }
 

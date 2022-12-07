@@ -67,7 +67,7 @@ impl BingoBoard {
             .iter()
             .filter_map(|ele| if !ele.1 { Some(ele.0) } else { None })
             .sum::<usize>();
-        println!("Sum: {}, num: {}", sum, num);
+        println!("Sum: {sum}, num: {num}");
         sum * num
     }
 }
@@ -124,12 +124,7 @@ impl FromStr for BingoSubsystem {
 
 impl BingoSubsystem {
     pub fn a_winner(&self) -> Option<&BingoBoard> {
-        for board in &self.boards {
-            if board.is_win() {
-                return Some(&board);
-            }
-        }
-        None
+        self.boards.iter().find(|&board| board.is_win())
     }
 
     pub fn mark(&mut self, number: usize) {
@@ -155,9 +150,9 @@ fn part_one(subsystem: &BingoSubsystem) -> usize {
     // Loop over the drawings until a board wins
     for number in drawings {
         subsystem.mark(*number);
-        print!("Number: {}, winner: ", number);
+        print!("Number: {number}, winner: ");
         if let Some(winner) = subsystem.a_winner() {
-            println!("Found a winner:\n{}", winner);
+            println!("Found a winner:\n{winner}");
             return winner.score(*number);
         } else {
             println!("false");
@@ -185,7 +180,7 @@ fn part_two(subsystem: &BingoSubsystem) -> usize {
             // found a winner, if it's the last one then return its score,
             // otherwise remove it and continue
             if subsystem.boards.len() == 1 {
-                println!("final winner:\n{}", winner);
+                println!("final winner:\n{winner}");
                 return winner.score(*number);
             } else {
                 subsystem.filter_winners();
@@ -205,10 +200,10 @@ fn main() {
     let subsystem: BingoSubsystem = input.parse().unwrap();
 
     let ans = part_one(&subsystem);
-    println!("part 1: {}", ans);
+    println!("part 1: {ans}");
 
     let ans = part_two(&subsystem);
-    println!("part 2: {}", ans);
+    println!("part 2: {ans}");
 }
 
 #[cfg(test)]
@@ -298,7 +293,7 @@ mod test {
     #[test]
     fn test_part_one_forced() {
         let mut subsystem = TEST_DATA.parse::<BingoSubsystem>().unwrap();
-        println!("{:?}", subsystem);
+        println!("{subsystem:?}");
         assert_eq!(subsystem.boards.len(), 3);
         let numbers: &[usize] = &[14, 21, 17, 24, 4];
         for num in numbers {

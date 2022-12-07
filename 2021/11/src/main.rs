@@ -41,7 +41,7 @@ impl Display for OctopusMap {
             for j in 0..ncols {
                 match self.inner[(i, j)] {
                     0 => write!(fmt, " {}", "0".yellow().bold())?,
-                    n => write!(fmt, "{:2}", n)?,
+                    n => write!(fmt, "{n:2}")?,
                 }
             }
             writeln!(fmt, " │")?;
@@ -147,9 +147,9 @@ fn main() {
     let input = include_str!("../input.txt");
     let data = input.parse().unwrap();
     let ans = part_one(&data);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&data);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
@@ -170,7 +170,7 @@ mod test {
     #[test]
     fn test_part_1() {
         let inp = TEST_DATA.parse().unwrap();
-        println!("{}", inp);
+        println!("{inp}");
         let ans = part_one(&inp);
         assert_eq!(ans, 1656);
     }

@@ -165,7 +165,7 @@ impl From<&str> for Instruction {
         let (letter, numbers) = inp.split_at(1);
         let numbers = numbers.parse::<isize>().expect("Invalid number");
 
-        println!("letter: {},num: {}", letter, numbers);
+        println!("letter: {letter}, num: {numbers}");
 
         // Action N means to move north by the given value.
         // Action S means to move south by the given value.
@@ -199,10 +199,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     let res = part_one(&data);
-    println!("Part one: {}", res);
+    println!("Part one: {res}");
 
     let res = part_two(&data);
-    println!("Part two: {}", res);
+    println!("Part two: {res}");
 
     Ok(())
 }
@@ -226,7 +226,7 @@ fn part_two(route: &[Instruction]) -> isize {
         ship.r#move(instruction);
     }
 
-    println!("Ship is: {:?}", ship);
+    println!("Ship is: {ship:?}");
 
     ship.manhatten()
 }

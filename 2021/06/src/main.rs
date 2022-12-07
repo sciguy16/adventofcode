@@ -54,7 +54,7 @@ fn part_one(fish: &[Lanternfish], days: usize) -> usize {
     for day in 1..=days {
         fish_buckets.step();
         #[cfg(debug_assertions)]
-        println!("Day {:2}: {:?}", day, fish_buckets);
+        println!("Day {day:2}: {fish_buckets:?}");
     }
 
     fish_buckets.0.iter().sum()
@@ -67,9 +67,9 @@ fn main() {
     let fish = parse_lanternfish(input).unwrap();
 
     let ans = part_one(&fish, 80);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_one(&fish, 256);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]

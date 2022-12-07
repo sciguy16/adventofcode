@@ -209,7 +209,7 @@ mod test {
     #[test]
     fn test_intersect() {
         let line: Line = "0,0 -> 0,5".parse().unwrap();
-        println!("Line: {:?}", line);
+        println!("Line: {line:?}");
         assert!(line.is_intersect((0, 2)));
         assert!(line.is_intersect((0, 0)));
         assert!(line.is_intersect((0, 5)));

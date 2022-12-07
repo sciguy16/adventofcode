@@ -45,7 +45,7 @@ struct Polymer {
 impl Display for Polymer {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         for c in &self.inner {
-            write!(fmt, "{}", c)?;
+            write!(fmt, "{c}")?;
         }
         writeln!(fmt)
     }
@@ -131,7 +131,7 @@ struct PolymerBTree {
 impl Display for PolymerBTree {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         for ((l, r), c) in &self.inner {
-            writeln!(fmt, "{}{} => {}", *l as char, *r as char, c)?;
+            writeln!(fmt, "{}{} => {}", *l, *r, c)?;
         }
         writeln!(fmt)
     }
@@ -172,10 +172,10 @@ impl PolymerBTree {
         // merge buf into self, then clear buf
         buf.clear();
         for (left, right) in self.inner.keys() {
-            print!("{}{}", left, right);
+            print!("{left}{right}");
             let count = self.inner.get(&(*left, *right)).unwrap();
             if let Some(r) = rules.iter().find(|r| r.matches(*left, *right)) {
-                print!(" [apply {}]: ", r);
+                print!(" [apply {r}]: ");
                 // subtract THE ORIGINAL COUNT from current pair
                 let cnt =
                     buf.get(&(*left, *right)).copied().unwrap_or_default();
@@ -187,12 +187,9 @@ impl PolymerBTree {
             }
             println!();
         }
-        println!("Deltas: {:?}", buf);
+        println!("Deltas: {buf:?}");
         for (pair, delta) in buf.iter() {
-            println!(
-                "Adding {} to ({}, {})",
-                delta, pair.0 as char, pair.1 as char
-            );
+            println!("Adding {} to ({}, {})", delta, pair.0, pair.1,);
             *self.inner.entry(*pair).or_default() += delta;
         }
         // Retain only elements that occur at least once
@@ -232,7 +229,7 @@ fn part_one(inp: &Polymer) -> usize {
     let most = counts.iter().max_by_key(|(_k, v)| *v).unwrap();
     let least = counts.iter().min_by_key(|(_k, v)| *v).unwrap();
 
-    println!("most: {:?}, least: {:?}", most, least);
+    println!("most: {most:?}, least: {least:?}");
 
     most.1 - least.1
 }
@@ -249,11 +246,11 @@ fn part_two(inp: &Polymer, limit: usize) -> usize {
     }
 
     let counts = poly.counts();
-    println!("counts: {:?}", counts);
+    println!("counts: {counts:?}");
     let most = counts.iter().max_by_key(|(_k, v)| *v).unwrap();
     let least = counts.iter().min_by_key(|(_k, v)| *v).unwrap();
 
-    println!("most: {:?}, least: {:?}", most, least);
+    println!("most: {most:?}, least: {least:?}");
 
     (most.1 - least.1).try_into().unwrap()
 }
@@ -262,9 +259,9 @@ fn main() {
     let input = include_str!("../input.txt");
     let data = input.parse().unwrap();
     let ans = part_one(&data);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&data, 40);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
@@ -302,14 +299,14 @@ CN -> C"#;
     #[test]
     fn test_apply() {
         let mut inp: Polymer = TEST_DATA.parse().unwrap();
-        println!("starting polymer: {}", inp);
+        println!("starting polymer: {inp}");
         let r = InsertionRule {
             left: 'N',
             right: 'C',
             output: 'J',
         };
         inp.apply(&[r]);
-        println!("after: {}", inp);
+        println!("after: {inp}");
         assert_eq!(inp.to_string().trim(), "NNJCB");
 
         inp.inner = "NNCBNNCBNNCB".chars().collect();
@@ -320,7 +317,7 @@ CN -> C"#;
     #[test]
     fn test_apply_fast() {
         let mut inp: Polymer = TEST_DATA.parse().unwrap();
-        println!("starting polymer: {}", inp);
+        println!("starting polymer: {inp}");
         let r = InsertionRule {
             left: 'N',
             right: 'C',
@@ -328,7 +325,7 @@ CN -> C"#;
         };
         let mut buf = Vec::new();
         inp.apply_fast(&[r], &mut buf);
-        println!("after: {}", inp);
+        println!("after: {inp}");
         assert_eq!(inp.to_string().trim(), "NNJCB");
 
         inp.inner = "NNCBNNCBNNCB".chars().collect();
@@ -339,7 +336,7 @@ CN -> C"#;
     #[test]
     fn test_btree_method() {
         let inp: Polymer = TEST_DATA.parse().unwrap();
-        println!("starting polymer: {}", inp);
+        println!("starting polymer: {inp}");
         let r = &[
             InsertionRule {
                 left: 'N',
@@ -384,7 +381,7 @@ CN -> C"#;
         assert_eq!(*poly.inner.get(&('C', 'B')).unwrap(), 1);
         poly.apply(r, &mut buf);
         // after NGNNGNJCB
-        println!("{}", poly);
+        println!("{poly}");
         assert_eq!(poly.inner.len(), 6);
         assert_eq!(*poly.inner.get(&('N', 'G')).unwrap(), 2);
         assert_eq!(*poly.inner.get(&('G', 'N')).unwrap(), 2);
@@ -397,7 +394,7 @@ CN -> C"#;
         let mut original_poly = inp;
         for step in 0..3 {
             original_poly.apply(r);
-            println!("step {}: {}", step, original_poly);
+            println!("step {step}: {original_poly}");
         }
         assert_eq!(original_poly.to_string().trim(), "NGNNGNJCB");
     }
@@ -405,7 +402,7 @@ CN -> C"#;
     #[test]
     fn test_part_1() {
         let inp = TEST_DATA.parse().unwrap();
-        println!("starting polymer: {}", inp);
+        println!("starting polymer: {inp}");
         let ans = part_one(&inp);
         assert_eq!(ans, 1588);
     }
@@ -424,7 +421,7 @@ CN -> C"#;
         let mut poly = inp.clone();
         let mut buf = BTreeMap::new();
 
-        println!("start: {}{}", poly, btreepoly);
+        println!("start: {poly}{btreepoly}");
         for step in 0..10 {
             poly.apply(&inp.rules);
             btreepoly.apply(&inp.rules, &mut buf);
@@ -436,15 +433,16 @@ CN -> C"#;
         }
 
         let to_compare = PolymerBTree::from(&poly);
-        println!("to compare: {}", to_compare);
+        println!("to compare: {to_compare}");
 
         assert_eq!(to_compare.inner, btreepoly.inner);
     }
 
     //#[test]
+    #[allow(dead_code)]
     fn compare_part_one_and_part_two() {
         let inp = TEST_DATA.parse().unwrap();
-        println!("starting polymer: {}", inp);
+        println!("starting polymer: {inp}");
         let ans = part_one(&inp);
         assert_eq!(ans, 1588);
         let ans = part_two(&inp, 10);

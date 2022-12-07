@@ -55,7 +55,7 @@ impl Passport {
     pub fn is_valid_two(&self) -> bool {
         // byr (Birth Year) - four digits; at least 1920 and at most 2002.
         if let Some(y) = self.birth_year {
-            if y < 1920 || y > 2002 {
+            if !(1920..=2002).contains(&y) {
                 return false;
             }
         } else {
@@ -64,7 +64,7 @@ impl Passport {
 
         // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
         if let Some(y) = self.issue_year {
-            if y < 2010 || y > 2020 {
+            if !(2010..=2020).contains(&y) {
                 return false;
             }
         } else {
@@ -73,7 +73,7 @@ impl Passport {
 
         // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
         if let Some(y) = self.expiration_year {
-            if y < 2020 || y > 2030 {
+            if !(2020..=2030).contains(&y) {
                 return false;
             }
         } else {
@@ -86,13 +86,13 @@ impl Passport {
         match &self.height {
             Some(h) if h.ends_with("cm") => {
                 let num: u8 = h.split("cm").next().unwrap().parse().unwrap();
-                if num < 150 || num > 193 {
+                if !(150..=193).contains(&num) {
                     return false;
                 }
             }
             Some(h) if h.ends_with("in") => {
                 let num: u8 = h.split("in").next().unwrap().parse().unwrap();
-                if num < 59 || num > 76 {
+                if !(59..=76).contains(&num) {
                     return false;
                 }
             }
@@ -101,7 +101,7 @@ impl Passport {
 
         // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
         if let Some(colour) = &self.hair_colour {
-            if !HAIR_REGEX.is_match(&colour) {
+            if !HAIR_REGEX.is_match(colour) {
                 return false;
             }
         } else {
@@ -110,7 +110,7 @@ impl Passport {
 
         // ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
         if let Some(colour) = &self.eye_colour {
-            if !EYE_REGEX.is_match(&colour) {
+            if !EYE_REGEX.is_match(colour) {
                 return false;
             }
         } else {
@@ -119,7 +119,7 @@ impl Passport {
 
         // pid (Passport ID) - a nine-digit number, including leading zeroes.
         if let Some(id) = &self.passport_id {
-            if !PASSPORT_ID_REGEX.is_match(&id) {
+            if !PASSPORT_ID_REGEX.is_match(id) {
                 return false;
             }
         } else {
@@ -162,7 +162,7 @@ fn parse_passports(inp: &[String]) -> Vec<Passport> {
     let mut current_passport: Passport = Default::default();
 
     for line in inp {
-        if line == "" {
+        if line.is_empty() {
             // Empty line separates entries
             println!("---");
             passports.push(current_passport.clone());
@@ -170,7 +170,7 @@ fn parse_passports(inp: &[String]) -> Vec<Passport> {
             continue;
         }
         for entry in line.split(' ') {
-            println!("entry: {}", entry);
+            println!("entry: {entry}");
             // Split name and value from entry
             let mut entry_data = entry.split(':');
             let id = entry_data.next().unwrap();

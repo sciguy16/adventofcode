@@ -146,7 +146,7 @@ fn part_two(combinations: &Combinations) -> usize {
             x if x == seven => 7,
             x if x == eight => 8,
             x if x == nine => 9,
-            x => panic!("{} not found", x),
+            x => panic!("{x} not found"),
         };
 
         let thousands = value(&combination.digits[0]);
@@ -154,7 +154,7 @@ fn part_two(combinations: &Combinations) -> usize {
         let tens = value(&combination.digits[2]);
         let ones = value(&combination.digits[3]);
         let number = thousands * 1000 + hundreds * 100 + tens * 10 + ones;
-        println!("number: {}", number);
+        println!("number: {number}");
         total += number;
     }
 
@@ -166,9 +166,9 @@ fn main() {
     let input = include_str!("../input.txt");
     let combinations: Combinations = input.parse().unwrap();
     let ans = part_one(&combinations);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&combinations);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]

@@ -31,7 +31,7 @@ fn part_one<const N: usize>(report: &[ReportEntry<N>]) -> usize {
         }
     }
 
-    println!("counts: {:?}", counts);
+    println!("counts: {counts:?}");
     let gamma: usize = {
         let mut num: usize = 0;
         for bit in counts {
@@ -54,7 +54,7 @@ fn part_one<const N: usize>(report: &[ReportEntry<N>]) -> usize {
 
     let epsilon = !gamma & mask;
 
-    println!("gamma: {}, epsilon: {}", gamma, epsilon);
+    println!("gamma: {gamma}, epsilon: {epsilon}");
 
     gamma * epsilon
 }
@@ -209,11 +209,11 @@ fn main() {
         .collect::<Vec<_>>();
 
     let ans = part_one(&report);
-    println!("Part one: {}", ans);
+    println!("Part one: {ans}");
 
     let report: ReportTransposed = input.parse().unwrap();
     let ans = part_one_transposed(&report);
-    println!("Part one transposed: {}", ans);
+    println!("Part one transposed: {ans}");
 
     let report = input
         .lines()
@@ -221,7 +221,7 @@ fn main() {
         .collect::<Vec<_>>();
 
     let ans = part_two(&report, 12);
-    println!("Part two: {}", ans);
+    println!("Part two: {ans}");
 }
 
 #[cfg(test)]
@@ -248,7 +248,7 @@ mod test {
             .map(|line| line.parse::<ReportEntry<5>>().unwrap())
             .collect::<Vec<_>>();
 
-        println!("{:?}", report);
+        println!("{report:?}");
 
         let ans = part_one(&report);
         assert_eq!(ans, 198);
@@ -257,7 +257,7 @@ mod test {
     #[test]
     fn test_part_one_transposed() {
         let report: ReportTransposed = TEST_DATA.parse().unwrap();
-        println!("Report: \n{}", report);
+        println!("Report: \n{report}");
         let ans = part_one_transposed(&report);
         assert_eq!(ans, 198);
     }
@@ -269,7 +269,7 @@ mod test {
             .map(|line| u16::from_str_radix(line, 2).unwrap())
             .collect::<Vec<_>>();
 
-        println!("{:?}", report);
+        println!("{report:?}");
 
         let ans = part_two(&report, 5);
         assert_eq!(ans, 230);

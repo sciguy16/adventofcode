@@ -43,7 +43,7 @@ impl Relation {
         let mut spliterator = inp.split(" bags contain ");
         let parent = spliterator.next().unwrap().to_string();
         let children_string = spliterator.next().unwrap();
-        println!("Parent: `{}`, children: `{}`", parent, children_string);
+        println!("Parent: `{parent}`, children: `{children_string}`");
 
         // now:
         // Parent: `light red`
@@ -51,8 +51,8 @@ impl Relation {
 
         let mut children: HashMap<String, usize> = Default::default();
         // child_string: 1 bright white bag
-        for capture in CHILD_PARSE_REGEX.captures_iter(&children_string) {
-            println!("cap: {:?}", capture);
+        for capture in CHILD_PARSE_REGEX.captures_iter(children_string) {
+            println!("cap: {capture:?}");
             let count = capture[1].parse::<usize>().unwrap();
             let colour = capture[2].to_string();
 
@@ -76,10 +76,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     let res = part_one(&data);
-    println!("{} bags can eventually hold shiny gold!", res);
+    println!("{res} bags can eventually hold shiny gold!");
 
     let res = part_two(&data);
-    println!("My shiny gold bag contains {} other bags!", res);
+    println!("My shiny gold bag contains {res} other bags!");
 
     Ok(())
 }
@@ -110,7 +110,7 @@ fn part_one(relations: &[Relation]) -> usize {
     loop {
         // for current level bags, check whether any can be held
         // if none can be held then break, otherwise save them into new level
-        println!("Previous level: {:?}", previous_level);
+        println!("Previous level: {previous_level:?}");
         for rel in relations {
             for bag in &previous_level {
                 if rel.can_hold(&bag.parent) {
@@ -168,7 +168,7 @@ fn part_two(relations_slice: &[Relation]) -> usize {
                         bag.0.parent, rel.parent, child_count
                     );
                     count += bag.1 * child_count;
-                    println!("-- running total: {}", count);
+                    println!("-- running total: {count}");
                     next_level.insert((rel, *child_count * bag.1));
                 }
             }
@@ -194,11 +194,10 @@ mod test {
         // and then dedup them
         let mut bag_types: HashSet<String> = relations
             .iter()
-            .map(|r| r.children.keys())
-            .flatten()
+            .flat_map(|r| r.children.keys())
             .cloned()
             .collect();
-        println!("\n------\nchildren: {:?}", bag_types);
+        println!("\n------\nchildren: {bag_types:?}");
 
         for rel in relations {
             bag_types.insert(rel.parent.clone());
@@ -207,7 +206,7 @@ mod test {
         //types_vec.sort();
         //types_vec.dedup();
 
-        println!("\n-----\nbag types: {:?}", bag_types);
+        println!("\n-----\nbag types: {bag_types:?}");
 
         bag_types
     }
@@ -224,14 +223,14 @@ mod test {
 "faded blue bags contain no other bags.",
 "dotted black bags contain no other bags."];
         data.iter()
-            .map(|line| Relation::from_string(&line).unwrap())
+            .map(|line| Relation::from_string(line).unwrap())
             .collect()
     }
 
     #[test]
     fn test_part_one() {
         let data = test_data();
-        println!("data: {:?}", data);
+        println!("data: {data:?}");
         assert_eq!(data.len(), 9);
         assert_eq!(get_bag_types(&data).len(), 9);
 
@@ -260,7 +259,7 @@ mod test {
             "dark violet bags contain no other bags.",
         ]
         .iter()
-        .map(|line| Relation::from_string(&line).unwrap())
+        .map(|line| Relation::from_string(line).unwrap())
         .collect();
         let res = part_two(&data);
 

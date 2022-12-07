@@ -12,7 +12,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     let res = part_one(&data);
-    println!("Magic number: {}", res);
+    println!("Magic number: {res}");
 
     Ok(())
 }

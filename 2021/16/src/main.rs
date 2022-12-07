@@ -46,7 +46,7 @@ impl From<&BitSlice<Msb0, u8>> for Packet {
         let version = bv[0..3].load::<u8>();
         let type_id = bv[3..6].load::<u8>();
         #[cfg(debug_assertions)]
-        println!("bv: {}\nversion {}, type {}", bv, version, type_id);
+        println!("bv: {bv}\nversion {version}, type {type_id}");
         let mut length = 0;
         let inner = match type_id {
             4 => {
@@ -70,7 +70,7 @@ impl From<&BitSlice<Msb0, u8>> for Packet {
                     pos += 1;
                 }
                 length = OFFSET + pos * 5 + 1 + 4;
-                println!("LITERAL PACKET: {}", lit);
+                println!("LITERAL PACKET: {lit}");
                 PacketInner::Literal(lit)
             }
             _ => {
@@ -81,7 +81,7 @@ impl From<&BitSlice<Msb0, u8>> for Packet {
                         // next 15 bits are total length in bits of the subpackets
                         let end = 7 + 15;
                         let num_bits: usize = bv[7..end].load_be();
-                        println!("[loading {} bits]", num_bits);
+                        println!("[loading {num_bits} bits]");
                         length = end + num_bits;
                         let mut pos = end;
                         while pos < end + num_bits {
@@ -94,7 +94,7 @@ impl From<&BitSlice<Msb0, u8>> for Packet {
                         // next 11 bits are number of subpackets
                         let end = 7 + 11;
                         let num_subpackets: usize = bv[7..end].load_be();
-                        println!("[loading {} subpackets]", num_subpackets);
+                        println!("[loading {num_subpackets} subpackets]");
                         let mut pos: usize = end;
                         for _ in 0..num_subpackets {
                             let next_packet = Packet::from(&bv[pos..]);
@@ -140,9 +140,9 @@ fn main() {
     let input = include_str!("../input.txt");
     let data = input.parse().unwrap();
     let ans = part_one(&data);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&data);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
@@ -210,7 +210,7 @@ mod test {
     #[test]
     fn test_part_1() {
         for (packet, expected) in CASES {
-            println!("CASE {}: {}", packet, expected);
+            println!("CASE {packet}: {expected}");
             let packet = packet.parse().unwrap();
             let ans = part_one(&packet);
             assert_eq!(ans, *expected);

@@ -21,10 +21,10 @@ fn main() {
         .collect::<Vec<_>>();
 
     let ans = part_one(&depths);
-    println!("Part one: {}", ans);
+    println!("Part one: {ans}");
 
     let ans = part_two(&depths);
-    println!("Part two: {}", ans);
+    println!("Part two: {ans}");
 }
 
 #[cfg(test)]

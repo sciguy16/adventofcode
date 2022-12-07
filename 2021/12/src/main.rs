@@ -69,9 +69,10 @@ fn part_one(cave: &Cave) -> usize {
         algo::all_simple_paths::<Vec<_>, _>(&cave.inner, start, end, 1, None)
             .collect::<Vec<_>>();
 
-    let path_count = 0;
+    // let path_count = 0;
 
-    path_count
+    // path_count
+    0
 }
 
 fn part_two(_inp: &Cave) -> usize {
@@ -82,13 +83,14 @@ fn main() {
     let input = include_str!("../input.txt");
     let data = input.parse().unwrap();
     let ans = part_one(&data);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&data);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
 mod test {
+    #![allow(dead_code)]
     use super::*;
 
     const TEST_DATA_1: &str = r#"start-A

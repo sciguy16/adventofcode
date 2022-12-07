@@ -48,7 +48,7 @@ impl TryFrom<char> for TokenType {
             ')' => Close(Paren),
             '<' => Open(Angle),
             '>' => Close(Angle),
-            t => return Err(format!("Invalid token: {}", t)),
+            t => Err(format!("Invalid token: {t}"))?,
         })
     }
 }
@@ -76,8 +76,7 @@ fn part_one(programs: &[&'static str]) -> u64 {
                     if t != last {
                         // mismatch!
                         println!(
-                            "Syntax error: got '{:?}', expected '{:?}'",
-                            t, last
+                            "Syntax error: got '{t:?}', expected '{last:?}'"
                         );
                         score += t.score();
                         break 'program;
@@ -143,9 +142,9 @@ fn main() {
     let input = include_str!("../input.txt");
     let programs = input.lines().collect::<Vec<&'static str>>();
     let ans = part_one(&programs);
-    println!("part one: {}", ans);
+    println!("part one: {ans}");
     let ans = part_two(&programs);
-    println!("part two: {}", ans);
+    println!("part two: {ans}");
 }
 
 #[cfg(test)]
