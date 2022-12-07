@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 const THRESHOLD: usize = 100000;
+const FS_SIZE: usize = 70000000;
+const SPACE_NEEDED: usize = 30000000;
 
 #[derive(Debug, Default)]
 struct Directory {
@@ -13,19 +15,20 @@ impl Directory {
     pub fn calculate_sizes(
         &self,
         name: String,
-        total_size: &mut usize, // sizes: &mut HashMap<String, usize>,
+        //total_size: &mut usize,
+        sizes: &mut Vec<usize>,
     ) -> usize {
         let size = self
             .inner
             .iter()
-            .map(|(name, v)| v.calculate_sizes(name.to_string(), total_size))
+            .map(|(name, v)| v.calculate_sizes(name.to_string(), sizes))
             .sum();
         // dbg!(&sizes);
         // assert!(!sizes.contains_key(&name), "{name} is repeated!");
-        // sizes.insert(name, size);
-        if size <= THRESHOLD {
-            *total_size += size;
-        }
+        sizes.push(size);
+        // if size <= THRESHOLD {
+        //     *total_size += size;
+        // }
         size
     }
 }
@@ -58,14 +61,12 @@ impl DirEntry {
     pub fn calculate_sizes(
         &self,
         name: String,
-        total_size: &mut usize,
-        // sizes: &mut HashMap<String, usize>,
+        // total_size: &mut usize,
+        sizes: &mut Vec<usize>,
     ) -> usize {
         match self {
             DirEntry::File { size } => *size,
-            DirEntry::Dir { entries } => {
-                entries.calculate_sizes(name, total_size)
-            }
+            DirEntry::Dir { entries } => entries.calculate_sizes(name, sizes),
         }
     }
 }
@@ -139,40 +140,53 @@ impl FromStr for Directory {
     }
 }
 
-fn part_one(inp: &Directory) -> usize {
+fn solve(inp: &Directory) -> (usize, usize) {
     // let mut dir_sizes = HashMap::<String, usize>::new();
 
     let mut total_size = 0;
+
+    let mut used_space = 0;
+
+    let mut dir_sizes = Vec::new();
 
     for (name, entry) in &inp.inner {
         match entry {
             DirEntry::Dir { entries } => {
                 let size =
-                    entries.calculate_sizes(name.to_string(), &mut total_size);
-                // if size <= THRESHOLD {
-                //     total_size += size;
-                // }
-                // dir_sizes.insert(name.to_string(), size);
+                    entries.calculate_sizes(name.to_string(), &mut dir_sizes);
+                used_space += size;
             }
-            DirEntry::File { size: _ } => {} //size_of_loose_files += size,
+            DirEntry::File { size } => used_space += size,
         }
     }
 
-    // dbg!(&dir_sizes);
+    dbg!(used_space);
+    dbg!(&dir_sizes);
 
-    // dir_sizes
-    //     .values()
-    //     .filter(|s| **s <= THRESHOLD)
-    //     .inspect(|x| {
-    //         dbg!(x);
-    //     })
-    //     .sum::<usize>()
+    let total_size = dir_sizes
+        .iter()
+        .filter(|s| **s <= THRESHOLD)
+        .inspect(|x| {
+            dbg!(x);
+        })
+        .sum::<usize>();
     // + size_of_loose_files
-    total_size
-}
 
-fn part_two(_inp: &Directory) -> u64 {
-    0
+    // let used_space: usize = dir_sizes.iter().sum();
+    dbg!(used_space);
+    let available_space = FS_SIZE - used_space;
+    let need_to_delete = SPACE_NEEDED - available_space;
+    dbg!(available_space);
+    dbg!(need_to_delete);
+
+    // need to delete smallest file larger than need_to_delete
+    let dir_to_del = dir_sizes
+        .iter()
+        .filter(|s| **s >= need_to_delete)
+        .min()
+        .unwrap();
+
+    (total_size, *dir_to_del)
 }
 
 fn main() -> Result<()> {
@@ -180,10 +194,9 @@ fn main() -> Result<()> {
     let input = include_str!("../input.txt");
     let data = input.parse()?;
     dbg!(&data);
-    let ans = part_one(&data);
-    println!("part one: {}", ans);
-    let ans = part_two(&data);
-    println!("part two: {}", ans);
+    let (ans1, ans2) = solve(&data);
+    println!("part one: {ans1}");
+    println!("part two: {ans2}");
     Ok(())
 }
 
@@ -219,14 +232,14 @@ $ ls
     fn test_part_1() {
         let inp = TEST_DATA.parse().unwrap();
         dbg!(&inp);
-        let ans = part_one(&inp);
+        let (ans, _) = solve(&inp);
         assert_eq!(ans, 95437);
     }
 
     #[test]
     fn test_part_2() {
         let inp = TEST_DATA.parse().unwrap();
-        let ans = part_two(&inp);
-        assert_eq!(ans, 0);
+        let (_, ans) = solve(&inp);
+        assert_eq!(ans, 24933642);
     }
 }
