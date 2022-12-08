@@ -50,6 +50,60 @@ impl<const N: usize> FromStr for DataType<{ N }> {
     }
 }
 
+impl<const N: usize> DataType<N> {
+    pub fn scenic_score(&self, row: usize, col: usize) -> usize {
+        // this is only called for trees strictly within the forest - not for
+        // trees on the edges. Hence no need to consider... "edge" cases
+        let height = self.inner[row][col].0;
+
+        println!("\nPosition ({row}, {col}) height {height}");
+
+        let mut left = 0;
+        for c in (0..col).rev() {
+            left += 1;
+            println!("  check ({row}, {c}) = {}", self.inner[row][c].0);
+            if self.inner[row][c].0 >= height {
+                println!("stop left {left}");
+                break;
+            }
+        }
+
+        let mut right = 0;
+        for c in (col + 1)..N {
+            right += 1;
+            println!("  check ({row}, {c}) = {}", self.inner[row][c].0);
+            if self.inner[row][c].0 >= height {
+                println!("stop right {right}");
+                break;
+            }
+        }
+
+        let mut up = 0;
+        for r in (0..row).rev() {
+            up += 1;
+            println!("  check ({r}, {col}) = {}", self.inner[r][col].0);
+            if self.inner[r][col].0 >= height {
+                println!("stop up {up}");
+                break;
+            }
+        }
+
+        let mut down = 0;
+        for r in (row + 1)..N {
+            down += 1;
+            println!("  check ({r}, {col}) = {}", self.inner[r][col].0);
+            if self.inner[r][col].0 >= height {
+                println!("stop down {down}");
+                break;
+            }
+        }
+
+        println!("Position ({row}, {col}) has l: {left} d: {down} r: {right} u: {up}");
+
+        left * right * up * down
+    }
+}
+
 fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
     let mut trees = inp.clone();
     // println!("{trees}");
@@ -133,8 +187,21 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
         .count()
 }
 
-fn part_two<const N: usize>(_inp: &DataType<N>) -> u64 {
-    0
+fn part_two<const N: usize>(inp: &DataType<N>) -> usize {
+    // go through all of the trees to work out their viewing distances
+    // can ignore the edge trees because they have viewing distance of zero
+    let mut highest_scenic_score: usize = 0;
+
+    for row in 1..(N - 1) {
+        for col in 1..(N - 1) {
+            let score = inp.scenic_score(row, col);
+            if score > highest_scenic_score {
+                highest_scenic_score = score;
+            }
+        }
+    }
+
+    highest_scenic_score
 }
 
 fn main() -> Result<()> {
@@ -170,6 +237,6 @@ mod test {
     fn test_part_2() {
         let inp: DataType<5> = TEST_DATA.parse().unwrap();
         let ans = part_two(&inp);
-        assert_eq!(ans, 0);
+        assert_eq!(ans, 8);
     }
 }
