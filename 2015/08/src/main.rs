@@ -32,7 +32,7 @@ impl Gate {
 
         let input_vec: Vec<&str> = input_string.split(' ').collect();
 
-        println!("Input vec: {:?}", input_vec);
+        println!("Input vec: {input_vec:?}");
         let operator = match input_vec.len() {
             1 => {
                 if let Ok(num) = input_vec[0].parse() {
@@ -71,13 +71,13 @@ impl Display for Gate {
     ) -> Result<(), std::fmt::Error> {
         use Operator::*;
         match &self.operator {
-            Literal(v) => write!(fmt, "{}", v)?,
-            Assign(v) => write!(fmt, "{}", v)?,
-            And(a, b) => write!(fmt, "{} & {}", a, b)?,
-            Or(a, b) => write!(fmt, "{} | {}", a, b)?,
-            Not(v) => write!(fmt, "NOT {}", v)?,
-            LShift(v, s) => write!(fmt, "{} << {}", v, s)?,
-            RShift(v, s) => write!(fmt, "{} >> {}", v, s)?,
+            Literal(v) => write!(fmt, "{v}")?,
+            Assign(v) => write!(fmt, "{v}")?,
+            And(a, b) => write!(fmt, "{a} & {b}")?,
+            Or(a, b) => write!(fmt, "{a} | {b}")?,
+            Not(v) => write!(fmt, "NOT {v}")?,
+            LShift(v, s) => write!(fmt, "{v} << {s}")?,
+            RShift(v, s) => write!(fmt, "{v} >> {s}")?,
         }
         write!(fmt, " -> {}", self.output)
     }
@@ -94,12 +94,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     assert_eq!(data.len(), 339);
     let res = part_one(&data, None);
     let a = res.get("a").unwrap();
-    println!("res: {:?}", res);
-    println!("The value of `a` is: {}", a);
+    println!("res: {res:?}");
+    println!("The value of `a` is: {a}");
 
     let res = part_one(&data, Some(*a));
     let a = res.get("a").unwrap();
-    println!("The value of `a` is now: {}", a);
+    println!("The value of `a` is now: {a}");
     Ok(())
 }
 
@@ -108,7 +108,7 @@ fn part_one(gates: &[Gate], seed_for_b: Option<u16>) -> HashMap<String, u16> {
 
     let mut wires: HashMap<String, u16> = Default::default();
     if let Some(b) = seed_for_b {
-    	wires.insert("b".to_string(), b);
+        wires.insert("b".to_string(), b);
     }
 
     // Track whether each gate has been executed, as they have been written
@@ -124,7 +124,7 @@ fn part_one(gates: &[Gate], seed_for_b: Option<u16>) -> HashMap<String, u16> {
     any_success {
         any_success = false;
         for gate in gates_with_status.iter_mut().filter(|g| !g.1) {
-            println!("Executing {:?}", gate);
+            println!("Executing {gate:?}");
             let output = gate.0.output.to_string();
             match &gate.0.operator {
                 Literal(val) => {
@@ -219,14 +219,14 @@ fn part_one(gates: &[Gate], seed_for_b: Option<u16>) -> HashMap<String, u16> {
             println!("SUCCESS");
         } else {
             println!("MISS");
-            println!("WIRES STATE: {:?}", wires);
+            println!("WIRES STATE: {wires:?}");
             println!(
                 "GATES NOT YET PROCESSED: {}",
                 gates_with_status
                     .iter()
                     .filter(|g| !g.1)
                     .map(|g| format!("{}", g.0))
-                    .fold(String::new(), |a, b| format!("{}\n{}", a, b))
+                    .fold(String::new(), |a, b| format!("{a}\n{b}"))
             );
         }
     }
@@ -257,7 +257,7 @@ mod test {
             "pq OR 934 -> qwe",
         ]
         .iter()
-        .map(|line| Gate::from_line(&line))
+        .map(|line| Gate::from_line(line))
         .collect()
     }
 
@@ -283,15 +283,15 @@ mod test {
             ("qwe", 65534),
         ];
         for (wire, signal) in answers.iter() {
-            println!("Checking case... ({}, {})", wire, signal);
+            println!("Checking case... ({wire}, {signal})");
             assert_eq!(res.get(*wire).unwrap(), signal);
         }
     }
 
     #[test]
     fn test_seed_for_b() {
-    	let data = test_data();
-    	let res = part_one(&data, Some(5432));
-    	assert_eq!(res.get("b").unwrap(), &5432);
+        let data = test_data();
+        let res = part_one(&data, Some(5432));
+        assert_eq!(res.get("b").unwrap(), &5432);
     }
 }

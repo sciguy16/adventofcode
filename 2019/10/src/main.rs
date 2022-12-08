@@ -45,9 +45,9 @@ impl Map {
 impl fmt::Display for Map {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in self.asteroids.outer_iter() {
-            write!(
+            writeln!(
                 f,
-                "{}\n",
+                "{}",
                 row
                     //.map(|x| { String::from(x) })
                     .fold(String::new(), |acc, x| format!(
@@ -96,7 +96,7 @@ fn get_all_counts(map: &Map) -> Array2<usize> {
     let mut counts = Array2::from_elem(map.asteroids.raw_dim(), 0_usize);
     for (point, val) in map.asteroids.indexed_iter() {
         counts[[point.0, point.1]] =
-            if *val { count_visible(point, &map) } else { 0 };
+            if *val { count_visible(point, map) } else { 0 };
     }
     counts
 }
@@ -106,7 +106,7 @@ where
     T: Into<Point> + Copy,
 {
     map.asteroids.indexed_iter().fold(0, |acc, x| {
-        acc + match can_be_seen(origin.into(), (x.0).into(), &map) {
+        acc + match can_be_seen(origin.into(), (x.0).into(), map) {
             true => 1,
             false => 0,
         }
@@ -172,8 +172,8 @@ mod test {
         let width = map_str.lines().next().unwrap().trim().len();
         let map = Map::new(map_str, width, height);
 
-        println!("Map: {:?}", map);
-        println!("Formatted properly:\n{}", map);
+        println!("Map: {map:?}");
+        println!("Formatted properly:\n{map}");
 
         let origin = Point(0, 0);
         assert!(can_be_seen(origin, Point(2, 2), &map));
@@ -196,8 +196,8 @@ mod test {
         let width = map_str.lines().next().unwrap().trim().len();
         let map = Map::new(map_str, width, height);
 
-        println!("Map: {:?}", map);
-        println!("Formatted properly:\n{}", map);
+        println!("Map: {map:?}");
+        println!("Formatted properly:\n{map}");
 
         println!("All counts:\n{:?}", get_all_counts(&map));
         panic!();
