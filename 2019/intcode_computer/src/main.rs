@@ -16,9 +16,16 @@ fn main() {
 }
 
 fn init_log() {
-    use simplelog::{Config, LevelFilter, TermLogger, TerminalMode};
+    use simplelog::{
+        ColorChoice, Config, LevelFilter, TermLogger, TerminalMode,
+    };
     let level = LevelFilter::Trace;
-    TermLogger::new(level, Config::default(), TerminalMode::Stderr).unwrap();
+    TermLogger::new(
+        level,
+        Config::default(),
+        TerminalMode::Stderr,
+        ColorChoice::Auto,
+    );
 }
 
 fn solve_2a() -> i64 {

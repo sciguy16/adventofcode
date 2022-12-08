@@ -17,8 +17,8 @@ fn solve_a(input: &str) -> i32 {
     let mut secret: i32 = 0;
     loop {
         let mut hasher = Md5::new();
-        hasher.input(format!("{input}{secret}"));
-        let res = hasher.result();
+        hasher.update(format!("{input}{secret}"));
+        let res = hasher.finalize();
         if res[0] == 0 && res[1] == 0 && res[2] < 0x10 {
             break;
         }
@@ -31,8 +31,8 @@ fn solve_b(input: &str) -> i32 {
     let mut secret: i32 = 0;
     loop {
         let mut hasher = Md5::new();
-        hasher.input(format!("{input}{secret}"));
-        let res = hasher.result();
+        hasher.update(format!("{input}{secret}"));
+        let res = hasher.finalize();
         if res[0] == 0 && res[1] == 0 && res[2] == 0 {
             break;
         }

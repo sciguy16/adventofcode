@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 log = "0.4"
-simplelog = "0.7"
+simplelog = "0.12"
 permutohedron = "0.2"
