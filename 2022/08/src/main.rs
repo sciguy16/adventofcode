@@ -63,18 +63,26 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
                 tree.1 = true;
                 biggest = tree.0;
             }
+            // this optimisation doesn't save very much so maybe it's not worth
+            // doing
+            if biggest >= 9 {
+                break;
+            }
         }
-    }
-    println!("{trees}");
+        //}
+        //println!("{trees}");
 
-    // down right side
-    for row in 0..N {
+        // down right side
+        //for row in 0..N {
         let mut biggest = -1;
         // go along row looking for trees
         for tree in trees.inner[row].iter_mut().rev() {
             if tree.0 > biggest {
                 tree.1 = true;
                 biggest = tree.0;
+            }
+            if biggest >= 9 {
+                break;
             }
         }
     }
@@ -89,12 +97,15 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
                 tree.1 = true;
                 biggest = tree.0;
             }
+            if biggest >= 9 {
+                break;
+            }
         }
-    }
-    // println!("{trees}");
+        //}
+        // println!("{trees}");
 
-    // along bottom edge
-    for col in 0..N {
+        // along bottom edge
+        //for col in 0..N {
         let mut biggest = -1;
         for tree in trees
             .inner
@@ -105,6 +116,9 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
             if tree.0 > biggest {
                 tree.1 = true;
                 biggest = tree.0;
+            }
+            if biggest >= 9 {
+                break;
             }
         }
     }
