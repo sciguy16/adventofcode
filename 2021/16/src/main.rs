@@ -41,8 +41,8 @@ impl FromStr for Packet {
     }
 }
 
-impl From<&BitSlice<Msb0, u8>> for Packet {
-    fn from(bv: &BitSlice<Msb0, u8>) -> Packet {
+impl From<&BitSlice<u8, Msb0>> for Packet {
+    fn from(bv: &BitSlice<u8, Msb0>) -> Packet {
         let version = bv[0..3].load::<u8>();
         let type_id = bv[3..6].load::<u8>();
         #[cfg(debug_assertions)]
