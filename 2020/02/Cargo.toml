@@ -1,5 +1,5 @@
 [package]
-name = "day02_password"
+name = "year2020day02_password"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"

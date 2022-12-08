@@ -1,5 +1,5 @@
 [package]
-name = "day08_halting"
+name = "year2020day08_halting"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"

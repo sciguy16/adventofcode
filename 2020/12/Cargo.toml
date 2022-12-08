@@ -1,5 +1,5 @@
 [package]
-name = "day12_rain"
+name = "year2020day12_rain"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"
