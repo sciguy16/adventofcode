@@ -1,5 +1,5 @@
 [package]
-name = "mining"
+name = "y2015day04mining"
 version = "0.1.0"
 authors = ["David Young <david.young@nccgroup.com>"]
 edition = "2018"

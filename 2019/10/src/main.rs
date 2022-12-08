@@ -1,16 +1,15 @@
-use std::cmp::{min, max};
+#![allow(unused)]
+
+use ndarray::{Array2, ArrayBase};
+use std::cmp::{max, min};
 use std::convert;
 use std::fmt;
 use std::ops;
-use ndarray::{
-    ArrayBase,
-    Array2,
-};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 struct Point(usize, usize);
 
-impl convert::From::<(usize, usize)> for Point {
+impl convert::From<(usize, usize)> for Point {
     fn from((x, y): (usize, usize)) -> Self {
         Self(x, y)
     }
@@ -46,13 +45,20 @@ impl Map {
 impl fmt::Display for Map {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in self.asteroids.outer_iter() {
-            write!(f, "{}\n", row
-                   //.map(|x| { String::from(x) })
-                   .fold(String::new(), |acc, x| format!("{}{}", acc, match x {
-                       true => '#',
-                       false => '.',
-                   }))
-                  )?;
+            write!(
+                f,
+                "{}\n",
+                row
+                    //.map(|x| { String::from(x) })
+                    .fold(String::new(), |acc, x| format!(
+                        "{}{}",
+                        acc,
+                        match x {
+                            true => '#',
+                            false => '.',
+                        }
+                    ))
+            )?;
         }
         Ok(())
     }
@@ -71,13 +77,11 @@ impl ops::Index<Point> for Map {
 fn row_from(source: &str) -> Vec<bool> {
     let mut row: Vec<bool> = Vec::with_capacity(source.len());
     for point in source.trim().chars() {
-        row.push(
-            match point {
-                '.' => false,
-                '#' => true,
-                x => panic!("Invalid character: {}", x),
-            }
-            );
+        row.push(match point {
+            '.' => false,
+            '#' => true,
+            x => panic!("Invalid character: {}", x),
+        });
     }
     row
 }
@@ -89,19 +93,18 @@ fn main() {
 }
 
 fn get_all_counts(map: &Map) -> Array2<usize> {
-    let mut counts = Array2::from_elem(map.asteroids.raw_dim(), 0_usize); 
+    let mut counts = Array2::from_elem(map.asteroids.raw_dim(), 0_usize);
     for (point, val) in map.asteroids.indexed_iter() {
-        counts[[point.0, point.1]] = if *val {
-            count_visible(point, &map)
-        } else {
-            0
-        };
+        counts[[point.0, point.1]] =
+            if *val { count_visible(point, &map) } else { 0 };
     }
     counts
 }
 
 fn count_visible<T>(origin: T, map: &Map) -> usize
-    where T: Into<Point> + Copy {
+where
+    T: Into<Point> + Copy,
+{
     map.asteroids.indexed_iter().fold(0, |acc, x| {
         acc + match can_be_seen(origin.into(), (x.0).into(), &map) {
             true => 1,
@@ -136,7 +139,7 @@ fn can_be_seen(origin: Point, target: Point, map: &Map) -> bool {
     let m: f32 = (y1 - y2) / (x1 - x2);
     let line = |x: usize| -> f32 {
         let x = x as f32;
-        m*(x - (origin.0 as f32)) + origin.1 as f32
+        m * (x - (origin.0 as f32)) + origin.1 as f32
     };
     for x in (min(origin.0, target.0) + 1)..max(origin.0, target.0) {
         println!("x: {}, y: {}", x, line(x));
@@ -160,19 +163,14 @@ mod test {
 
     #[test]
     fn test_1() {
-        let map_str =
-            ".#..#
+        let map_str = ".#..#
             .....
             #####
             ....#
             ...##";
         let height = map_str.lines().count();
         let width = map_str.lines().next().unwrap().trim().len();
-        let map = Map::new(
-            map_str,
-            width,
-            height,
-            );
+        let map = Map::new(map_str, width, height);
 
         println!("Map: {:?}", map);
         println!("Formatted properly:\n{}", map);
@@ -189,19 +187,14 @@ mod test {
 
     #[test]
     fn test_2() {
-        let map_str =
-            ".#..#
+        let map_str = ".#..#
             .....
             #####
             ....#
             ...##";
         let height = map_str.lines().count();
         let width = map_str.lines().next().unwrap().trim().len();
-        let map = Map::new(
-            map_str,
-            width,
-            height,
-            );
+        let map = Map::new(map_str, width, height);
 
         println!("Map: {:?}", map);
         println!("Formatted properly:\n{}", map);
@@ -209,5 +202,4 @@ mod test {
         println!("All counts:\n{:?}", get_all_counts(&map));
         panic!();
     }
-
 }

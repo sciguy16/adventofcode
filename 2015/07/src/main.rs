@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -11,7 +13,7 @@ fn main() {
 
     for line in reader.lines() {
         let line = line.unwrap();
-        println!("Line is: {}", line);
+        println!("Line is: {line}");
         let chunks: Vec<&str> = line.split(" -> ").collect();
 
         // There should always be a LHS and a RHS
@@ -24,7 +26,6 @@ fn main() {
             op if op.contains("AND") => println!("AND!!"),
             _ => println!("Not and"),
         }
-
     }
     println!("Done!");
 }

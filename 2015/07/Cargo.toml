@@ -1,5 +1,5 @@
 [package]
-name = "solve"
+name = "y2015day07"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"

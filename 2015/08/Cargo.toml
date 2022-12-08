@@ -1,5 +1,5 @@
 [package]
-name = "assembly"
+name = "y2015day08assembly"
 version = "0.1.0"
 authors = ["David Young <david@thedavidyoung.co.uk>"]
 edition = "2018"
