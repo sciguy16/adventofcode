@@ -88,15 +88,12 @@ impl<const N: usize> DataType<N> {
             }
         }
 
-        // println!("Position ({row}, {col}) has l: {left} d: {down} r: {right} u: {up}");
-
         left * right * up * down
     }
 }
 
 fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
     let mut trees = inp.clone();
-    // println!("{trees}");
 
     // down left side
     for row in 0..N {
@@ -113,11 +110,8 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
                 break;
             }
         }
-        //}
-        //println!("{trees}");
 
         // down right side
-        //for row in 0..N {
         let mut biggest = -1;
         // go along row looking for trees
         for tree in trees.inner[row].iter_mut().rev() {
@@ -130,7 +124,6 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
             }
         }
     }
-    // println!("{trees}");
 
     // along top edge
     for col in 0..N {
@@ -145,11 +138,8 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
                 break;
             }
         }
-        //}
-        // println!("{trees}");
 
         // along bottom edge
-        //for col in 0..N {
         let mut biggest = -1;
         for tree in trees
             .inner
@@ -166,7 +156,6 @@ fn part_one<const N: usize>(inp: &DataType<N>) -> usize {
             }
         }
     }
-    // println!("{trees}");
 
     // count the visible trees
     trees
