@@ -56,14 +56,10 @@ impl<const N: usize> DataType<N> {
         // trees on the edges. Hence no need to consider... "edge" cases
         let height = self.inner[row][col].0;
 
-        println!("\nPosition ({row}, {col}) height {height}");
-
         let mut left = 0;
         for c in (0..col).rev() {
             left += 1;
-            println!("  check ({row}, {c}) = {}", self.inner[row][c].0);
             if self.inner[row][c].0 >= height {
-                println!("stop left {left}");
                 break;
             }
         }
@@ -71,9 +67,7 @@ impl<const N: usize> DataType<N> {
         let mut right = 0;
         for c in (col + 1)..N {
             right += 1;
-            println!("  check ({row}, {c}) = {}", self.inner[row][c].0);
             if self.inner[row][c].0 >= height {
-                println!("stop right {right}");
                 break;
             }
         }
@@ -81,9 +75,7 @@ impl<const N: usize> DataType<N> {
         let mut up = 0;
         for r in (0..row).rev() {
             up += 1;
-            println!("  check ({r}, {col}) = {}", self.inner[r][col].0);
             if self.inner[r][col].0 >= height {
-                println!("stop up {up}");
                 break;
             }
         }
@@ -91,14 +83,12 @@ impl<const N: usize> DataType<N> {
         let mut down = 0;
         for r in (row + 1)..N {
             down += 1;
-            println!("  check ({r}, {col}) = {}", self.inner[r][col].0);
             if self.inner[r][col].0 >= height {
-                println!("stop down {down}");
                 break;
             }
         }
 
-        println!("Position ({row}, {col}) has l: {left} d: {down} r: {right} u: {up}");
+        // println!("Position ({row}, {col}) has l: {left} d: {down} r: {right} u: {up}");
 
         left * right * up * down
     }
