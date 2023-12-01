@@ -57,15 +57,11 @@ fn part_two(inp: &DataType) -> u32 {
             .unwrap()
             .1;
 
-        // search for rightmost backwards pattern
-        let line = line.chars().rev().collect::<String>();
+        // search for rightmost pattern
         let last = valid_tokens
             .iter()
-            .filter_map(|(pat, val)| {
-                line.find(&pat.chars().rev().collect::<String>())
-                    .map(|pos| (pos, val))
-            })
-            .min_by_key(|(pos, _val)| *pos)
+            .filter_map(|(pat, val)| line.rfind(pat).map(|pos| (pos, val)))
+            .max_by_key(|(pos, _val)| *pos)
             .unwrap()
             .1;
         total += first * 10 + last;
