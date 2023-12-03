@@ -1,7 +1,9 @@
 use color_eyre::Result;
 use ndarray::{Array, Array2};
 use std::collections::HashSet;
-use std::fmt::{self, Display, Formatter, Write};
+#[cfg(test)]
+use std::fmt::Write;
+use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
 const ROWS: usize = 140;
@@ -59,10 +61,9 @@ fn check_or_insert<const ROWS: usize, const COLS: usize>(
 
     let inp = &inp.0;
 
-    dbg!((x, y));
-
     // only search if the adjacent char is a digit
     if inp[(x, y)].is_ascii_digit() {
+        #[cfg(test)]
         print!("Position: ({x}, {y}) `{}`", inp[(x, y)]);
         // walk back to find the start of the number
 
@@ -77,9 +78,47 @@ fn check_or_insert<const ROWS: usize, const COLS: usize>(
                 break;
             }
         }
+        #[cfg(test)]
         println!(", start of num: ({x}, {y})");
         // x is now the position of the start of the number
         set.insert((x, y));
+    }
+}
+
+fn check_surrounding<const ROWS: usize, const COLS: usize>(
+    set: &mut HashSet<(usize, usize)>,
+    inp: &DataType<ROWS, COLS>,
+    x: usize,
+    y: usize,
+) {
+    // row above
+    if x > 0 {
+        if y > 0 {
+            check_or_insert(set, inp, x - 1, y - 1);
+        }
+        check_or_insert(set, inp, x - 1, y);
+        if y < COLS {
+            check_or_insert(set, inp, x - 1, y + 1);
+        }
+    }
+
+    // current row
+    if y > 0 {
+        check_or_insert(set, inp, x, y - 1);
+    }
+    if y < COLS {
+        check_or_insert(set, inp, x, y + 1);
+    }
+
+    // row below
+    if x < ROWS {
+        if y > 0 {
+            check_or_insert(set, inp, x + 1, y - 1);
+        }
+        check_or_insert(set, inp, x + 1, y);
+        if y < COLS {
+            check_or_insert(set, inp, x + 1, y + 1);
+        }
     }
 }
 
@@ -94,16 +133,16 @@ fn read_number<const ROWS: usize, const COLS: usize>(
     let row = inp.row(x);
     for digit in row.iter().skip(y).copied().take_while(char::is_ascii_digit) {
         out *= 10;
-        out += (digit as u32 as u64) - b'0' as u64;
+        out += (digit as u64) - b'0' as u64;
     }
 
-    dbg!(out);
     out
 }
 
 fn part_one<const ROWS: usize, const COLS: usize>(
     inp: &DataType<ROWS, COLS>,
 ) -> u64 {
+    #[cfg(test)]
     println!("{inp}");
 
     // search for symbols
@@ -120,38 +159,9 @@ fn part_one<const ROWS: usize, const COLS: usize>(
     // record coords of nearby numbers
     let mut number_coords = HashSet::new();
     for (x, y) in symbol_coords {
-        // x is vertical, y is horizonal
-
-        // row above
-        if x > 0 {
-            if y > 0 {
-                check_or_insert(&mut number_coords, inp, x - 1, y - 1);
-            }
-            check_or_insert(&mut number_coords, inp, x - 1, y);
-            if y < COLS {
-                check_or_insert(&mut number_coords, inp, x - 1, y + 1);
-            }
-        }
-
-        // current row
-        if y > 0 {
-            check_or_insert(&mut number_coords, inp, x, y - 1);
-        }
-        if y < COLS {
-            check_or_insert(&mut number_coords, inp, x, y + 1);
-        }
-
-        // row below
-        if x < ROWS {
-            if y > 0 {
-                check_or_insert(&mut number_coords, inp, x + 1, y - 1);
-            }
-            check_or_insert(&mut number_coords, inp, x + 1, y);
-            if y < COLS {
-                check_or_insert(&mut number_coords, inp, x + 1, y + 1);
-            }
-        }
+        check_surrounding(&mut number_coords, inp, x, y);
     }
+    #[cfg(test)]
     println!(
         "part number positions: {}",
         number_coords
@@ -174,7 +184,7 @@ fn part_one<const ROWS: usize, const COLS: usize>(
 fn part_two<const ROWS: usize, const COLS: usize>(
     inp: &DataType<ROWS, COLS>,
 ) -> u64 {
-    println!("{inp}");
+    // println!("{inp}");
 
     // search for gears
     let gear_coords = inp.0.indexed_iter().filter_map(|(idx, &ele)| {
@@ -192,46 +202,17 @@ fn part_two<const ROWS: usize, const COLS: usize>(
     for (x, y) in gear_coords {
         let mut number_coords = HashSet::new();
 
-        // row above
-        if x > 0 {
-            if y > 0 {
-                check_or_insert(&mut number_coords, inp, x - 1, y - 1);
-            }
-            check_or_insert(&mut number_coords, inp, x - 1, y);
-            if y < COLS {
-                check_or_insert(&mut number_coords, inp, x - 1, y + 1);
-            }
-        }
-
-        // current row
-        if y > 0 {
-            check_or_insert(&mut number_coords, inp, x, y - 1);
-        }
-        if y < COLS {
-            check_or_insert(&mut number_coords, inp, x, y + 1);
-        }
-
-        // row below
-        if x < ROWS {
-            if y > 0 {
-                check_or_insert(&mut number_coords, inp, x + 1, y - 1);
-            }
-            check_or_insert(&mut number_coords, inp, x + 1, y);
-            if y < COLS {
-                check_or_insert(&mut number_coords, inp, x + 1, y + 1);
-            }
-        }
+        check_surrounding(&mut number_coords, inp, x, y);
 
         // number_coords now has the locations of all gears next to the
         // asterisk
         match number_coords.len() {
-            0 => println!("no gears :("),
-            1 => println!("one gear :("),
+            0 => {}
+            1 => {}
             2 => {
-                println!("two gears :)");
                 all_relevant_gears.push(number_coords);
             }
-            many => println!("Too many gears: {many}"),
+            many => panic!("Too many gears: {many}"),
         }
     }
 
