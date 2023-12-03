@@ -219,10 +219,10 @@ fn part_two<const ROWS: usize, const COLS: usize>(
     // Pull out the numbers
     let mut total = 0;
     for ratio in all_relevant_gears {
-        let mut prod = 1;
-        for (x, y) in ratio {
-            prod *= read_number(inp, x, y);
-        }
+        let prod = ratio
+            .iter()
+            .map(|&(x, y)| read_number(inp, x, y))
+            .product::<u64>();
         total += prod;
     }
 
