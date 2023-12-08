@@ -1,8 +1,9 @@
 #![feature(array_chunks)]
 
 use color_eyre::Result;
+// use rayon::prelude::*;
 use std::collections::HashMap;
-use std::ops::Range;
+use std::ops::Add;
 use std::str::FromStr;
 
 const MAP_LABELS: &[&str] = &[
@@ -15,10 +16,83 @@ const MAP_LABELS: &[&str] = &[
     "location",
 ];
 
+/// Inclusive range
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+struct Range {
+    start: i64,
+    end: i64,
+}
+
+impl Add<i64> for Range {
+    type Output = Self;
+    fn add(self, shift: i64) -> Self {
+        Self {
+            start: self.start + shift,
+            end: self.end + shift,
+        }
+    }
+}
+
+impl Range {
+    fn from_start_and_len(start: i64, len: i64) -> Self {
+        Self {
+            start,
+            end: start + len,
+        }
+    }
+
+    fn contains(&self, target: i64) -> bool {
+        self.start <= target && target <= self.end
+    }
+
+    #[allow(dead_code)]
+    fn overlap(&self, target: Self) -> bool {
+        // either [ ( ] ) or [ ( ) ], either way one start or end point
+        // will be within the other range
+        self.contains(target.start)
+            || self.contains(target.end)
+            || target.contains(self.start)
+            || target.contains(self.end)
+    }
+
+    // self is the mapping range
+    #[allow(dead_code)]
+    fn apply_map(&self, input: Self, shift: i64) -> Vec<Self> {
+        let mut out = Vec::new();
+
+        // map = [ ]
+        // seed = ( )
+        match (self.contains(input.start), self.contains(input.end)) {
+            (true, true) => {
+                // [ ( ) ]
+                out.push(input + shift)
+            }
+            (true, false) => {
+                // [ ( ] )
+                // left half gets shifted
+                //out.push()
+            }
+            (false, true) => {
+                // ( [ ) ]
+            }
+            (false, false) => {
+                // ( ) [ ]
+                out.push(input)
+            }
+        }
+
+        if input.contains(self.start) && input.contains(self.end) {
+            // ( [ ] )
+        }
+
+        out
+    }
+}
+
 #[derive(Default)]
 struct DataType {
     seeds: Vec<i64>,
-    maps: Vec<HashMap<Range<i64>, i64>>,
+    maps: Vec<HashMap<Range, i64>>,
 }
 
 impl FromStr for DataType {
@@ -58,7 +132,10 @@ impl FromStr for DataType {
                 let src_start = components.next().unwrap()?;
                 let len = components.next().unwrap()?;
 
-                map.insert(src_start..src_start + len, dest_start - src_start);
+                map.insert(
+                    Range::from_start_and_len(src_start, len),
+                    dest_start - src_start,
+                );
             }
             println!("Loaded {} {} maps", map.len(), label);
             maps.push(map);
@@ -77,7 +154,7 @@ fn part_one(inp: &DataType) -> i64 {
                 let shift = map
                     .iter()
                     .find_map(|(range, &shift)| {
-                        if range.contains(&value) {
+                        if range.contains(value) {
                             Some(shift)
                         } else {
                             None
@@ -94,15 +171,62 @@ fn part_one(inp: &DataType) -> i64 {
         .unwrap()
 }
 
+/// method
+///
+/// * Take as input a range (start, end)
+/// * For each range in the maps:
+///   - Check for overlaps and split the input range into 3 subranges:
+///       1. fully smaller than target range
+///       2. fully contained within target range
+///       3. fully greater than target range
+///   - break if any contained-in range was hit (hopefully this optimisation
+///     is valid)
+/// * at the end, take the smallest of the lower bounds
 fn part_two(inp: &DataType) -> i64 {
-    let how_many_seeds = inp
-        .seeds
+    // 3m13 plain iter
+    // even longer with rayon
+    inp.seeds
         .array_chunks()
-        .flat_map(|&[start, count]| (start..start + count))
-        .count();
-    // .collect::<Vec<_>>();
-    dbg!(how_many_seeds);
-    0
+        .flat_map(|&[start, len]| (start..start + len))
+        // .par_bridge()
+        .map(|mut value| {
+            // propagate number through all maps
+            for map in &inp.maps {
+                let shift = map
+                    .iter()
+                    .find_map(|(range, &shift)| {
+                        if range.contains(value) {
+                            Some(shift)
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap_or_default();
+                // dbg!((label, shift));
+                value += shift;
+            }
+
+            value
+        })
+        .min()
+        .unwrap()
+    // inp.seeds
+    //     .array_chunks()
+    //     .map(|&[start, count]| {
+    //         let mut seeds = vec![Range::from_start_and_len(start, count)];
+    //         for map in &inp.maps {
+    //             let mut tmp = Vec::new();
+    //             for (candidate_map, shift) in map {
+    //                 for seed in &seeds {
+    //                     tmp.extend(candidate_map.apply_map(*seed, *shift));
+    //                 }
+    //             }
+    //             seeds = tmp;
+    //         }
+    //         6
+    //     })
+    //     .min()
+    //     .unwrap()
 }
 
 fn main() -> Result<()> {
@@ -110,6 +234,7 @@ fn main() -> Result<()> {
     let input = include_str!("../input.txt");
     let data = input.parse()?;
     let ans = part_one(&data);
+    assert_eq!(ans, 318728750);
     println!("part one: {}", ans);
     let ans = part_two(&data);
     println!("part two: {}", ans);
@@ -166,5 +291,94 @@ humidity-to-location map:
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_two(&inp);
         assert_eq!(ans, 46);
+    }
+
+    #[test]
+    fn test_contains() {
+        let r = Range::from_start_and_len(10, 5);
+        for n in 10..=15 {
+            assert!(r.contains(n));
+        }
+        for n in (-10..10).chain(16..40) {
+            assert!(!r.contains(n));
+        }
+    }
+
+    #[test]
+    fn test_overlap() {
+        let p = Range::from_start_and_len(10, 5);
+        let q = Range::from_start_and_len(12, 2);
+        let r = Range::from_start_and_len(8, 4);
+        let s = Range::from_start_and_len(14, 5);
+
+        assert!(p.overlap(q));
+        assert!(q.overlap(p));
+
+        assert!(p.overlap(r));
+        assert!(r.overlap(p));
+
+        assert!(p.overlap(s));
+        assert!(s.overlap(p));
+
+        assert!(!r.overlap(s));
+        assert!(!s.overlap(r));
+    }
+
+    #[test]
+    fn range_add() {
+        let r = Range::from_start_and_len(10, 5);
+        let s = r + 4;
+        assert_eq!(s.start, 14);
+        assert_eq!(s.end, 19);
+    }
+
+    #[test]
+    fn apply_map() {
+        const SHIFT: i64 = 20;
+        let m = Range::from_start_and_len(10, 5);
+
+        // fully contained
+        let p = Range::from_start_and_len(11, 2);
+        let res = m.apply_map(p, SHIFT);
+        assert_eq!(res, &[Range::from_start_and_len(11 + SHIFT, 2)]);
+
+        // left overlap
+        let q = Range::from_start_and_len(8, 4);
+        let res = m.apply_map(q, SHIFT);
+        assert_eq!(
+            res,
+            &[
+                Range::from_start_and_len(8, 2),
+                Range::from_start_and_len(10 + SHIFT, 2)
+            ]
+        );
+
+        // right overlap
+        let r = Range::from_start_and_len(14, 5);
+        let res = m.apply_map(r, SHIFT);
+        assert_eq!(
+            res,
+            &[
+                Range::from_start_and_len(14 + SHIFT, 2),
+                Range::from_start_and_len(16, 3)
+            ]
+        );
+
+        // no overlap
+        let s = Range::from_start_and_len(4, 3);
+        let res = m.apply_map(s, SHIFT);
+        assert_eq!(res, &[s]);
+
+        // seed contains map
+        let t = Range::from_start_and_len(8, 10);
+        let res = m.apply_map(t, SHIFT);
+        assert_eq!(
+            res,
+            &[
+                Range::from_start_and_len(8, 2),
+                Range::from_start_and_len(10 + SHIFT, 5),
+                Range::from_start_and_len(15, 3),
+            ]
+        );
     }
 }
