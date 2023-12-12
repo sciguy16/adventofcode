@@ -15,6 +15,7 @@ struct Hand {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum Card {
+    Joker,
     Number(u8),
     Jack,
     Queen,
@@ -33,27 +34,6 @@ impl From<char> for Card {
             'K' => King,
             'A' => Ace,
             other => panic!("unknown: `{other}`"),
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-enum PartTwoCard {
-    Joker,
-    Number(u8),
-    Queen,
-    King,
-    Ace,
-}
-
-impl From<Card> for PartTwoCard {
-    fn from(card: Card) -> Self {
-        match card {
-            Card::Jack => Self::Joker,
-            Card::Number(n) => Self::Number(n),
-            Card::Queen => Self::Queen,
-            Card::King => Self::King,
-            Card::Ace => Self::Ace,
         }
     }
 }
@@ -153,12 +133,31 @@ fn part_one(inp: &DataType) -> u64 {
         .sum()
 }
 
-fn part_two(inp: &DataType) -> u64 {
-    let transformed = inp
+fn part_two(mut inp: DataType) -> u64 {
+    // swap jack to joker
+    inp.inner.iter_mut().for_each(|hand| {
+        hand.cards.iter_mut().for_each(|card| {
+            if *card == Card::Jack {
+                *card = Card::Joker
+            }
+        })
+    });
+
+    let hands = inp
         .inner
         .iter()
-        .map(|Hand { cards, bid }| (PartTwoCard::from(cards), bid));
-    0
+        .map(|&Hand { cards, bid }| (cards, HandType::from(cards), bid))
+        .collect::<Vec<_>>();
+
+    hands
+        .iter()
+        .enumerate()
+        .map(|(idx, (_orig, hand, bid))| {
+            let rank = idx as u64 + 1;
+            println!("{rank}: {hand:?} ({bid})");
+            rank * bid
+        })
+        .sum()
 }
 
 fn main() -> Result<()> {
@@ -167,7 +166,7 @@ fn main() -> Result<()> {
     let data = input.parse()?;
     let ans = part_one(&data);
     println!("part one: {}", ans);
-    let ans = part_two(&data);
+    let ans = part_two(data);
     println!("part two: {}", ans);
     Ok(())
 }
@@ -192,8 +191,8 @@ QQQJA 483"#;
     #[test]
     fn test_part_2() {
         let inp = TEST_DATA.parse().unwrap();
-        let ans = part_two(&inp);
-        assert_eq!(ans, 0);
+        let ans = part_two(inp);
+        assert_eq!(ans, 5905);
     }
 
     #[test]
