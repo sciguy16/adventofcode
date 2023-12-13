@@ -1,17 +1,72 @@
 use color_eyre::Result;
+use grid::Grid;
 use std::str::FromStr;
 
-struct DataType;
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum Cell {
+    Pipe(Direction, Direction),
+    Start,
+    Empty,
+}
+
+impl From<char> for Cell {
+    fn from(ch: char) -> Self {
+        use Direction::*;
+
+        match ch {
+            '|' => Self::Pipe(Up, Down),
+            '-' => Self::Pipe(Left, Right),
+            'L' => Self::Pipe(Up, Right),
+            'J' => Self::Pipe(Up, Left),
+            '7' => Self::Pipe(Left, Down),
+            'F' => Self::Pipe(Right, Down),
+            '.' => Self::Empty,
+            'S' => Self::Start,
+            other => panic!("{other}"),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct DataType {
+    map: Grid<Cell>,
+}
 
 impl FromStr for DataType {
     type Err = color_eyre::Report;
 
-    fn from_str(_inp: &str) -> std::result::Result<Self, Self::Err> {
-        Ok(Self)
+    fn from_str(inp: &str) -> std::result::Result<Self, Self::Err> {
+        let width = inp.find('\n').unwrap();
+        let map = inp
+            .chars()
+            .filter(|&ch| ch != '\n')
+            .map(Cell::from)
+            .collect::<Vec<_>>();
+        let map = Grid::from_vec(map, width);
+        Ok(Self { map })
     }
 }
 
-fn part_one(_inp: &DataType) -> u64 {
+fn part_one(inp: &DataType) -> u64 {
+    dbg!(&inp);
+
+    // find start
+    let start = inp
+        .map
+        .indexed_iter()
+        .find(|(_, &cell)| cell == Cell::Start)
+        .map(|(coords, _)| coords)
+        .unwrap();
+    println!("Start is at {start:?}");
     0
 }
 
