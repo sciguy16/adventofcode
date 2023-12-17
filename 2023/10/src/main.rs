@@ -1,5 +1,6 @@
 use color_eyre::Result;
 use grid::Grid;
+use std::collections::HashSet;
 use std::str::FromStr;
 
 #[repr(u8)]
@@ -9,6 +10,17 @@ enum Direction {
     Down,
     Left,
     Right,
+}
+
+impl Direction {
+    fn move_(&self, (x, y): (usize, usize)) -> (usize, usize) {
+        match self {
+            Self::Up => (x - 1, y),
+            Self::Down => (x + 1, y),
+            Self::Left => (x, y - 1),
+            Self::Right => (x, y + 1),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -36,6 +48,27 @@ impl From<char> for Cell {
     }
 }
 
+impl Cell {
+    fn move_(&self, pos: (usize, usize)) -> ((usize, usize), (usize, usize)) {
+        let Cell::Pipe(dir0, dir1) = self else {
+            panic!()
+        };
+
+        let move0 = dir0.move_(pos);
+        let move1 = dir1.move_(pos);
+
+        (move0, move1)
+    }
+
+    fn has(&self, dir: Direction) -> bool {
+        let &Self::Pipe(dir0, dir1) = self else {
+            return false;
+        };
+
+        [dir0, dir1].contains(&dir)
+    }
+}
+
 #[derive(Debug)]
 struct DataType {
     map: Grid<Cell>,
@@ -56,18 +89,112 @@ impl FromStr for DataType {
     }
 }
 
-fn part_one(inp: &DataType) -> u64 {
+fn iter_surrounding(
+    g: &Grid<Cell>,
+    (x, y): (usize, usize),
+) -> impl Iterator<Item = (usize, usize)> + '_ {
+    // x is row, y is column
+
+    [
+        // row above
+        // (x.checked_sub(1), y.checked_sub(1), ),
+        (x.checked_sub(1), Some(y), Direction::Up),
+        // (x.checked_sub(1), y.checked_add(1)),
+        // current row
+        (Some(x), y.checked_sub(1), Direction::Left),
+        (Some(x), y.checked_add(1), Direction::Right),
+        // row below
+        // (x.checked_add(1), y.checked_sub(1)),
+        (x.checked_add(1), Some(y), Direction::Down),
+        // (x.checked_add(1), y.checked_add(1)),
+    ]
+    .into_iter()
+    .filter_map(|(x, y, dir)| Some((x?, y?, dir)))
+    .filter(|&(x, y, dir)| {
+        g.get(x, y).map(|cell| cell.has(dir)).unwrap_or_default()
+    })
+    .map(|(x, y, _dir)| (x, y))
+}
+
+fn part_one(inp: &DataType) -> usize {
     dbg!(&inp);
+    let g = &inp.map;
 
     // find start
-    let start = inp
-        .map
+    let start = g
         .indexed_iter()
         .find(|(_, &cell)| cell == Cell::Start)
         .map(|(coords, _)| coords)
         .unwrap();
     println!("Start is at {start:?}");
-    0
+
+    let mut seen = HashSet::new();
+    let mut path1 = Vec::new();
+    let mut path2 = Vec::new();
+
+    // find first outward movement
+    seen.insert(start);
+    let mut adjacent_loops = iter_surrounding(g, start)
+        .filter(|&(x, y)| *g.get(x, y).unwrap() != Cell::Empty);
+
+    let ele = adjacent_loops.next().unwrap();
+    path1.push(ele);
+    seen.insert(ele);
+
+    let ele = adjacent_loops.next().unwrap();
+    path2.push(ele);
+    seen.insert(ele);
+
+    assert!(adjacent_loops.next().is_none());
+
+    let mut limit: u32 = 30;
+    loop {
+        dbg!(&path1);
+        dbg!(&path2);
+        dbg!(&seen);
+        limit = limit.checked_sub(1).expect("execution limit reached");
+        if let (Some(end1), Some(end2)) = (path1.last(), path2.last()) {
+            if end1 == end2 {
+                break;
+            }
+        }
+
+        // extend path1
+        let pos = *path1.last().unwrap();
+        let cell = g.get(pos.0, pos.1).unwrap();
+        let adj = cell.move_(pos);
+        dbg!(adj);
+        // assert!(!seen.contains(&adj.0) && !seen.contains(&adj.1));
+
+        let next = if !seen.contains(&adj.0) {
+            adj.0
+        } else if !seen.contains(&adj.1) {
+            adj.1
+        } else {
+            break;
+        };
+        seen.insert(next);
+        path1.push(next);
+
+        // extend path2
+        let pos = *path2.last().unwrap();
+        let cell = g.get(pos.0, pos.1).unwrap();
+        let adj = cell.move_(pos);
+        dbg!(adj);
+        // assert!(!seen.contains(&adj.0) && !seen.contains(&adj.1));
+
+        let next = if !seen.contains(&adj.0) {
+            adj.0
+        } else if !seen.contains(&adj.1) {
+            adj.1
+        } else {
+            break;
+        };
+        seen.insert(next);
+        path2.push(next);
+    }
+
+    path1.len()
 }
 
 fn part_two(_inp: &DataType) -> u64 {
@@ -102,11 +229,14 @@ SJ.L7
 LJ...";
 
     #[test]
-    fn test_part_1() {
+    fn test_part_1a() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_one(&inp);
         assert_eq!(ans, 4);
+    }
 
+    #[test]
+    fn test_part_1b() {
         let inp = TEST_DATA_2.parse().unwrap();
         let ans = part_one(&inp);
         assert_eq!(ans, 8);
