@@ -16,7 +16,7 @@ impl From<[[usize; 5]; 5]> for BingoBoard {
             .flat_map(|row| row.to_vec())
             .map(|ele| (ele, false))
             .collect();
-        let inner = flattened.into_shape((5, 5)).unwrap();
+        let inner = flattened.into_shape_with_order((5, 5)).unwrap();
         BingoBoard { inner }
     }
 }

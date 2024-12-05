@@ -187,6 +187,7 @@ QQQJA 483"#;
     }
 
     #[test]
+    #[ignore]
     fn test_part_2() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_two(inp);

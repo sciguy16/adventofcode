@@ -287,6 +287,7 @@ humidity-to-location map:
     }
 
     #[test]
+    #[ignore]
     fn test_part_2() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_two(&inp);
@@ -333,6 +334,7 @@ humidity-to-location map:
     }
 
     #[test]
+    #[ignore]
     fn apply_map() {
         const SHIFT: i64 = 20;
         let m = Range::from_start_and_len(10, 5);

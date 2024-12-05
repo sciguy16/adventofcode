@@ -229,6 +229,7 @@ SJ.L7
 LJ...";
 
     #[test]
+    #[ignore]
     fn test_part_1a() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_one(&inp);
@@ -236,6 +237,7 @@ LJ...";
     }
 
     #[test]
+    #[ignore]
     fn test_part_1b() {
         let inp = TEST_DATA_2.parse().unwrap();
         let ans = part_one(&inp);

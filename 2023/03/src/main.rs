@@ -17,7 +17,7 @@ impl<const ROWS: usize, const COLS: usize> FromStr for DataType<ROWS, COLS> {
 
     fn from_str(inp: &str) -> std::result::Result<Self, Self::Err> {
         let inner = Array::from_iter(inp.chars().filter(|&c| c != '\n'));
-        let inner = inner.into_shape((ROWS, COLS))?;
+        let inner = inner.into_shape_with_order((ROWS, COLS))?;
 
         Ok(Self(inner))
     }

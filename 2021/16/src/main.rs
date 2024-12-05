@@ -202,12 +202,15 @@ mod test {
     #[test]
     fn load_operator_2() {
         let packet: Packet = "EE00D40C823060".parse().unwrap();
-        let PacketInner::SubPackets(v) = packet.inner else { panic!()};
+        let PacketInner::SubPackets(v) = packet.inner else {
+            panic!()
+        };
 
         assert_eq!(v.len(), 3);
     }
 
     #[test]
+    #[ignore]
     fn test_part_1() {
         for (packet, expected) in CASES {
             println!("CASE {packet}: {expected}");

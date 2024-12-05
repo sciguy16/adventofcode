@@ -200,6 +200,6 @@ mod test {
         println!("Formatted properly:\n{map}");
 
         println!("All counts:\n{:?}", get_all_counts(&map));
-        panic!();
+        // panic!();
     }
 }

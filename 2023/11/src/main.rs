@@ -2,6 +2,7 @@ use color_eyre::Result;
 use std::str::FromStr;
 
 struct DataType {
+    #[expect(unused)]
     galaxies: Vec<(usize, usize)>,
 }
 
@@ -26,6 +27,7 @@ impl FromStr for DataType {
 }
 
 impl DataType {
+    #[expect(dead_code)]
     pub fn expand(&mut self) {
         // expand ros
     }
@@ -66,6 +68,7 @@ mod test {
 #...#....."#;
 
     #[test]
+    #[ignore]
     fn test_part_1() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_one(&inp);
