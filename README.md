@@ -4,7 +4,7 @@ Solutions to https://adventofcode.com/
 
 To make a new day:
 ```bash
-cargo generate --init aoc
+cargo generate aoc --name y24d01
 ```
 
 Benchmark with (e.g.):
