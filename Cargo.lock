@@ -1187,6 +1187,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "y24day03"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "regex",
+]
+
+[[package]]
 name = "year2020day01_report_repair"
 version = "0.1.0"
 
