@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 eyre = "0.6"
-ndarray = "0.15"
-owo-colors = "3.0.0"
+ndarray.workspace = true
+owo-colors.workspace = true

@@ -8,4 +8,4 @@ license = "MPL-2.0"
 
 [dependencies]
 color-eyre = "0.6"
-owo-colors = "3"
+owo-colors.workspace = true
