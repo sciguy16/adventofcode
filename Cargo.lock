@@ -1195,6 +1195,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "y24day04"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "ndarray",
+]
+
+[[package]]
 name = "year2020day01_report_repair"
 version = "0.1.0"
 
