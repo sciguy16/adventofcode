@@ -1,5 +1,6 @@
 [workspace]
 members = [
+	"crates/*",
 	"2015/04",
 	"2015/07",
 	"2015/08",
@@ -25,3 +26,5 @@ grid = "0.15.0"
 ndarray = "0.16.1"
 nalgebra = "0.33.2"
 owo-colors = "4.1.0"
+
+aoc-grid = { path = "crates/aoc-grid" }
