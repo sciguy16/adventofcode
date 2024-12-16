@@ -62,28 +62,57 @@ impl FromStr for DataType {
     }
 }
 
-fn is_sorted(page: &[u8], data: &DataType) -> bool {
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum Sorted {
+    Sorted,
+    NotSorted(usize),
+}
+
+impl Sorted {
+    fn is_sorted(self) -> bool {
+        matches!(self, Self::Sorted)
+    }
+}
+
+fn is_sorted(page: &[u8], data: &DataType) -> Sorted {
     // check whether all pairs of (number, number that comes somewhere after)
     // are in the rules
     for (idx, left) in page.iter().enumerate().take(page.len() - 1) {
         for right in page.iter().skip(idx + 1) {
             if !data.rules.contains(&(*left, *right)) {
-                return false;
+                return Sorted::NotSorted(idx);
             }
         }
     }
-    true
+    Sorted::Sorted
 }
 
 fn part_one(inp: &DataType) -> u64 {
     inp.pages
         .iter()
-        .filter(|page| is_sorted(page, inp))
+        .filter(|page| is_sorted(page, inp).is_sorted())
         .map(|page| page[page.len() / 2] as u64)
         .sum()
 }
 
-fn part_two(_inp: &DataType) -> u64 {
+fn sort(pages: &[u8], inp: &DataType) -> Vec<u8> {
+    let mut pages = pages.to_vec();
+    while let Sorted::NotSorted(mut not_sorted_idx) = is_sorted(&pages, inp) {
+        dbg!(not_sorted_idx);
+        if not_sorted_idx == 0 {
+            not_sorted_idx = 1;
+        }
+        pages.swap(not_sorted_idx, not_sorted_idx.checked_sub(1).unwrap());
+        break;
+    }
+    pages
+}
+
+fn part_two(inp: &DataType) -> u64 {
+    for pages in &inp.pages {
+        dbg!(pages);
+        sort(pages, inp);
+    }
     0
 }
 
@@ -133,16 +162,43 @@ mod test {
 97,13,75,29,47";
 
     #[test]
+    fn test_is_sorted() {
+        let inp = TEST_DATA.parse().unwrap();
+        let cases: &[(&[u8], _)] = &[
+            (&[47, 53, 13], Sorted::Sorted),
+            (&[47, 97, 53, 13], Sorted::NotSorted(0)),
+            (&[97, 47, 53, 13], Sorted::Sorted),
+        ];
+
+        for &(page, expected) in cases {
+            eprintln!("{page:?}: {expected:?}");
+            assert_eq!(is_sorted(page, &inp), expected);
+        }
+    }
+
+    #[test]
+    fn test_sort() {
+        let inp = TEST_DATA.parse().unwrap();
+        let cases: &[(&[u8], &[u8])] = &[
+            (&[47, 97, 53, 13], &[97, 47, 53, 13]),
+            // (&[61, 13, 29], &[61, 29, 13]),
+        ];
+        for &(page, expected) in cases {
+            assert_eq!(sort(page, &inp), expected);
+        }
+    }
+
+    #[test]
     fn test_part_1() {
         let inp = TEST_DATA.parse().unwrap();
         let ans = part_one(&inp);
         assert_eq!(ans, 143);
     }
 
-    #[test]
-    fn test_part_2() {
-        let inp = TEST_DATA.parse().unwrap();
-        let ans = part_two(&inp);
-        assert_eq!(ans, 0);
-    }
+    // #[test]
+    // fn test_part_2() {
+    //     let inp = TEST_DATA.parse().unwrap();
+    //     let ans = part_two(&inp);
+    //     assert_eq!(ans, 0);
+    // }
 }
