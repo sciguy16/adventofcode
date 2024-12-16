@@ -52,3 +52,29 @@ fn grid_display() {
     ], 2);
     assert_eq!(grid.to_string(), "12\n34\n");
 }
+
+#[test]
+fn grid_get_neigh() {
+    #[rustfmt::skip]
+    let grid = Grid::<u16>::new([
+        1, 2, 
+        3, 4,
+    ], 2);
+
+    assert_eq!(*grid.get_neighbour((0, 0), Direction::Right).unwrap(), 4);
+    assert!(dbg!(grid.get_neighbour((0, 0), Direction::Left)).is_none());
+}
+
+
+
+#[test]
+fn grid_get_find() {
+    #[rustfmt::skip]
+    let grid = Grid::<u16>::new([
+        1, 2, 
+        3, 4,
+    ], 2);
+
+    assert_eq!(grid.find(|cell| *cell==4).unwrap(), Coord::from((1, 0)));
+    assert!(grid.find(|cell|*cell==10).is_none());
+}

@@ -103,7 +103,6 @@ fn sort(pages: &[u8], inp: &DataType) -> Vec<u8> {
             not_sorted_idx = 1;
         }
         pages.swap(not_sorted_idx, not_sorted_idx.checked_sub(1).unwrap());
-        break;
     }
     pages
 }
