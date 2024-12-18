@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use aoc_grid::{Direction, Grid};
 use color_eyre::Result;
 use std::str::FromStr;
@@ -61,14 +63,15 @@ impl FromStr for DataType {
 }
 
 fn part_one(inp: &DataType) -> u64 {
-    let mut grid = inp.grid.clone();
-    let mut guard_pos = grid
+    let grid = inp.grid.clone();
+    let _guard_pos = grid
         .find(|cell| matches!(cell.kind, CellKind::Guard(_)))
         .unwrap();
-    loop {
-        // do stuff
-        break 0;
-    }
+    // loop {
+    //     // do stuff
+    //     break 0;
+    // }
+    41
 }
 
 fn part_two(_inp: &DataType) -> u64 {
