@@ -112,6 +112,8 @@ impl FromStr for DataType {
 struct TuringMachine {
     tape: Vec<bool>,
     cursor: usize,
+    furthest_left: usize,
+    furthest_right: usize,
 }
 
 impl TuringMachine {
@@ -119,11 +121,18 @@ impl TuringMachine {
         Self {
             tape: vec![false; size],
             cursor: size / 2,
+            furthest_left: size / 2,
+            furthest_right: size / 2,
         }
     }
 
     fn count_ones(&self) -> usize {
-        self.tape.iter().filter(|&&value| value).count()
+        self.tape
+            .iter()
+            .skip(self.furthest_left)
+            .take(1 + self.furthest_right - self.furthest_left)
+            .filter(|&&value| value)
+            .count()
     }
 
     fn write(&mut self, value: bool) {
@@ -135,10 +144,12 @@ impl TuringMachine {
     }
 
     fn move_(&mut self, direction: Direction) {
-        self.cursor = match direction {
-            Direction::Left => self.cursor.checked_sub(1).unwrap(),
-            Direction::Right => self.cursor.checked_add(1).unwrap(),
+        match direction {
+            Direction::Left => self.cursor -= 1,
+            Direction::Right => self.cursor += 1,
         }
+        self.furthest_left = self.furthest_left.min(self.cursor);
+        self.furthest_right = self.furthest_right.max(self.cursor);
     }
 }
 
