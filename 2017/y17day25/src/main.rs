@@ -1,10 +1,12 @@
 use color_eyre::Result;
-use std::{collections::HashMap, str::FromStr, time::Instant};
+use std::{str::FromStr, time::Instant};
+
+const FIRST_LETTER: u8 = b'A';
 
 struct DataType {
-    start_state: char,
+    start_state: usize,
     steps: usize,
-    states: HashMap<char, Subroutine>,
+    states: Vec<Subroutine>,
 }
 
 #[derive(Copy, Clone)]
@@ -17,7 +19,7 @@ struct Subroutine {
 struct Action {
     write: bool,
     movement: Direction,
-    next: char,
+    next: usize,
 }
 
 #[derive(Copy, Clone)]
@@ -50,7 +52,7 @@ impl FromStr for DataType {
             .strip_suffix('.')
             .unwrap();
         assert_eq!(start_state.len(), 1);
-        let start_state = start_state.chars().next().unwrap();
+        let start_state = (start_state.as_bytes()[0] - FIRST_LETTER).into();
 
         let steps = lines
             .next()
@@ -62,7 +64,7 @@ impl FromStr for DataType {
             .parse()
             .unwrap();
 
-        let mut states = HashMap::new();
+        let mut states = Vec::with_capacity(6);
 
         let state_regex = r"In state ([A-F]):
   If the current value is 0:
@@ -74,28 +76,29 @@ impl FromStr for DataType {
     - Move one slot to the (left|right)\.
     - Continue with state ([A-F])\.";
         let state_regex = regex::Regex::new(state_regex).unwrap();
-
+        let mut expected_letter = FIRST_LETTER.checked_sub(1).unwrap();
         for (
             _,
             [state_state, when_zero_write, when_zero_move, when_zero_next, when_one_write, when_one_move, when_one_next],
         ) in state_regex.captures_iter(inp).map(|c| c.extract())
         {
-            let prev = states.insert(
-                state_state.chars().next().unwrap(),
-                Subroutine {
-                    when_zero: Action {
-                        write: when_zero_write.parse::<u8>().unwrap() != 0,
-                        movement: when_zero_move.parse().unwrap(),
-                        next: when_zero_next.chars().next().unwrap(),
-                    },
-                    when_one: Action {
-                        write: when_one_write.parse::<u8>().unwrap() != 0,
-                        movement: when_one_move.parse().unwrap(),
-                        next: when_one_next.chars().next().unwrap(),
-                    },
+            // sense-check the state letters
+            let cur_letter = state_state.as_bytes()[0];
+            expected_letter += 1;
+            assert_eq!(cur_letter, expected_letter);
+
+            states.push(Subroutine {
+                when_zero: Action {
+                    write: when_zero_write.parse::<u8>().unwrap() != 0,
+                    movement: when_zero_move.parse().unwrap(),
+                    next: (when_zero_next.as_bytes()[0] - FIRST_LETTER).into(),
                 },
-            );
-            assert!(prev.is_none());
+                when_one: Action {
+                    write: when_one_write.parse::<u8>().unwrap() != 0,
+                    movement: when_one_move.parse().unwrap(),
+                    next: (when_one_next.as_bytes()[0] - FIRST_LETTER).into(),
+                },
+            });
         }
 
         Ok(Self {
@@ -144,7 +147,7 @@ fn part_one(inp: &DataType) -> u64 {
     let mut machine = TuringMachine::new(inp.steps.checked_mul(2).unwrap());
 
     for _ in 0..inp.steps {
-        let state = inp.states.get(&current_state).unwrap();
+        let state = inp.states.get(current_state).unwrap();
         let action = if machine.read() {
             state.when_one
         } else {
@@ -210,10 +213,10 @@ In state B:
     #[test]
     fn test_part_1() {
         let inp = TEST_DATA.parse::<DataType>().unwrap();
-        assert_eq!(inp.start_state, 'A');
+        assert_eq!(inp.start_state, 0);
         assert_eq!(inp.steps, 6);
         assert_eq!(inp.states.len(), 2);
-        assert_eq!(inp.states.get(&'A').unwrap().when_zero.next, 'B');
+        assert_eq!(inp.states[0].when_zero.next, 1);
 
         let ans = part_one(&inp);
         assert_eq!(ans, 3);
