@@ -945,6 +945,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "y17day04"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+]
+
+[[package]]
 name = "y17day25"
 version = "0.1.0"
 dependencies = [
