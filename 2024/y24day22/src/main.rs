@@ -1,5 +1,7 @@
+#![feature(array_windows)]
+
 use color_eyre::Result;
-use std::{str::FromStr, time::Instant};
+use std::{collections::BTreeSet, str::FromStr, time::Instant};
 
 const PUZZLE_INPUT: &str = include_str!("../input.txt");
 
@@ -43,7 +45,7 @@ impl Iterator for SecretNumber {
 
 struct DeltaWrapper {
     secret: SecretNumber,
-    prev: i8,
+    prev_digit: i8,
 }
 
 impl DeltaWrapper {
@@ -51,15 +53,18 @@ impl DeltaWrapper {
         let secret = SecretNumber::new(initial);
         Self {
             secret,
-            prev: initial.try_into().unwrap(),
+            prev_digit: (initial % 10).try_into().unwrap(),
         }
     }
 }
 
 impl Iterator for DeltaWrapper {
-    type Item = i8;
+    type Item = (i8, i8);
     fn next(&mut self) -> Option<Self::Item> {
-        None
+        let next_digit: i8 = (self.secret.next()? % 10).try_into().unwrap();
+        let delta = next_digit - self.prev_digit;
+        self.prev_digit = next_digit;
+        Some((next_digit, delta))
     }
 }
 
@@ -71,8 +76,80 @@ fn part_one(inp: &DataType) -> u64 {
     inp.seeds.iter().copied().map(get_2000th).sum()
 }
 
-fn part_two(_inp: &DataType) -> u64 {
-    0
+fn print_packed_window(window: u32) {
+    let [a, b, c, d] = window.to_be_bytes();
+    println!("{}, {}, {}, {}", a as i8, b as i8, c as i8, d as i8);
+}
+
+fn part_two(inp: &DataType, limit: usize) -> u64 {
+    // transform the vendors into their delta sequences
+    let mut vendor_deltas = Vec::with_capacity(inp.seeds.len());
+    for &vendor_seed in &inp.seeds {
+        let delta = DeltaWrapper::new(vendor_seed)
+            .take(limit - 1)
+            .collect::<Vec<_>>();
+        vendor_deltas.push(delta);
+    }
+
+    // transform again into their packed windows
+    let mut vendor_packed_windows = Vec::with_capacity(inp.seeds.len());
+    for vendor in &vendor_deltas {
+        let packed_windows = vendor
+            .array_windows()
+            .map(|&[(_, a), (_, b), (_, c), (price, d)]| {
+                (
+                    price,
+                    u32::from_be_bytes([a as u8, b as u8, c as u8, d as u8]),
+                )
+            })
+            .collect::<Vec<_>>();
+        vendor_packed_windows.push(packed_windows);
+    }
+    let seen_windows = vendor_packed_windows
+        .iter()
+        .flatten()
+        // .inspect(|&(price, window)| {
+        //     print_packed_window(*window);
+        //     println!("{price}\n");
+        // })
+        .map(|(_price, window)| window)
+        .collect::<BTreeSet<_>>();
+
+    let mut running_max = 0;
+    let mut best = 0;
+
+    // get the price each vendor offers for each window and add them up,
+    // tracking the largest
+    for &window in seen_windows {
+        // print_packed_window(best);
+
+        let sum: u64 = vendor_packed_windows
+            .iter()
+            .map(|vendor| {
+                vendor
+                    .iter()
+                    .find_map(|&(price, delta)| {
+                        (delta == window).then_some(price as u64)
+                    })
+                    .unwrap_or(0)
+            })
+            // .inspect(|price| {
+            //     println!("price: {price}");
+            //     print_packed_window(window);
+            // })
+            .sum();
+        if sum > running_max {
+            // print_packed_window(window);
+            // dbg!(sum);
+
+            running_max = sum;
+            best = window;
+        }
+    }
+
+    print_packed_window(best);
+
+    running_max
 }
 
 fn main() -> Result<()> {
@@ -85,7 +162,7 @@ fn main() -> Result<()> {
     println!("part one: {} in {} ms", ans, elapsed.as_secs_f32() * 1000.0);
 
     let start = Instant::now();
-    let ans = part_two(&data);
+    let ans = part_two(&data, 2000);
     let elapsed = start.elapsed();
     println!("part two: {} in {} ms", ans, elapsed.as_secs_f32() * 1000.0);
 
@@ -133,10 +210,25 @@ mod test {
     #[test]
     fn deltas() {
         let mut deltas = DeltaWrapper::new(123);
-        let expected = [-3, 6, -1, -1, 0, 2, -2, 0, -2];
+        let expected = [
+            (0, -3),
+            (6, 6),
+            (5, -1),
+            (4, -1),
+            (4, 0),
+            (6, 2),
+            (4, -2),
+            (4, 0),
+            (2, -2),
+        ];
         for expected in expected {
             assert_eq!(deltas.next().unwrap(), expected);
         }
+    }
+
+    #[test]
+    fn signed_cast() {
+        assert_eq!((-124_i8) as u8, u8::from_be_bytes((-124_i8).to_be_bytes()));
     }
 
     #[test]
@@ -154,17 +246,25 @@ mod test {
     }
 
     #[test]
+    fn part_2_with_the_mini_test() {
+        let inp = DataType { seeds: vec![123] };
+        let ans = part_two(&inp, 10);
+        assert_eq!(ans, 6);
+    }
+
+    #[test]
+    #[ignore]
     fn test_part_2() {
         let inp = TEST_DATA.parse().unwrap();
-        let ans = part_two(&inp);
-        assert_eq!(ans, 0);
+        let ans = part_two(&inp, 2000);
+        assert_eq!(ans, 23);
     }
 
     #[test]
     #[ignore]
     fn test_part_2_b() {
         let inp = PUZZLE_INPUT.parse().unwrap();
-        let ans = part_two(&inp);
+        let ans = part_two(&inp, 2000);
         assert_eq!(ans, 0);
     }
 }
