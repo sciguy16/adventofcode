@@ -1,6 +1,7 @@
 use aoc_grid::{Coord, Grid};
 use color_eyre::Result;
-use petgraph::graphmap::UnGraphMap;
+use petgraph::{graphmap::GraphMap, Undirected};
+use rustc_hash::FxBuildHasher;
 use std::{
     fmt::{Display, Formatter},
     str::FromStr,
@@ -54,8 +55,10 @@ impl<const DIM: i64, const LINES_TO_READ: usize> FromStr
     }
 }
 
-fn make_grid_into_graph(grid: &Grid<CellType>) -> UnGraphMap<Coord, ()> {
-    let mut graph = UnGraphMap::default();
+fn make_grid_into_graph(
+    grid: &Grid<CellType>,
+) -> GraphMap<Coord, (), Undirected, FxBuildHasher> {
+    let mut graph = GraphMap::<_, _, Undirected, FxBuildHasher>::default();
 
     for (coord, _) in grid
         .iter()
@@ -93,13 +96,13 @@ fn part_one<const DIM: i64, const LINES_TO_READ: usize>(
 fn part_two<const DIM: i64, const LINES_TO_READ: usize>(
     inp: &DataType<{ DIM }, { LINES_TO_READ }>,
 ) -> String {
-    let mut grid = inp.grid.clone();
+    let mut graph = make_grid_into_graph(&inp.grid);
     let origin = Coord::from((0, 0));
     let destination = Coord::from((DIM, DIM));
 
     for &next_byte in &inp.spare_bytes {
-        grid.set(next_byte, CellType::Danger);
-        let graph = make_grid_into_graph(&grid);
+        // Delete related edges from the graph
+        graph.remove_node(next_byte);
 
         let dijk = petgraph::algo::dijkstra::dijkstra(
             &graph,
