@@ -32,3 +32,6 @@ nalgebra = "0.33.2"
 owo-colors = "4.1.0"
 
 aoc-grid = { path = "crates/aoc-grid" }
+
+[workspace.lints.clippy]
+decimal_literal_representation = "warn"

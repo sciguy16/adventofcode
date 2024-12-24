@@ -1504,6 +1504,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "y24day22"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+]
+
+[[package]]
 name = "y24day24"
 version = "0.1.0"
 dependencies = [
