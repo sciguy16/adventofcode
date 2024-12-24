@@ -193,6 +193,7 @@ fn part_two(inp: &DataType) -> String {
             && expr.output != *b"z45"
             && expr.op != Operation::Xor
         {
+            #[cfg(debug_assertions)]
             println!("XOR ERR: {}", sig_to_str(expr.output));
             found.insert(expr.output);
         }
@@ -201,6 +202,7 @@ fn part_two(inp: &DataType) -> String {
         if expr.op == Operation::And {
             // 2a. AND gate output connected to a Z signal
             if expr.output[0] == Z {
+                #[cfg(debug_assertions)]
                 println!("AND-Z ERR: {}", sig_to_str(expr.output));
                 found.insert(expr.output);
             } else {
@@ -212,9 +214,11 @@ fn part_two(inp: &DataType) -> String {
 
                 if expressions_with_out_as_input.len() == 1 {
                     if expressions_with_out_as_input[0].op != Operation::Or {
+                        #[cfg(debug_assertions)]
                         println!("AND-OR ERR: {}", sig_to_str(expr.output));
                     }
                 } else {
+                    #[cfg(debug_assertions)]
                     println!("AND-OUT ERR: {}", sig_to_str(expr.output));
                     found.insert(expr.output);
                 }
@@ -232,6 +236,7 @@ fn part_two(inp: &DataType) -> String {
             if destinations != [Operation::Xor, Operation::And]
                 && destinations != [Operation::And, Operation::Xor]
             {
+                #[cfg(debug_assertions)]
                 println!("XOR NOT Z ERR: {}", sig_to_str(expr.output));
                 found.insert(expr.output);
             }
@@ -240,14 +245,15 @@ fn part_two(inp: &DataType) -> String {
             if ![X, Y].contains(&expr.left[0])
                 || ![X, Y].contains(&expr.right[0])
             {
+                #[cfg(debug_assertions)]
                 println!("XOR NOT X Y Z ERR: {}", sig_to_str(expr.output));
                 found.insert(expr.output);
-                // panic!("{expr}");
             }
         }
     }
     found.remove(b"rhk");
     let found = found.into_iter().map(sig_to_str).collect::<Vec<_>>();
+    #[cfg(debug_assertions)]
     for sig in &found {
         println!("{sig}");
     }
