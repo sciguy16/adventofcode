@@ -100,19 +100,33 @@ fn part_two<const DIM: i64, const LINES_TO_READ: usize>(
     let origin = Coord::from((0, 0));
     let destination = Coord::from((DIM, DIM));
 
+    let mut jobs = Vec::with_capacity(inp.spare_bytes.len());
     for &next_byte in &inp.spare_bytes {
         // Delete related edges from the graph
         graph.remove_node(next_byte);
 
-        let dijk = petgraph::algo::dijkstra::dijkstra(
-            &graph,
-            origin,
-            Some(destination),
-            |_| 1,
-        );
+        let graph = graph.clone();
+        let handle = std::thread::spawn(move || {
+            let dijk = petgraph::algo::dijkstra::dijkstra(
+                &graph,
+                origin,
+                Some(destination),
+                |_| 1,
+            );
 
-        if !dijk.contains_key(&destination) {
-            return format!("{},{}", next_byte.x, next_byte.y);
+            if dijk.contains_key(&destination) {
+                None
+            } else {
+                Some(format!("{},{}", next_byte.x, next_byte.y))
+            }
+        });
+        jobs.push(handle);
+    }
+
+    for handle in jobs {
+        let result = handle.join().unwrap();
+        if let Some(result) = result {
+            return result;
         }
     }
 
