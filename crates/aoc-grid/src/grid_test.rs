@@ -17,16 +17,18 @@ fn invalid_width() {
 }
 
 #[test]
-fn grid_get() {
+fn grid_get_set() {
     #[rustfmt::skip]
-    let grid = Grid::<u16>::new([
-    	1, 2, 
+    let mut grid = Grid::<u16>::new([
+    	1, 2,
     	3, 4,
     ], 2);
     assert_eq!(*grid.get((0, 0)).unwrap(), 3);
     assert_eq!(*grid.get((1, 0)).unwrap(), 4);
     assert_eq!(*grid.get((0, 1)).unwrap(), 1);
     assert_eq!(*grid.get((1, 1)).unwrap(), 2);
+    grid.set((0, 0), 200);
+    assert_eq!(*grid.get((0, 0)).unwrap(), 200);
 }
 
 #[test]
@@ -61,20 +63,33 @@ fn grid_get_neigh() {
         3, 4,
     ], 2);
 
-    assert_eq!(*grid.get_neighbour((0, 0), Direction::Right).unwrap(), 4);
+    assert_eq!(
+        grid.get_neighbour((0, 0), Direction::Right).unwrap(),
+        ((1, 0).into(), &4)
+    );
     assert!(dbg!(grid.get_neighbour((0, 0), Direction::Left)).is_none());
 }
-
-
 
 #[test]
 fn grid_get_find() {
     #[rustfmt::skip]
     let grid = Grid::<u16>::new([
-        1, 2, 
+        1, 2,
         3, 4,
     ], 2);
 
-    assert_eq!(grid.find(|cell| *cell==4).unwrap(), Coord::from((1, 0)));
-    assert!(grid.find(|cell|*cell==10).is_none());
+    assert_eq!(grid.find(|cell| *cell == 4).unwrap(), Coord::from((1, 0)));
+    assert!(grid.find(|cell| *cell == 10).is_none());
+}
+
+#[test]
+fn grid_iter_cardinals() {
+    #[rustfmt::skip]
+    let grid = Grid::<u16>::new([
+        1, 2,
+        3, 4,
+    ], 2);
+
+    let neigh = grid.iter_cardinal_neighbours((0, 0)).collect::<Vec<_>>();
+    assert_eq!(neigh, [((0, 1).into(), &1), ((1, 0).into(), &4)]);
 }

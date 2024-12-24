@@ -1,10 +1,13 @@
-use std::ops::Add;
+use std::{
+    fmt::{Display, Formatter},
+    ops::Add,
+};
 
 #[cfg(test)]
 #[path = "coord_test.rs"]
 mod coord_test;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Coord {
     pub x: i64,
     pub y: i64,
@@ -13,6 +16,12 @@ pub struct Coord {
 impl From<(i64, i64)> for Coord {
     fn from((x, y): (i64, i64)) -> Self {
         Self { x, y }
+    }
+}
+
+impl Display for Coord {
+    fn fmt(&self, fmt: &mut Formatter) -> std::fmt::Result {
+        write!(fmt, "({}, {})", self.x, self.y)
     }
 }
 

@@ -1265,6 +1265,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "y24day18"
+version = "0.1.0"
+dependencies = [
+ "aoc-grid",
+ "color-eyre",
+ "petgraph",
+]
+
+[[package]]
 name = "y24day24"
 version = "0.1.0"
 dependencies = [

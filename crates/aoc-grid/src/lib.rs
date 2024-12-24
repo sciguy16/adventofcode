@@ -21,4 +21,8 @@ impl Direction {
             Self::Right => (1, 0).into(),
         }
     }
+
+    pub fn iter() -> impl Iterator<Item = Self> {
+        [Self::Up, Self::Left, Self::Down, Self::Right].into_iter()
+    }
 }

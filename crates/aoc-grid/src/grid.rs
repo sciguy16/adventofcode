@@ -12,6 +12,20 @@ pub struct Grid<T> {
     height: i64,
 }
 
+impl<T: Default> Grid<T> {
+    pub fn new_default(width: i64, height: i64) -> Self {
+        let vec_len = usize::try_from(width)
+            .unwrap()
+            .checked_mul(usize::try_from(height).unwrap())
+            .unwrap();
+        Self {
+            width,
+            height,
+            inner: (0..vec_len).map(|_| T::default()).collect(),
+        }
+    }
+}
+
 impl<T> Grid<T> {
     #[must_use]
     pub fn new(data: impl Into<Vec<T>>, width: i64) -> Self {
@@ -52,6 +66,21 @@ impl<T> Grid<T> {
         self.inner.get(offset)
     }
 
+    pub fn set(&mut self, at: impl Into<Coord>, new: T) {
+        let at = at.into();
+        if at.x < 0 || at.y < 0 || at.x >= self.width || at.y >= self.height {
+            panic!(
+                "Coordinate {} out of bounds in a grid of dimension ({}, {})",
+                at, self.width, self.height
+            );
+        }
+
+        let offset = at.x + self.height * (self.height - 1 - at.y);
+        let offset: usize =
+            offset.try_into().expect("Offest out of range for usize");
+        self.inner[offset] = new;
+    }
+
     pub fn rows(&self) -> impl Iterator<Item = &[T]> + '_ {
         let width = self.width.try_into().unwrap();
         self.inner.chunks(width)
@@ -61,8 +90,9 @@ impl<T> Grid<T> {
         &self,
         at: impl Into<Coord>,
         direction: Direction,
-    ) -> Option<&T> {
-        self.get(at.into() + direction.vector())
+    ) -> Option<(Coord, &T)> {
+        let at = at.into() + direction.vector();
+        self.get(at).map(|val| (at, val))
     }
 
     fn idx_to_coord(&self, idx: usize) -> Coord {
@@ -81,6 +111,21 @@ impl<T> Grid<T> {
             .enumerate()
             .find(|(_idx, cell)| condition(cell))
             .map(|(idx, _)| self.idx_to_coord(idx))
+    }
+
+    pub fn iter_cardinal_neighbours(
+        &self,
+        at: impl Into<Coord>,
+    ) -> impl Iterator<Item = (Coord, &T)> {
+        let at = at.into();
+        Direction::iter().filter_map(move |dir| self.get_neighbour(at, dir))
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (Coord, &T)> {
+        self.inner
+            .iter()
+            .enumerate()
+            .map(|(idx, value)| (self.idx_to_coord(idx), value))
     }
 }
 
