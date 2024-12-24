@@ -1,0 +1,12 @@
+[package]
+name = "y24day19"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cached = "0.54.0"
+color-eyre = "0.6"
+rustc-hash = "2.1.0"
