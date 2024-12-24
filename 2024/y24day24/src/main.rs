@@ -245,17 +245,6 @@ fn part_two(inp: &DataType) -> String {
                 // panic!("{expr}");
             }
         }
-
-        // 4. XOR expression with an X but not Y or vice versa
-        if expr.op == Operation::Xor {
-            if expr.left[0] == X && expr.right[0] != Y {
-                println!("XOR X NOT Y ERR: {}", sig_to_str(expr.right));
-                found.insert(expr.output);
-            } else if expr.right[0] == X && expr.left[0] != Y {
-                println!("XOR X NOT Y ERR: {}", sig_to_str(expr.left));
-                found.insert(expr.output);
-            }
-        }
     }
     found.remove(b"rhk");
     let found = found.into_iter().map(sig_to_str).collect::<Vec<_>>();
