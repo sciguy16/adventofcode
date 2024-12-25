@@ -123,10 +123,9 @@ fn part_two(inp: &DataType, limit: usize) -> u64 {
     // get the price each vendor offers for each window and add them up,
     // tracking the largest
     for &window in seen_windows {
-        // print_packed_window(best);
+        print_packed_window(best);
 
         let sum: u64 = vendor_packed_windows
-            // .par_iter()
             .iter()
             .map(|vendor| *vendor.get(&window).unwrap_or(&0) as u64)
             // .inspect(|price| {
@@ -266,5 +265,33 @@ mod test {
         let inp = PUZZLE_INPUT.parse().unwrap();
         let ans = part_two(&inp, 2000);
         assert_eq!(ans, 1863);
+    }
+
+    // Not counting the last possible change
+    // https://old.reddit.com/r/adventofcode/comments/1hjz1w4/2024_day_22_part_2_a_couple_of_diagnostic_test/
+    #[test]
+    fn reddit_test_1() {
+        let inp = "2021
+5017
+19751"
+            .parse()
+            .unwrap();
+        assert_eq!(part_one(&inp,), 18183557);
+        let ans = part_two(&inp, 2000);
+        assert_eq!(ans, 27);
+    }
+
+    // Not counting the first possible change.
+    // https://old.reddit.com/r/adventofcode/comments/1hjz1w4/2024_day_22_part_2_a_couple_of_diagnostic_test/
+    #[test]
+    fn reddit_test_2() {
+        let inp = "5053
+10083
+11263"
+            .parse()
+            .unwrap();
+        assert_eq!(part_one(&inp,), 8876699);
+        let ans = part_two(&inp, 2000);
+        assert_eq!(ans, 27);
     }
 }
