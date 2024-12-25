@@ -1508,6 +1508,7 @@ name = "y24day22"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
+ "rustc-hash",
 ]
 
 [[package]]

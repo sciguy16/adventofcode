@@ -1,7 +1,8 @@
 #![feature(array_windows)]
 
 use color_eyre::Result;
-use std::{collections::BTreeSet, str::FromStr, time::Instant};
+use rustc_hash::{FxHashMap, FxHashSet};
+use std::{str::FromStr, time::Instant};
 
 const PUZZLE_INPUT: &str = include_str!("../input.txt");
 
@@ -96,13 +97,14 @@ fn part_two(inp: &DataType, limit: usize) -> u64 {
     for vendor in &vendor_deltas {
         let packed_windows = vendor
             .array_windows()
+            .rev()
             .map(|&[(_, a), (_, b), (_, c), (price, d)]| {
                 (
-                    price,
                     u32::from_be_bytes([a as u8, b as u8, c as u8, d as u8]),
+                    price,
                 )
             })
-            .collect::<Vec<_>>();
+            .collect::<FxHashMap<_, _>>();
         vendor_packed_windows.push(packed_windows);
     }
     let seen_windows = vendor_packed_windows
@@ -112,8 +114,8 @@ fn part_two(inp: &DataType, limit: usize) -> u64 {
         //     print_packed_window(*window);
         //     println!("{price}\n");
         // })
-        .map(|(_price, window)| window)
-        .collect::<BTreeSet<_>>();
+        .map(|(window, _price)| window)
+        .collect::<FxHashSet<_>>();
 
     let mut running_max = 0;
     let mut best = 0;
@@ -124,15 +126,9 @@ fn part_two(inp: &DataType, limit: usize) -> u64 {
         // print_packed_window(best);
 
         let sum: u64 = vendor_packed_windows
+            // .par_iter()
             .iter()
-            .map(|vendor| {
-                vendor
-                    .iter()
-                    .find_map(|&(price, delta)| {
-                        (delta == window).then_some(price as u64)
-                    })
-                    .unwrap_or(0)
-            })
+            .map(|vendor| *vendor.get(&window).unwrap_or(&0) as u64)
             // .inspect(|price| {
             //     println!("price: {price}");
             //     print_packed_window(window);
@@ -176,6 +172,11 @@ mod test {
     const TEST_DATA: &str = "1
 10
 100
+2024";
+
+    const TEST_DATA_2: &str = "1
+2
+3
 2024";
 
     #[test]
@@ -253,9 +254,8 @@ mod test {
     }
 
     #[test]
-    #[ignore]
     fn test_part_2() {
-        let inp = TEST_DATA.parse().unwrap();
+        let inp = TEST_DATA_2.parse().unwrap();
         let ans = part_two(&inp, 2000);
         assert_eq!(ans, 23);
     }
@@ -265,6 +265,6 @@ mod test {
     fn test_part_2_b() {
         let inp = PUZZLE_INPUT.parse().unwrap();
         let ans = part_two(&inp, 2000);
-        assert_eq!(ans, 0);
+        assert_eq!(ans, 1863);
     }
 }
