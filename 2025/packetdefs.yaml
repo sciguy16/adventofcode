@@ -1,0 +1,10 @@
+destinations:
+- id: 0
+  name: top
+  description: Top-level packets, e.g. ping/pong
+  types:
+  - id: 0
+    name: ping
+    payload:
+    - name: data
+      width: 32
