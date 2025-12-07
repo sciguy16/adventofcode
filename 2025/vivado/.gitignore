@@ -1,0 +1,8 @@
+*.xpr
+*.cache/
+*.hw/
+*.ioplanning/
+*.runs/
+*.sim
+*.srcs/sources_1/ip/.Xil
+*.srcs/utils_1/

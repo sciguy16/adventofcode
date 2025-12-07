@@ -1,0 +1,2 @@
+axis_dwidth_converter_32_8_sim_netlist.vhdl,vhdl,xil_defaultlib,../../../ip/axis_dwidth_converter_32_8/axis_dwidth_converter_32_8_sim_netlist.vhdl,incdir="../../../../aoc-2025.srcs/sources_1/ip/axis_dwidth_converter_32_8/hdl"
+glbl.v,Verilog,xil_defaultlib,glbl.v

@@ -1,0 +1,1 @@
+vopt -64 -l elaborate.log +acc=npr -suppress 10016  -L xil_defaultlib -L xpm -L unisims_ver -L unimacro_ver -L secureip -work xil_defaultlib xil_defaultlib.axis_dwidth_converter_32_8 xil_defaultlib.glbl -o axis_dwidth_converter_32_8_opt

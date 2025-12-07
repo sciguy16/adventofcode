@@ -1,0 +1,5 @@
+vhdl xil_defaultlib  \
+"../../../ip/axis_dwidth_converter_8_32/axis_dwidth_converter_8_32_sim_netlist.vhdl" \
+
+# Do not sort compile order
+nosort
