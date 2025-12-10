@@ -1,0 +1,18 @@
+[package]
+name = "types"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+color-eyre = "0.6.5"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_norway = "0.9.42"
+
+[dev-dependencies]
+hex = "0.4.3"
+hex-literal = "1.1.0"
+pretty_assertions = "1.4.1"
+
+[build-dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_norway = "0.9.42"
