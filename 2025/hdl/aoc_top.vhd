@@ -10,8 +10,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
---library work;
+library work;
 --use work.pkg.buf_type;
+
+use work.packet_types_pkg_hdr.ALL;
 
 entity aoc_top is
     port(
@@ -36,6 +38,8 @@ architecture rtl of aoc_top is
     signal axi_uart_tvalid_loopback: std_logic;
     signal axi_uart_tready_loopback: std_logic;
     signal axi_uart_tdata_loopback: std_logic_vector(31 downto 0);
+
+    signal game: std_logic_vector(7 downto 0) := c_DESTINATION_top;
 
     component clk_wiz_0
     port

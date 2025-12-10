@@ -1,6 +1,6 @@
 use std::{fs::File, path::Path};
 
-#[path = "src/build_lib.rs"]
+#[path = "src/build_lib/mod.rs"]
 mod build_lib;
 
 use build_lib::{build_rust_codegen, Result, PACKETDEFS};
