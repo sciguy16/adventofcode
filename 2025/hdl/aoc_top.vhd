@@ -35,11 +35,14 @@ architecture rtl of aoc_top is
     signal clk_25MHz: std_logic;
     signal clk_50MHz: std_logic;
 
-    signal axi_uart_tvalid_loopback: std_logic;
-    signal axi_uart_tready_loopback: std_logic;
-    signal axi_uart_tdata_loopback: std_logic_vector(31 downto 0);
+    signal axi_uart_rxd_tvalid: std_logic;
+    signal axi_uart_rxd_tready: std_logic;
+    signal axi_uart_rxd_tdata: std_logic_vector(31 downto 0);
 
-    signal game: std_logic_vector(7 downto 0) := c_DESTINATION_top;
+    signal axi_uart_txd_tvalid: std_logic;
+    signal axi_uart_txd_tready: std_logic;
+    signal axi_uart_txd_tdata: std_logic_vector(31 downto 0);
+    signal axi_uart_txd_prog_full: std_logic;
 
     component clk_wiz_0
     port
@@ -59,23 +62,40 @@ architecture rtl of aoc_top is
         reset: in std_logic;
         clk: in std_logic;
         axi_clk: in std_logic;
-        rx : IN STD_LOGIC;
-        tx : OUT STD_LOGIC;
+        rx_IN : IN STD_LOGIC;
+        tx_OUT : OUT STD_LOGIC;
 
-        axi_str_rxd_tvalid : OUT STD_LOGIC;
-        axi_str_rxd_tready : IN STD_LOGIC;
-        axi_str_rxd_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        axi_str_rxd_tvalid_OUT : OUT STD_LOGIC;
+        axi_str_rxd_tready_IN : IN STD_LOGIC;
+        axi_str_rxd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        axi_str_txd_tvalid : IN STD_LOGIC;
-        axi_str_txd_tready : OUT STD_LOGIC;
-        axi_str_txd_tdata : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        axi_str_txd_prog_full : OUT STD_LOGIC
-  );
-end component;
+        axi_str_txd_tvalid_IN : IN STD_LOGIC;
+        axi_str_txd_tready_OUT : OUT STD_LOGIC;
+        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        axi_str_txd_prog_full_OUT: OUT STD_LOGIC
+    );
+    end component;
+
+    component packet_router is
+    port(
+        reset: in std_logic;
+        clk: in std_logic;
+
+        axi_str_rxd_tvalid_IN : IN STD_LOGIC;
+        axi_str_rxd_tready_OUT : OUT STD_LOGIC;
+        axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+        axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
+        axi_str_txd_tready_IN : IN STD_LOGIC;
+        axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        axi_str_txd_prog_full_IN: IN STD_LOGIC
+    );
+    end component;
+
 
 begin
     -- active-low RGB LED
-    led0_r <= axi_uart_tvalid_loopback;
+    led0_r <= axi_uart_rxd_tvalid;
     led0_g <= '1';
     led0_b <= '1';
 
@@ -102,18 +122,33 @@ begin
         reset=> reset,
         clk=> clk_25MHz,
         axi_clk => clk_50MHz,
-        rx => uart_rx,
-        tx => uart_tx,
+        rx_IN => uart_rx,
+        tx_OUT => uart_tx,
 
-        axi_str_rxd_tvalid => axi_uart_tvalid_loopback,
-        axi_str_rxd_tready => axi_uart_tready_loopback,
-        axi_str_rxd_tdata => axi_uart_tdata_loopback,
+        axi_str_rxd_tvalid_OUT => axi_uart_rxd_tvalid,
+        axi_str_rxd_tready_IN => axi_uart_rxd_tready,
+        axi_str_rxd_tdata_OUT => axi_uart_rxd_tdata,
 
-        axi_str_txd_tvalid => axi_uart_tvalid_loopback,
-        axi_str_txd_tready => axi_uart_tready_loopback,
-        axi_str_txd_tdata =>axi_uart_tdata_loopback,
-        axi_str_txd_prog_full => open
-        );
+        axi_str_txd_tvalid_IN => axi_uart_txd_tvalid,
+        axi_str_txd_tready_OUT => axi_uart_txd_tready,
+        axi_str_txd_tdata_IN =>axi_uart_txd_tdata,
+        axi_str_txd_prog_full_OUT => axi_uart_txd_prog_full
+    );
+
+    packet_router_inst: packet_router
+    port map (
+        reset => reset,
+        clk => clk_25MHz,
+
+        axi_str_rxd_tvalid_IN => axi_uart_rxd_tvalid,
+        axi_str_rxd_tready_OUT => axi_uart_rxd_tready,
+        axi_str_rxd_tdata_IN => axi_uart_rxd_tdata,
+
+        axi_str_txd_tvalid_OUT => axi_uart_txd_tvalid,
+        axi_str_txd_tready_IN => axi_uart_txd_tready,
+        axi_str_txd_tdata_OUT =>axi_uart_txd_tdata,
+        axi_str_txd_prog_full_IN => axi_uart_txd_prog_full
+    );
 
     --dmx_instance: entity work.dmx(rtl)
     --    generic map(

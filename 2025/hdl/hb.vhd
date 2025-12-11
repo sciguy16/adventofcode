@@ -35,5 +35,4 @@ architecture rtl of hb is
             end if;
         end if;
     end process;
-
 end rtl;

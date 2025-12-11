@@ -21,5 +21,4 @@ PACKAGE packet_types_pkg_hdr is
     -- Top-level packets, e.g. ping/pong
     constant C_DESTINATION_top: natural := 0;
     constant C_DESTINATION_top_TYPE_ping: natural := 0;
-    constant C_DESTINATION_top_TYPE_pong: natural := 1;
 END PACKAGE packet_types_pkg_hdr;

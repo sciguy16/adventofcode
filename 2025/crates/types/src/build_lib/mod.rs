@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::{fmt::Display, io::Write};
 
 pub mod rust_codegen;
-pub mod vhdl_codegen;
+mod vhdl_codegen;
 
 pub const PACKETDEFS: &str = include_str!("../../../../packetdefs.yaml");
 
@@ -73,15 +73,18 @@ where
     W: Write,
 {
     let defs = serde_norway::from_str::<PacketDefs>(packetdefs)?;
+    vhdl_codegen::write_header(codegen)?;
+    write!(codegen, "PACKAGE packet_types_pkg_hdr is")?;
+    let indent = Indent::default().next();
+    writeln!(codegen, "{}", vhdl_codegen::MAIN_TYPES)?;
     writeln!(
         codegen,
-        "library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
-PACKAGE packet_types_pkg_hdr is"
+        "{indent}constant C_NUM_DESTINATIONS: natural := {};\n",
+        defs.destinations.len(),
     )?;
     for dest in defs.destinations {
-        vhdl_codegen::write_destination(codegen, &dest)?;
+        vhdl_codegen::write_destination(codegen, &dest, indent)?;
+        vhdl_codegen::write_types(codegen, &dest, indent)?;
     }
     writeln!(codegen, "END PACKAGE packet_types_pkg_hdr;")?;
     Ok(())
@@ -92,17 +95,7 @@ mod test {
     use super::*;
     use pretty_assertions::assert_eq;
 
-    #[track_caller]
-    fn do_test(yaml: &str, expected: &str) {
-        let mut out = Vec::new();
-        build_rust_codegen(yaml, &mut out).unwrap();
-        let out = String::from_utf8(out).unwrap();
-        assert_eq!(out, expected);
-    }
-
-    #[test]
-    fn basic_destination_codegen() {
-        const YAML: &str = "
+    const YAML: &str = "
 destinations:
 - id: 0
   name: top
@@ -114,7 +107,27 @@ destinations:
     - name: data
       width: 32
 ";
+
+    #[track_caller]
+    fn do_test<F>(yaml: &str, expected: &str, func: F)
+    where
+        F: FnOnce(&str, &mut Vec<u8>) -> Result<()>,
+    {
+        let mut out = Vec::new();
+        func(yaml, &mut out).unwrap();
+        let out = String::from_utf8(out).unwrap();
+        assert_eq!(out, expected);
+    }
+
+    #[test]
+    fn basic_rust_codegen() {
         const EXPECTED: &str = include_str!("expected_rust_codegen.rs");
-        do_test(YAML, EXPECTED);
+        do_test(YAML, EXPECTED, build_rust_codegen);
+    }
+
+    #[test]
+    fn basic_vhdl_codegen() {
+        const EXPECTED: &str = include_str!("expected_vhdl_codegen.vhd");
+        do_test(YAML, EXPECTED, build_vhdl_codegen);
     }
 }

@@ -20,17 +20,17 @@ entity axi_uart_wrapper is
         reset: in std_logic;
         clk: in std_logic;
         axi_clk: in std_logic;
-        rx : IN STD_LOGIC;
-        tx : OUT STD_LOGIC;
+        rx_IN : IN STD_LOGIC;
+        tx_OUT : OUT STD_LOGIC;
 
-        axi_str_rxd_tvalid : OUT STD_LOGIC;
-        axi_str_rxd_tready : IN STD_LOGIC;
-        axi_str_rxd_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        axi_str_rxd_tvalid_OUT : OUT STD_LOGIC;
+        axi_str_rxd_tready_IN : IN STD_LOGIC;
+        axi_str_rxd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        axi_str_txd_tvalid : IN STD_LOGIC;
-        axi_str_txd_tready : OUT STD_LOGIC;
-        axi_str_txd_tdata : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        axi_str_txd_prog_full: OUT STD_LOGIC
+        axi_str_txd_tvalid_IN : IN STD_LOGIC;
+        axi_str_txd_tready_OUT : OUT STD_LOGIC;
+        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        axi_str_txd_prog_full_OUT: OUT STD_LOGIC
 
   );
 end axi_uart_wrapper;
@@ -222,8 +222,8 @@ axi_uartlite_0_inst : axi_uartlite_0
     s_axi_rvalid => s_axi_rvalid,
     s_axi_rready => s_axi_rready,
 
-    rx => rx,
-    tx => tx
+    rx => rx_IN,
+    tx => tx_OUT
   );
 
 -- 8 to 32 converter, RX side
@@ -262,16 +262,16 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     s_axis_aresetn => not reset,
     -- FIFO input side
     s_axis_aclk => clk,
-    s_axis_tvalid => axi_str_txd_tvalid,
-    s_axis_tready => axi_str_txd_tready,
-    s_axis_tdata => axi_str_txd_tdata,
+    s_axis_tvalid => axi_str_txd_tvalid_IN,
+    s_axis_tready => axi_str_txd_tready_OUT,
+    s_axis_tdata => axi_str_txd_tdata_IN,
     -- FIFO output side
     m_axis_aclk => axi_clk,
     m_axis_tvalid => axi_conv_tx_tvalid,
     m_axis_tready => axi_conv_tx_tready,
     m_axis_tdata => axi_conv_tx_tdata,
     --
-    prog_full => axi_str_txd_prog_full
+    prog_full => axi_str_txd_prog_full_OUT
   );
 
 -- RX data FIFO
@@ -285,9 +285,9 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     s_axis_tdata => axi_conv_rx_tdata,
     -- FIFO output side
     m_axis_aclk => clk,
-    m_axis_tvalid => axi_str_rxd_tvalid,
-    m_axis_tready => axi_str_rxd_tready,
-    m_axis_tdata => axi_str_rxd_tdata,
+    m_axis_tvalid => axi_str_rxd_tvalid_OUT,
+    m_axis_tready => axi_str_rxd_tready_IN,
+    m_axis_tdata => axi_str_rxd_tdata_OUT,
     --
     prog_full => rx_fifo_prog_full
   );
@@ -310,8 +310,8 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
       -- WAIT_RESPONSE
       --  * wait for uart core to assert valid on the response channel
 
-            s_axi_bready <= '0';
-          conv_uart_tx_tready <= '0';
+      s_axi_bready <= '0';
+      conv_uart_tx_tready <= '0';
 
       case tx_state is
         when TX_STATE_INIT_INTERRUPT =>

@@ -1,5 +1,6 @@
 use std::{fs::File, path::Path};
 
+#[expect(dead_code)]
 #[path = "src/build_lib/mod.rs"]
 mod build_lib;
 
