@@ -17,8 +17,8 @@ use work.packet_types_pkg_hdr.ALL;
 
 entity aoc_top is
     port(
-        reset: in std_logic;
-        clk_12MHz: in std_logic;
+        reset_in: in std_logic;
+        clk_12MHz_in: in std_logic;
         --dmx_rx: in std_logic;
 
         hb_led: out std_logic;
@@ -34,6 +34,7 @@ end aoc_top;
 architecture rtl of aoc_top is
     signal clk_25MHz: std_logic;
     signal clk_50MHz: std_logic;
+    signal reset: std_logic;
 
     signal axi_uart_rxd_tvalid: std_logic;
     signal axi_uart_rxd_tready: std_logic;
@@ -56,6 +57,13 @@ architecture rtl of aoc_top is
      );
     end component;
 
+    component reset_expander is
+    port(
+        reset_in: in std_logic;
+        reset_out: out std_logic;
+        clk: in std_logic
+    );
+    end component;
     
     component axi_uart_wrapper is
     port (
@@ -107,8 +115,15 @@ begin
           -- Status and control signals
            reset => reset,
            -- Clock in ports
-           clk_in1 => clk_12MHz
+           clk_in1 => clk_12MHz_in
      );
+
+    reset_expander_inst: reset_expander
+    port map (
+        reset_in => reset_in,
+        reset_out => reset,
+        clk => clk_12MHz_in
+    );
 
     hb_instance : entity work.hb(rtl)
         port map(

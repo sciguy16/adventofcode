@@ -36,17 +36,17 @@ begin
       reset => reset,
       clk => clk,
       axi_clk => axi_clk,
-      rx => uart_loopback,
-      tx => uart_loopback,
+      rx_IN => uart_loopback,
+      tx_OUT => uart_loopback,
 
-      axi_str_rxd_tvalid => axi_str_rxd_tvalid,
-      axi_str_rxd_tready => axi_str_rxd_tready,
-      axi_str_rxd_tdata => axi_str_rxd_tdata,
+      axi_str_rxd_tvalid_OUT => axi_str_rxd_tvalid,
+      axi_str_rxd_tready_IN => axi_str_rxd_tready,
+      axi_str_rxd_tdata_OUT => axi_str_rxd_tdata,
 
-      axi_str_txd_tvalid => axi_str_txd_tvalid,
-      axi_str_txd_tready => axi_str_txd_tready,
-      axi_str_txd_tdata => axi_str_txd_tdata,
-      axi_str_txd_prog_full => open
+      axi_str_txd_tvalid_IN => axi_str_txd_tvalid,
+      axi_str_txd_tready_OUT => axi_str_txd_tready,
+      axi_str_txd_tdata_IN => axi_str_txd_tdata,
+      axi_str_txd_prog_full_OUT => open
     );
 
     -- in the simulation time, call it 1 clock cycle per ns
