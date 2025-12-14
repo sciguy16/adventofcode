@@ -88,6 +88,10 @@ architecture rtl of axi_uart_wrapper is
     signal rx_fifo_prog_full: std_logic;
     signal rx_rresp_reg: std_logic_vector(1 downto 0);
 
+    -- endian swapping
+    signal axi_str_rxd_tdata_OUT_internal: std_logic_vector(31 downto 0);
+    signal axi_str_txd_tdata_IN_internal: std_logic_vector(31 downto 0);
+
   type t_tx_state is (
     TX_STATE_INIT_INTERRUPT,
     TX_STATE_INIT_INTERRUPT_WAIT_RESPONSE,
@@ -264,7 +268,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     s_axis_aclk => clk,
     s_axis_tvalid => axi_str_txd_tvalid_IN,
     s_axis_tready => axi_str_txd_tready_OUT,
-    s_axis_tdata => axi_str_txd_tdata_IN,
+    s_axis_tdata => axi_str_txd_tdata_IN_internal,
     -- FIFO output side
     m_axis_aclk => axi_clk,
     m_axis_tvalid => axi_conv_tx_tvalid,
@@ -287,10 +291,24 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     m_axis_aclk => clk,
     m_axis_tvalid => axi_str_rxd_tvalid_OUT,
     m_axis_tready => axi_str_rxd_tready_IN,
-    m_axis_tdata => axi_str_rxd_tdata_OUT,
+    m_axis_tdata => axi_str_rxd_tdata_OUT_internal,
     --
     prog_full => rx_fifo_prog_full
   );
+
+  async_assignments: process is
+  begin
+    axi_str_rxd_tdata_OUT <=
+      axi_str_rxd_tdata_OUT_internal(7 downto 0)
+      & axi_str_rxd_tdata_OUT_internal(15 downto 8)
+      & axi_str_rxd_tdata_OUT_internal(23 downto 16)
+      & axi_str_rxd_tdata_OUT_internal(31 downto 24);
+    axi_str_txd_tdata_IN_internal <= 
+      axi_str_txd_tdata_IN(7 downto 0)
+      & axi_str_txd_tdata_IN(15 downto 8)
+      & axi_str_txd_tdata_IN(23 downto 16)
+      & axi_str_txd_tdata_IN(31 downto 24);
+  end process;
 
   process (axi_clk, reset) is
   begin

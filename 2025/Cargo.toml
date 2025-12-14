@@ -3,3 +3,7 @@ resolver = "3"
 members = [
 	"crates/*",
 ]
+
+[workspace.dependencies]
+types = { path = "crates/types" }
+serial-comms = { path = "crates/serial-comms" }
