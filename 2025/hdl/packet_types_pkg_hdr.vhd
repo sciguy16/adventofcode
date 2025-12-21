@@ -22,4 +22,8 @@ PACKAGE packet_types_pkg_hdr is
     constant C_DESTINATION_top: natural := 0;
     constant C_DESTINATION_top_TYPE_ping: natural := 0;
     constant C_DESTINATION_top_TYPE_pong: natural := 1;
+    constant C_DESTINATION_top_TYPE_write_ram: natural := 2;
+    constant C_DESTINATION_top_TYPE_write_ram_ack: natural := 3;
+    constant C_DESTINATION_top_TYPE_read_ram: natural := 4;
+    constant C_DESTINATION_top_TYPE_read_ram_ack: natural := 5;
 END PACKAGE packet_types_pkg_hdr;

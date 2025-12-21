@@ -4,7 +4,7 @@ use mio_serial::{SerialPort, SerialPortType};
 use std::sync::mpsc;
 use types::{
     codegen::{
-        top::{Ping, Pong, Types},
+        top::{Ping, Pong, ReadRam, ReadRamAck, Types, WriteRam, WriteRamAck},
         Top,
     },
     Destination, Header, SerDe, Type,
@@ -81,6 +81,43 @@ fn do_run(port: &str) -> Result<()> {
     let response = rx.recv().unwrap();
     println!("Received response: {response:02x?}");
     assert_eq!(response, Pong { data: ping.data }.into());
+
+    let write_ram = Types::from(WriteRam {
+        offset: 0x0000_0000,
+        data: [0xaa; 128],
+    });
+    let len = write_ram.serialise(&mut buf)?;
+    let to_send = &buf[..len];
+    println!("Sending WriteRam: {}", hex::encode(to_send));
+    port.write_all(to_send)?;
+    let response = rx.recv().unwrap();
+    println!("Received response: {response:02x?}");
+    assert_eq!(
+        response,
+        WriteRamAck {
+            offset: 0x0000_0000,
+            ok: 0x0001,
+        }
+        .into()
+    );
+
+    let read_ram = Types::from(ReadRam {
+        offset: 0x0000_0000,
+    });
+    let len = read_ram.serialise(&mut buf)?;
+    let to_send = &buf[..len];
+    println!("Sending ReadRam: {}", hex::encode(to_send));
+    port.write_all(to_send)?;
+    let response = rx.recv().unwrap();
+    println!("Received response: {response:02x?}");
+    assert_eq!(
+        response,
+        ReadRamAck {
+            offset: 0x0000_0000,
+            data: [0xaa; 128],
+        }
+        .into()
+    );
 
     Ok(())
 }

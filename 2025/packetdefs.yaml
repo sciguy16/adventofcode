@@ -7,10 +7,38 @@ destinations:
     name: ping
     payload:
     - name: data
-      width: 32
+      width_bytes: 4
   - id: 1
     name: pong
     reply-to: ping
     payload:
     - name: data
-      width: 32
+      width_bytes: 4
+  - id: 2
+    name: write_ram
+    payload:
+    - name: offset
+      width_bytes: 4
+    - name: data
+      width_bytes: 128
+  - id: 3
+    name: write_ram_ack
+    reply-to: write_ram
+    payload:
+    - name: offset
+      width_bytes: 4
+    - name: ok
+      width_bytes: 1
+  - id: 4
+    name: read_ram
+    payload:
+    - name: offset
+      width_bytes: 4
+  - id: 5
+    name: read_ram_ack
+    reply-to: read_ram
+    payload:
+    - name: offset
+      width_bytes: 4
+    - name: data
+      width_bytes: 128

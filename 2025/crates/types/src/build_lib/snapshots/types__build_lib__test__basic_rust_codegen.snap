@@ -17,6 +17,7 @@ impl crate::Destination for Top {
 pub mod top {
     use crate::{Destination, Header, Type};
     use color_eyre::eyre::eyre;
+    use std::io::{Read, Write};
 
     #[derive(Clone, Debug, PartialEq, Eq)]
     pub struct Ping {
@@ -31,23 +32,26 @@ pub mod top {
 
     impl crate::SerDe for Ping {
         fn serialise(&self, buf: &mut [u8]) -> crate::Result<usize> {
-            use std::io::Write;
             let mut cur = std::io::Cursor::new(buf);
+
             cur.write_all(&self.data.to_be_bytes())?;
 
             Ok(cur.position().try_into()?)
         }
 
         fn deserialise(buf: &[u8]) -> crate::Result<Self> {
-            use std::io::Read;
             let mut cur = std::io::Cursor::new(buf);
-            let mut data = 0_u32.to_be_bytes();
+
+            let mut data = [0; 4];
             cur.read_exact(&mut data)?;
             let data = u32::from_be_bytes(data);
-            Ok(Self { data })
+
+
+            Ok(Self {
+                data,
+            })
         }
     }
-    
 
     #[derive(Clone, Debug, PartialEq, Eq)]
     pub enum Types {
@@ -66,7 +70,7 @@ pub mod top {
         fn serialise(&self, buf: &mut [u8]) -> crate::Result<usize> {
             // skip header, then write full payload, then go back and
             // write header with correct length
- 
+
             if buf.len() < 8 {
                 return Err(eyre!("Buffer too short"));
             }

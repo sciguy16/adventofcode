@@ -13,38 +13,48 @@ impl crate::Destination for {{ dest.name|struct_name }} {
 pub mod {{ dest.name }} {
     use crate::{Destination, Header, Type};
     use color_eyre::eyre::eyre;
+    use std::io::{Read, Write};
 
     {% for ty in dest.types -%}
     #[derive(Clone, Debug, PartialEq, Eq)]
     pub struct {{ ty.name|struct_name }} {
-        pub data: u32,
+        {% for field in ty.payload -%}
+        pub {{ field.name }}: {{ field.ty() }},
+    {% endfor %}{# field in ty.payload -#}
     }
 
     impl crate::Type for {{ ty.name|struct_name }} {
-        const ID: u8 = 0;
-        const NAME: &str = "ping";
-        const REPLY_TO: Option<&str> = None;
+        const ID: u8 = {{ ty.id }};
+        const NAME: &str = "{{ ty.name }}";
+        const REPLY_TO: Option<&str> = {{ ty.reply_to() }};
     }
 
     impl crate::SerDe for {{ ty.name|struct_name }} {
         fn serialise(&self, buf: &mut [u8]) -> crate::Result<usize> {
-            use std::io::Write;
             let mut cur = std::io::Cursor::new(buf);
-            cur.write_all(&self.data.to_be_bytes())?;
+
+            {% for field in ty.payload -%}
+            cur.write_all({{ field.serialise_fn("self") }})?;
+            {%- endfor %}{# field in ty.payload #}
 
             Ok(cur.position().try_into()?)
         }
 
         fn deserialise(buf: &[u8]) -> crate::Result<Self> {
-            use std::io::Read;
             let mut cur = std::io::Cursor::new(buf);
-            let mut data = 0_u32.to_be_bytes();
-            cur.read_exact(&mut data)?;
-            let data = u32::from_be_bytes(data);
-            Ok(Self { data })
+
+            {% for field in ty.payload -%}
+            {{ field.deserialise_fn("cur", 3) }}
+            {%- endfor %}{# field in ty.payload #}
+
+            Ok(Self {
+                {% for field in ty.payload -%}
+                {{ field.name }},
+            {% endfor %}{# field in ty.payload -#}
+            })
         }
     }
-    {% endfor %}{# ty in destination.types #}
+    {%- endfor %}{# ty in destination.types #}
 
     #[derive(Clone, Debug, PartialEq, Eq)]
     pub enum Types {
@@ -67,7 +77,7 @@ pub mod {{ dest.name }} {
         fn serialise(&self, buf: &mut [u8]) -> crate::Result<usize> {
             // skip header, then write full payload, then go back and
             // write header with correct length
- 
+
             if buf.len() < 8 {
                 return Err(eyre!("Buffer too short"));
             }

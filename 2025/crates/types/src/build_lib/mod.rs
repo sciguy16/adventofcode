@@ -1,6 +1,9 @@
 use askama::Template;
 use serde::Deserialize;
-use std::{fmt::Display, io::Write};
+use std::{
+    fmt::{Display, Write as _},
+    io::Write,
+};
 
 mod vhdl_codegen;
 
@@ -9,14 +12,19 @@ mod filters {
         name: &str,
         _: &dyn askama::Values,
     ) -> askama::Result<String> {
-        let mut chars = name.chars();
-        Ok(chars
-            .next()
-            .as_ref()
-            .map(char::to_ascii_uppercase)
-            .into_iter()
-            .chain(chars)
-            .collect())
+        let mut out = String::new();
+        let mut next_upcase = true;
+        for chr in name.chars() {
+            if next_upcase {
+                out.push(chr.to_ascii_uppercase());
+                next_upcase = false;
+            } else if chr == '_' {
+                next_upcase = true;
+            } else {
+                out.push(chr);
+            }
+        }
+        Ok(out)
     }
 }
 
@@ -25,11 +33,13 @@ pub const PACKETDEFS: &str = include_str!("../../../../packetdefs.yaml");
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct PacketDefs {
     pub destinations: Vec<Destination>,
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct Destination {
     pub id: u8,
     pub name: String,
@@ -38,6 +48,7 @@ pub struct Destination {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct Type {
     pub id: u8,
     pub name: String,
@@ -45,10 +56,57 @@ pub struct Type {
     pub payload: Vec<PayloadField>,
 }
 
+impl Type {
+    pub fn reply_to(&self) -> String {
+        // if let Some(reply_to) = &self.reply_to
+        format!("{:?}", self.reply_to)
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct PayloadField {
     pub name: String,
-    pub width: u8,
+    pub width_bytes: u8,
+}
+
+impl PayloadField {
+    pub fn ty(&self) -> &'static str {
+        match self.width_bytes {
+            1 => "u8",
+            2 => "u16",
+            4 => "u32",
+            128 => "[u8; 128]",
+            other => panic!("Bad width `{other}`"),
+        }
+    }
+
+    pub fn serialise_fn(&self, base: &str) -> String {
+        let field = &self.name;
+        match self.width_bytes {
+            1 | 2 | 4 => format!("&{base}.{field}.to_be_bytes()"),
+            128 => format!("&{base}.{field}"),
+            other => panic!("Bad width `{other}`"),
+        }
+    }
+
+    pub fn deserialise_fn(&self, base: &str, indent: usize) -> String {
+        let indent = Indent { depth: indent };
+
+        let Self { name, width_bytes } = &self;
+        let mut out = String::new();
+        writeln!(&mut out, "let mut {name} = [0; {width_bytes}];").unwrap();
+        writeln!(&mut out, "{indent}{base}.read_exact(&mut {name})?;").unwrap();
+        if matches!(self.width_bytes, 1 | 2 | 4) {
+            let ty = self.ty();
+            writeln!(
+                &mut out,
+                "{indent}let {name} = {ty}::from_be_bytes({name});"
+            )
+            .unwrap();
+        }
+
+        out
+    }
 }
 
 #[derive(Template)]
@@ -85,13 +143,6 @@ where
 
     let templ = CodegenTemplate { defs: &defs };
     templ.write_into(codegen).map_err(Into::into)
-
-    // for dest in defs.destinations {
-    //     rust_codegen::write_destination(codegen, &dest)?;
-    //     rust_codegen::write_destination_mod(codegen, &dest)?;
-    // }
-
-    // Ok(())
 }
 
 pub fn build_vhdl_codegen<W>(packetdefs: &str, codegen: &mut W) -> Result<()>
@@ -131,7 +182,7 @@ destinations:
     name: ping
     payload:
     - name: data
-      width: 32
+      width_bytes: 4
 ";
 
     #[track_caller]
