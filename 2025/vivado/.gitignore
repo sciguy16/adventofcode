@@ -4,5 +4,5 @@
 *.ioplanning/
 *.runs/
 *.sim
-*.srcs/sources_1/ip/.Xil
+*.srcs/constrs_1/
 *.srcs/utils_1/
