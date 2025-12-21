@@ -10,7 +10,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-library work;
 --use work.pkg.buf_type;
 
 use work.packet_types_pkg_hdr.ALL;
@@ -35,6 +34,7 @@ architecture rtl of aoc_top is
     signal clk_25MHz: std_logic;
     signal clk_50MHz: std_logic;
     signal reset: std_logic;
+    signal reset_50MHz: std_logic;
 
     signal axi_uart_rxd_tvalid: std_logic;
     signal axi_uart_rxd_tready: std_logic;
@@ -58,10 +58,18 @@ architecture rtl of aoc_top is
     end component;
 
     component reset_expander is
+    generic (
+        g_NUM_CLKS: natural
+    );
     port(
         reset_in: in std_logic;
-        reset_out: out std_logic;
-        clk: in std_logic
+        clk: in std_logic;
+
+        reset_out_25MHz: out std_logic;
+        reset_clk_25MHz: in std_logic;
+
+        reset_out_50MHz: out std_logic;
+        reset_clk_50MHz: in std_logic
     );
     end component;
     
@@ -70,6 +78,7 @@ architecture rtl of aoc_top is
         reset: in std_logic;
         clk: in std_logic;
         axi_clk: in std_logic;
+        axi_nrst: in std_logic;
         rx_IN : IN STD_LOGIC;
         tx_OUT : OUT STD_LOGIC;
 
@@ -113,16 +122,24 @@ begin
            clk_25MHz => clk_25MHz,
            clk_50MHz => clk_50MHz,
           -- Status and control signals
-           reset => reset,
+           reset => reset_in,
            -- Clock in ports
            clk_in1 => clk_12MHz_in
      );
 
     reset_expander_inst: reset_expander
+    generic map(
+        g_NUM_CLKS => 2
+    )
     port map (
         reset_in => reset_in,
-        reset_out => reset,
-        clk => clk_12MHz_in
+        clk => clk_25MHz,
+
+        reset_out_25MHz => reset,
+        reset_clk_25MHz => clk_25MHz,
+
+        reset_out_50MHz => reset_50MHz,
+        reset_clk_50MHz => clk_50MHz
     );
 
     hb_instance : entity work.hb(rtl)
@@ -137,6 +154,7 @@ begin
         reset=> reset,
         clk=> clk_25MHz,
         axi_clk => clk_50MHz,
+        axi_nrst => not reset_50MHz,
         rx_IN => uart_rx,
         tx_OUT => uart_tx,
 

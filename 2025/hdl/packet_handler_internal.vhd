@@ -62,13 +62,13 @@ begin
                         state <= STATE_PAYLOAD;
                     end if;
                 when STATE_PAYLOAD =>
-                    if(payload_counter = PACKET_LENGTH) then
-                        state <= STATE_SEND_REPLY;
-                    else
-                        axi_str_rxd_tready_OUT <= '1';
-                        if (axi_str_rxd_tvalid_IN = '1') then
-                            payload_counter <= payload_counter + 1;
-                            PACKET_PAYLOAD <= axi_str_rxd_tdata_IN;
+                    axi_str_rxd_tready_OUT <= '1';
+                    if (axi_str_rxd_tvalid_IN = '1') then
+                        axi_str_rxd_tready_OUT <= '0';
+                        payload_counter <= payload_counter + 1;
+                        PACKET_PAYLOAD <= axi_str_rxd_tdata_IN;
+                        if(payload_counter = PACKET_LENGTH - 1) then
+                            state <= STATE_SEND_REPLY;
                         end if;
                     end if;
                 when STATE_SEND_REPLY =>
@@ -87,7 +87,7 @@ begin
         end if;
     end process;
 
-    reply_process: process(clk, reset) is
+    reply_process: process(clk) is
     begin
         if(rising_edge(clk)) then
             reply_done <= '0';
@@ -97,21 +97,30 @@ begin
                 when REPLY_STATE_IDLE =>
                     if (state = STATE_SEND_REPLY) then
                         reply_state <= REPLY_STATE_SEND_HEADER;
+                        axi_str_txd_tdata_OUT <= x"00010004";
+                        axi_str_txd_tvalid_OUT <= '1';
                     end if;
                 when REPLY_STATE_SEND_HEADER =>
-                    axi_str_txd_tdata_OUT <= x"00010004";
                     axi_str_txd_tvalid_OUT <= '1';
                     if (axi_str_txd_tready_IN = '1') then
                         reply_state <= REPLY_STATE_SEND_PAYLOAD;
+                        axi_str_txd_tdata_OUT <= PACKET_PAYLOAD;
+                    else
+                        axi_str_txd_tdata_OUT <= x"00010004";
+                    --    axi_str_txd_tvalid_OUT <= '0';
                     end if;
                 when REPLY_STATE_SEND_PAYLOAD =>
-                    axi_str_txd_tdata_OUT <= PACKET_PAYLOAD;
                     axi_str_txd_tvalid_OUT <= '1';
+                    axi_str_txd_tdata_OUT <= PACKET_PAYLOAD;
                     if (axi_str_txd_tready_IN = '1') then
+                        axi_str_txd_tvalid_OUT <= '0';
                         reply_done <= '1';
                         reply_state <= REPLY_STATE_WAIT_IDLE;
+                    --else
+                    --    axi_str_txd_tvalid_OUT <= '0';
                     end if;
                 when REPLY_STATE_WAIT_IDLE =>
+                    axi_str_txd_tdata_OUT <= x"00000000";
                     if (state = STATE_IDLE) then
                         reply_state <= REPLY_STATE_IDLE;
                     end if;

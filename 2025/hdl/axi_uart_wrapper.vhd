@@ -20,6 +20,7 @@ entity axi_uart_wrapper is
         reset: in std_logic;
         clk: in std_logic;
         axi_clk: in std_logic;
+        axi_nrst: in std_logic;
         rx_IN : IN STD_LOGIC;
         tx_OUT : OUT STD_LOGIC;
 
@@ -201,7 +202,7 @@ begin
 axi_uartlite_0_inst : axi_uartlite_0
   PORT MAP (
     s_axi_aclk => axi_clk,
-    s_axi_aresetn => not reset,
+    s_axi_aresetn => axi_nrst,
     interrupt => interrupt,
 
     s_axi_awaddr => s_axi_awaddr,
@@ -234,7 +235,7 @@ axi_uartlite_0_inst : axi_uartlite_0
 axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
   PORT MAP (
     aclk => axi_clk,
-    aresetn => not reset,
+    aresetn => axi_nrst,
     -- FIFO input side
     s_axis_tvalid => uart_conv_rx_tvalid,
     s_axis_tready => uart_conv_rx_tready,
@@ -249,7 +250,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
   axis_dwidth_converter_32_8_inst : axis_dwidth_converter_32_8
   PORT MAP (
     aclk => axi_clk,
-    aresetn => not reset,
+    aresetn => axi_nrst,
     -- FIFO input side
     s_axis_tvalid => axi_conv_tx_tvalid,
     s_axis_tready => axi_conv_tx_tready,
@@ -281,7 +282,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
 -- RX data FIFO
   axis_data_fifo_rx : axis_data_fifo_cdc_32x64
   PORT MAP (
-    s_axis_aresetn => not reset,
+    s_axis_aresetn => axi_nrst,
     -- FIFO input side
     s_axis_aclk => axi_clk,
     s_axis_tvalid => axi_conv_rx_tvalid,
@@ -310,7 +311,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
       & axi_str_txd_tdata_IN(31 downto 24);
   end process;
 
-  process (axi_clk, reset) is
+  process (axi_clk, axi_nrst) is
   begin
     if(rising_edge(axi_clk)) then
       -- TX_STATE_INIT_INTERRUPT
@@ -379,7 +380,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
             end if;
       end case;
 
-      if (reset = '1') then
+      if (axi_nrst = '0') then
         init_complete <= '0';
         tx_state <= TX_STATE_INIT_INTERRUPT;
         s_axi_awvalid <= '0';
@@ -390,7 +391,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
   end process;
 
 
-  process (axi_clk, reset) is
+  process (axi_clk, axi_nrst) is
   begin
     if(rising_edge(axi_clk)) then
       -- RX_STATE_WAIT_INIT
@@ -448,7 +449,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
           end if;
         end case;
 
-      if (reset = '1') then
+      if (axi_nrst = '0') then
         rx_state <= RX_STATE_WAIT_INIT;
         s_axi_arvalid <= '0';
         s_axi_rready <= '0';

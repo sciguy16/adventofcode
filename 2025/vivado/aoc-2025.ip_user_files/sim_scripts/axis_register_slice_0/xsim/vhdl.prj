@@ -1,0 +1,5 @@
+vhdl xil_defaultlib  \
+"../../../ip/axis_register_slice_0/axis_register_slice_0_sim_netlist.vhdl" \
+
+# Do not sort compile order
+nosort
