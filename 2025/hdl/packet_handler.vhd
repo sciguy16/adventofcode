@@ -2,8 +2,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-
-library work;
 use work.packet_types_pkg_hdr.ALL;
 
 entity packet_handler is
@@ -17,10 +15,16 @@ entity packet_handler is
 
         axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
         axi_str_txd_tready_IN : IN STD_LOGIC;
-        axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
-        --axi_str_txd_prog_full_IN: IN STD_LOGIC
+        axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        --done_OUT : OUT STD_LOGIC
+        bram_write_data_a_OUT: OUT std_logic_vector(31 downto 0);
+        bram_read_data_a_IN: IN std_logic_vector(31 downto 0);
+        bram_addr_a_OUT: OUT std_logic;
+        bram_write_valid_a_OUT: OUT std_logic;
+        bram_write_ready_a_IN: IN std_logic;
+        bram_read_req_a_OUT: OUT std_logic;
+        bram_read_valid_a_IN: IN std_logic;
+        bram_read_ready_a_OUT: OUT std_logic
 	);
 end packet_handler;
 
@@ -54,7 +58,6 @@ begin
             case state is
                 when STATE_IDLE => 
                     axi_str_rxd_tready_OUT <= '1';
-                    --done_OUT <= '0';
                     if (axi_str_rxd_tvalid_IN = '1') then
                         PACKET_TYPE <= unsigned(axi_str_rxd_tdata_IN(23 downto 16));
                         PACKET_LENGTH <= "00" & unsigned(axi_str_rxd_tdata_IN(15 downto 2));
@@ -74,7 +77,6 @@ begin
                 when STATE_SEND_REPLY =>
                     if (reply_done = '1') then
                         state <= STATE_IDLE;
-                        --done_OUT <= '1';
                     end if;
             end case;
 
@@ -82,7 +84,6 @@ begin
                 state <= STATE_IDLE;
                 PACKET_TYPE <= (others => '0');
                 axi_str_rxd_tready_OUT <= '0';
-                --done_OUT <= '0';
             end if;
         end if;
     end process;
@@ -107,7 +108,6 @@ begin
                         axi_str_txd_tdata_OUT <= PACKET_PAYLOAD;
                     else
                         axi_str_txd_tdata_OUT <= x"00010004";
-                    --    axi_str_txd_tvalid_OUT <= '0';
                     end if;
                 when REPLY_STATE_SEND_PAYLOAD =>
                     axi_str_txd_tvalid_OUT <= '1';
@@ -116,8 +116,6 @@ begin
                         axi_str_txd_tvalid_OUT <= '0';
                         reply_done <= '1';
                         reply_state <= REPLY_STATE_WAIT_IDLE;
-                    --else
-                    --    axi_str_txd_tvalid_OUT <= '0';
                     end if;
                 when REPLY_STATE_WAIT_IDLE =>
                     axi_str_txd_tdata_OUT <= x"00000000";

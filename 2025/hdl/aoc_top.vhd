@@ -10,8 +10,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
---use work.pkg.buf_type;
-
 use work.packet_types_pkg_hdr.ALL;
 
 entity aoc_top is
@@ -43,7 +41,15 @@ architecture rtl of aoc_top is
     signal axi_uart_txd_tvalid: std_logic;
     signal axi_uart_txd_tready: std_logic;
     signal axi_uart_txd_tdata: std_logic_vector(31 downto 0);
-    --signal axi_uart_txd_prog_full: std_logic;
+
+    signal bram_write_data_a: std_logic_vector(31 downto 0);
+    signal bram_read_data_a: std_logic_vector(31 downto 0);
+    signal bram_addr_a: std_logic;
+    signal bram_write_valid_a: std_logic;
+    signal bram_write_ready_a: std_logic;
+    signal bram_read_req_a: std_logic;
+    signal bram_read_valid_a: std_logic;
+    signal bram_read_ready_a: std_logic;
 
     component clk_wiz_0
     port
@@ -56,76 +62,6 @@ architecture rtl of aoc_top is
       clk_in1           : in     std_logic
      );
     end component;
-
-    component reset_expander is
-    generic (
-        g_NUM_CLKS: natural
-    );
-    port(
-        reset_in: in std_logic;
-        clk: in std_logic;
-
-        reset_out_25MHz: out std_logic;
-        reset_clk_25MHz: in std_logic;
-
-        reset_out_50MHz: out std_logic;
-        reset_clk_50MHz: in std_logic
-    );
-    end component;
-    
-    component axi_uart_wrapper is
-    port (
-        reset: in std_logic;
-        clk: in std_logic;
-        axi_clk: in std_logic;
-        axi_nrst: in std_logic;
-        rx_IN : IN STD_LOGIC;
-        tx_OUT : OUT STD_LOGIC;
-
-        axi_str_rxd_tvalid_OUT : OUT STD_LOGIC;
-        axi_str_rxd_tready_IN : IN STD_LOGIC;
-        axi_str_rxd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-
-        axi_str_txd_tvalid_IN : IN STD_LOGIC;
-        axi_str_txd_tready_OUT : OUT STD_LOGIC;
-        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
-        --axi_str_txd_prog_full_OUT: OUT STD_LOGIC
-    );
-    end component;
-
-    --component packet_router is
-    --port(
-    --    reset: in std_logic;
-    --    clk: in std_logic;
-
-    --    axi_str_rxd_tvalid_IN : IN STD_LOGIC;
-    --    axi_str_rxd_tready_OUT : OUT STD_LOGIC;
-    --    axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-
-    --    axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
-    --    axi_str_txd_tready_IN : IN STD_LOGIC;
-    --    axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-    --    axi_str_txd_prog_full_IN: IN STD_LOGIC
-    --);
-    --end component;
-    component packet_handler is
-        port(
-            reset: in std_logic;
-            clk: in std_logic;
-
-            axi_str_rxd_tvalid_IN : IN STD_LOGIC;
-            axi_str_rxd_tready_OUT : OUT STD_LOGIC;
-            axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-
-            axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
-            axi_str_txd_tready_IN : IN STD_LOGIC;
-            axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
-            --axi_str_txd_prog_full_IN: IN STD_LOGIC
-
-            --done_OUT : OUT STD_LOGIC
-        );
-    end component;
-
 
 begin
     -- active-low RGB LED
@@ -140,10 +76,7 @@ begin
         end if;
     end process;
 
-    reset_expander_inst: reset_expander
-    generic map(
-        g_NUM_CLKS => 2
-    )
+    reset_expander_inst: entity work.reset_expander(rtl)
     port map (
         reset_in => reset_in_reg,
         clk => clk_12MHz_in,
@@ -173,7 +106,7 @@ begin
             hb_led => hb_led
         );
 
-    axi_uart_wrapper_inst: axi_uart_wrapper
+    axi_uart_wrapper_inst: entity work.axi_uart_wrapper(rtl)
     port map (
         reset=> reset,
         clk=> clk_25MHz,
@@ -189,25 +122,9 @@ begin
         axi_str_txd_tvalid_IN => axi_uart_txd_tvalid,
         axi_str_txd_tready_OUT => axi_uart_txd_tready,
         axi_str_txd_tdata_IN =>axi_uart_txd_tdata
-        --axi_str_txd_prog_full_OUT => axi_uart_txd_prog_full
     );
 
-    --packet_router_inst: packet_router
-    --port map (
-    --    reset => reset,
-    --    clk => clk_25MHz,
-
-    --    axi_str_rxd_tvalid_IN => axi_uart_rxd_tvalid,
-    --    axi_str_rxd_tready_OUT => axi_uart_rxd_tready,
-    --    axi_str_rxd_tdata_IN => axi_uart_rxd_tdata,
-
-    --    axi_str_txd_tvalid_OUT => axi_uart_txd_tvalid,
-    --    axi_str_txd_tready_IN => axi_uart_txd_tready,
-    --    axi_str_txd_tdata_OUT =>axi_uart_txd_tdata,
-    --    axi_str_txd_prog_full_IN => axi_uart_txd_prog_full
-    --);
-
-    packet_handler_inst: packet_handler
+    packet_handler_inst: entity work.packet_handler(rtl)
     port map (
         reset => reset,
         clk => clk_25MHz,
@@ -218,11 +135,31 @@ begin
 
         axi_str_txd_tvalid_OUT => axi_uart_txd_tvalid,
         axi_str_txd_tready_IN => axi_uart_txd_tready,
-        axi_str_txd_tdata_OUT =>axi_uart_txd_tdata
-        --axi_str_txd_prog_full_IN => axi_uart_txd_prog_full
+        axi_str_txd_tdata_OUT =>axi_uart_txd_tdata,
 
-        --done_OUT => DOWNSTREAM_DONE_ARR(C_DESTINATION_TOP)
+        bram_write_data_a_OUT => bram_write_data_a,
+        bram_read_data_a_IN => bram_read_data_a,
+        bram_addr_a_OUT => bram_addr_a,
+        bram_write_valid_a_OUT => bram_write_valid_a,
+        bram_write_ready_a_IN => bram_write_ready_a,
+        bram_read_req_a_OUT => bram_read_req_a,
+        bram_read_valid_a_IN => bram_read_valid_a,
+        bram_read_ready_a_OUT => bram_read_ready_a
     );
 
+    blk_mem_wrapper_int: entity work.blk_mem_wrapper(rtl)
+    port map(
+        reset => reset,
+        clk => clk_25MHz,
+
+        data_a_in => bram_write_data_a,
+        data_a_out => bram_read_data_a,
+        addr_a_in => bram_addr_a,
+        write_valid_a_in => bram_write_valid_a,
+        write_ready_a_out => bram_write_ready_a,
+        read_req_a_in => bram_read_req_a,
+        read_valid_a_out => bram_read_valid_a,
+        read_ready_a_in => bram_read_ready_a
+    );
 
 end rtl;
