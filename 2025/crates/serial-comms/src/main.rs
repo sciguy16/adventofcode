@@ -1,10 +1,10 @@
 use clap::Parser;
 use color_eyre::Result;
 use mio_serial::{SerialPort, SerialPortType};
-use std::{sync::mpsc, time::Duration};
+use std::sync::mpsc;
 use types::{
     codegen::{
-        top::{Ping, Pong},
+        top::{Ping, Pong, Types},
         Top,
     },
     Destination, Header, SerDe, Type,
@@ -64,29 +64,28 @@ fn do_run(port: &str) -> Result<()> {
 
     let mut buf = [0; 1024];
 
-    let packet = Ping { data: 0xabcd1234 };
+    let ping = Ping {
+        data: rand::random(),
+    };
     let header = Header {
         destination: Top::ID,
         ty: Ping::ID,
         len: 4,
     };
     buf[0..4].copy_from_slice(&<[u8; 4]>::from(header));
-    let len = 4 + packet.serialise(&mut buf[4..])?;
+    let len = 4 + ping.serialise(&mut buf[4..])?;
     let to_send = &buf[..len];
     println!("Sending: {to_send:02x?}");
     port.write_all(to_send)?;
 
     let response = rx.recv().unwrap();
-    let pong = Pong::deserialise(&response).unwrap();
-    println!("Received response: {pong:02x?}");
+    println!("Received response: {response:02x?}");
+    assert_eq!(response, Pong { data: ping.data }.into());
 
-    loop {
-        std::thread::sleep(Duration::from_secs(1));
-    }
-    // Ok(())
+    Ok(())
 }
 
-fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Vec<u8>>) {
+fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
     enum RxState {
         Header,
         Payload,
@@ -118,7 +117,13 @@ fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Vec<u8>>) {
                             "Received packet: {}",
                             hex::encode(&receive_buf),
                         );
-                        tx.send(std::mem::take(&mut receive_buf)).unwrap();
+                        match Types::deserialise(&receive_buf) {
+                            Ok(parsed) => tx.send(parsed).unwrap(),
+                            Err(err) => {
+                                eprintln!("Deserialisation failed: {err}")
+                            }
+                        }
+                        receive_buf.clear();
                         RxState::Header
                     } else {
                         RxState::Payload

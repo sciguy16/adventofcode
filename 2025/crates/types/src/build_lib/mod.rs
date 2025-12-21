@@ -1,8 +1,24 @@
+use askama::Template;
 use serde::Deserialize;
 use std::{fmt::Display, io::Write};
 
-pub mod rust_codegen;
 mod vhdl_codegen;
+
+mod filters {
+    pub fn struct_name(
+        name: &str,
+        _: &dyn askama::Values,
+    ) -> askama::Result<String> {
+        let mut chars = name.chars();
+        Ok(chars
+            .next()
+            .as_ref()
+            .map(char::to_ascii_uppercase)
+            .into_iter()
+            .chain(chars)
+            .collect())
+    }
+}
 
 pub const PACKETDEFS: &str = include_str!("../../../../packetdefs.yaml");
 
@@ -35,6 +51,12 @@ pub struct PayloadField {
     pub width: u8,
 }
 
+#[derive(Template)]
+#[template(path = "rust_codegen_template.rs", escape = "none")]
+struct CodegenTemplate<'defs> {
+    defs: &'defs PacketDefs,
+}
+
 #[derive(Copy, Clone, Default)]
 struct Indent {
     depth: usize,
@@ -60,12 +82,16 @@ where
     W: Write,
 {
     let defs = serde_norway::from_str::<PacketDefs>(packetdefs)?;
-    for dest in defs.destinations {
-        rust_codegen::write_destination(codegen, &dest)?;
-        rust_codegen::write_destination_mod(codegen, &dest)?;
-    }
 
-    Ok(())
+    let templ = CodegenTemplate { defs: &defs };
+    templ.write_into(codegen).map_err(Into::into)
+
+    // for dest in defs.destinations {
+    //     rust_codegen::write_destination(codegen, &dest)?;
+    //     rust_codegen::write_destination_mod(codegen, &dest)?;
+    // }
+
+    // Ok(())
 }
 
 pub fn build_vhdl_codegen<W>(packetdefs: &str, codegen: &mut W) -> Result<()>
@@ -109,25 +135,25 @@ destinations:
 ";
 
     #[track_caller]
-    fn do_test<F>(yaml: &str, expected: &str, func: F)
+    fn do_test<F>(yaml: &str, func: F) -> Result<String>
     where
         F: FnOnce(&str, &mut Vec<u8>) -> Result<()>,
     {
         let mut out = Vec::new();
         func(yaml, &mut out).unwrap();
-        let out = String::from_utf8(out).unwrap();
-        assert_eq!(out, expected);
+        Ok(String::from_utf8(out).unwrap())
     }
 
     #[test]
     fn basic_rust_codegen() {
-        const EXPECTED: &str = include_str!("expected_rust_codegen.rs");
-        do_test(YAML, EXPECTED, build_rust_codegen);
+        let out = do_test(YAML, build_rust_codegen).unwrap();
+        insta::assert_snapshot!(out);
     }
 
     #[test]
     fn basic_vhdl_codegen() {
         const EXPECTED: &str = include_str!("expected_vhdl_codegen.vhd");
-        do_test(YAML, EXPECTED, build_vhdl_codegen);
+        let out = do_test(YAML, build_vhdl_codegen).unwrap();
+        assert_eq!(out, EXPECTED);
     }
 }
