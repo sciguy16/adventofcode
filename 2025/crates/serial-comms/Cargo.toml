@@ -6,5 +6,6 @@ edition = "2024"
 [dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
 color-eyre = "0.6.5"
+hex = "0.4.3"
 mio-serial = "5.0.6"
 types.workspace = true

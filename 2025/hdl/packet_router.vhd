@@ -144,35 +144,6 @@ begin
         end if;
     end process;
 
-    --process(clk, reset) is
-    --      variable sel: integer := to_integer(MUX_SEL);
-    --begin
-    --  if (rising_edge(clk)) then
-    --      DOWNSTREAM_RXD_TVALID <= (others => '0');
-    --      axi_str_rxd_tready_OUT <= '0';
-    --      DOWNSTREAM_RXD_TDATA <= (others => (others => '0'));
-
-    --      axi_str_txd_tvalid_OUT <= '0';
-    --      DOWNSTREAM_TXD_TREADY <= (others => '0');
-    --      axi_str_txd_tdata_OUT <= (others => '0');
-    --      DOWNSTREAM_TXD_PROG_FULL <= (others => '0');
-
-    --      DOWNSTREAM_DONE <= '0';
-
-    --      if (MUX_ENABLE = '1' AND reset = '0') then
-    --          DOWNSTREAM_RXD_TVALID(sel) <= axi_str_rxd_tvalid_IN;
-    --          axi_str_rxd_tready_OUT <= DOWNSTREAM_RXD_TREADY(sel);
-    --          DOWNSTREAM_RXD_TDATA(sel) <= axi_str_rxd_tdata_IN;
-
-    --          axi_str_txd_tvalid_OUT <= DOWNSTREAM_TXD_TVALID(sel);
-    --          DOWNSTREAM_TXD_TREADY(sel) <= axi_str_txd_tready_IN;
-    --          axi_str_txd_tdata_OUT <= DOWNSTREAM_TXD_TDATA(sel);
-
-    --          DOWNSTREAM_DONE <= DOWNSTREAM_DONE_ARR(sel);
-    --      end if;
-    --  end if;
-    --end process;
-
     packet_handler_internal_inst_reg : axis_register_slice_0
       PORT MAP (
         aclk => clk,

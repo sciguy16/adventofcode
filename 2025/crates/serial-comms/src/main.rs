@@ -1,7 +1,14 @@
 use clap::Parser;
 use color_eyre::Result;
 use mio_serial::{SerialPort, SerialPortType};
-use std::time::Duration;
+use std::{sync::mpsc, time::Duration};
+use types::{
+    codegen::{
+        top::{Ping, Pong},
+        Top,
+    },
+    Destination, Header, SerDe, Type,
+};
 
 const BAUD: u32 = 115200;
 
@@ -50,14 +57,10 @@ fn print_ports() -> Result<()> {
 }
 
 fn do_run(port: &str) -> Result<()> {
-    use types::{
-        codegen::{top::Ping, Top},
-        Destination, Header, SerDe, Type,
-    };
-
     let mut port = mio_serial::new(port, BAUD).open()?;
     let read_port = port.try_clone()?;
-    read_thread(read_port);
+    let (tx, rx) = mpsc::channel();
+    read_thread(read_port, tx);
 
     let mut buf = [0; 1024];
 
@@ -71,8 +74,11 @@ fn do_run(port: &str) -> Result<()> {
     let len = 4 + packet.serialise(&mut buf[4..])?;
     let to_send = &buf[..len];
     println!("Sending: {to_send:02x?}");
-
     port.write_all(to_send)?;
+
+    let response = rx.recv().unwrap();
+    let pong = Pong::deserialise(&response).unwrap();
+    println!("Received response: {pong:02x?}");
 
     loop {
         std::thread::sleep(Duration::from_secs(1));
@@ -80,11 +86,45 @@ fn do_run(port: &str) -> Result<()> {
     // Ok(())
 }
 
-fn read_thread(mut port: Box<dyn SerialPort>) {
+fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Vec<u8>>) {
+    enum RxState {
+        Header,
+        Payload,
+    }
     std::thread::spawn(move || {
-        let mut buf = [0; 1024];
-        while let Ok(len) = port.read(&mut buf) {
-            println!("Read {len} bytes: {:02x?}", &buf[..len]);
+        let mut state = RxState::Header;
+        let mut header = Header {
+            destination: 0,
+            ty: 0,
+            len: 0,
+        };
+        let mut buf = [0; 4];
+        let mut receive_buf = Vec::new();
+        loop {
+            let Ok(()) = port.read_exact(&mut buf) else {
+                continue;
+            };
+            println!("Read 4 bytes: {:02x?}", &buf);
+
+            receive_buf.extend_from_slice(&buf);
+            state = match state {
+                RxState::Header => {
+                    header = Header::from(buf);
+                    RxState::Payload
+                }
+                RxState::Payload => {
+                    if receive_buf.len() == usize::from(header.len) + 4 {
+                        println!(
+                            "Received packet: {}",
+                            hex::encode(&receive_buf),
+                        );
+                        tx.send(std::mem::take(&mut receive_buf)).unwrap();
+                        RxState::Header
+                    } else {
+                        RxState::Payload
+                    }
+                }
+            };
         }
     });
 }

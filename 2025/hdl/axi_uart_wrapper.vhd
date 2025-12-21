@@ -30,8 +30,7 @@ entity axi_uart_wrapper is
 
         axi_str_txd_tvalid_IN : IN STD_LOGIC;
         axi_str_txd_tready_OUT : OUT STD_LOGIC;
-        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        axi_str_txd_prog_full_OUT: OUT STD_LOGIC
+        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
 
   );
 end axi_uart_wrapper;
@@ -86,7 +85,6 @@ architecture rtl of axi_uart_wrapper is
     signal uart_conv_rx_tready: std_logic;
     signal uart_conv_rx_tdata: std_logic_vector(7 downto 0);
 
-    signal rx_fifo_prog_full: std_logic;
     signal rx_rresp_reg: std_logic_vector(1 downto 0);
 
     -- endian swapping
@@ -276,7 +274,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     m_axis_tready => axi_conv_tx_tready,
     m_axis_tdata => axi_conv_tx_tdata,
     --
-    prog_full => axi_str_txd_prog_full_OUT
+    prog_full => open
   );
 
 -- RX data FIFO
@@ -294,7 +292,7 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     m_axis_tready => axi_str_rxd_tready_IN,
     m_axis_tdata => axi_str_rxd_tdata_OUT_internal,
     --
-    prog_full => rx_fifo_prog_full
+    prog_full => open
   );
 
   async_assignments: process is
@@ -435,10 +433,8 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
           -- if read was successful then assert TVALID and wait for TREADY
           s_axi_rready <= '0';
           if (rx_rresp_reg = c_AXI_RESP_OKAY) then
-            if (rx_fifo_prog_full = '0') then
-              uart_conv_rx_tvalid <= '1';
-              rx_state <= RX_STATE_WAIT_CONV;
-            end if;
+            uart_conv_rx_tvalid <= '1';
+            rx_state <= RX_STATE_WAIT_CONV;
           else
             rx_state <= RX_STATE_IDLE;
           end if;

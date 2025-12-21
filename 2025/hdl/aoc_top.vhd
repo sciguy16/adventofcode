@@ -18,7 +18,6 @@ entity aoc_top is
     port(
         reset_in: in std_logic;
         clk_12MHz_in: in std_logic;
-        --dmx_rx: in std_logic;
 
         hb_led: out std_logic;
         led0_b: out std_logic;
@@ -33,6 +32,7 @@ end aoc_top;
 architecture rtl of aoc_top is
     signal clk_25MHz: std_logic;
     signal clk_50MHz: std_logic;
+    signal reset_in_reg: std_logic := '0';
     signal reset: std_logic;
     signal reset_50MHz: std_logic;
 
@@ -43,7 +43,7 @@ architecture rtl of aoc_top is
     signal axi_uart_txd_tvalid: std_logic;
     signal axi_uart_txd_tready: std_logic;
     signal axi_uart_txd_tdata: std_logic_vector(31 downto 0);
-    signal axi_uart_txd_prog_full: std_logic;
+    --signal axi_uart_txd_prog_full: std_logic;
 
     component clk_wiz_0
     port
@@ -88,25 +88,42 @@ architecture rtl of aoc_top is
 
         axi_str_txd_tvalid_IN : IN STD_LOGIC;
         axi_str_txd_tready_OUT : OUT STD_LOGIC;
-        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        axi_str_txd_prog_full_OUT: OUT STD_LOGIC
+        axi_str_txd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
+        --axi_str_txd_prog_full_OUT: OUT STD_LOGIC
     );
     end component;
 
-    component packet_router is
-    port(
-        reset: in std_logic;
-        clk: in std_logic;
+    --component packet_router is
+    --port(
+    --    reset: in std_logic;
+    --    clk: in std_logic;
 
-        axi_str_rxd_tvalid_IN : IN STD_LOGIC;
-        axi_str_rxd_tready_OUT : OUT STD_LOGIC;
-        axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    --    axi_str_rxd_tvalid_IN : IN STD_LOGIC;
+    --    axi_str_rxd_tready_OUT : OUT STD_LOGIC;
+    --    axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
-        axi_str_txd_tready_IN : IN STD_LOGIC;
-        axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        axi_str_txd_prog_full_IN: IN STD_LOGIC
-    );
+    --    axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
+    --    axi_str_txd_tready_IN : IN STD_LOGIC;
+    --    axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    --    axi_str_txd_prog_full_IN: IN STD_LOGIC
+    --);
+    --end component;
+    component packet_handler is
+        port(
+            reset: in std_logic;
+            clk: in std_logic;
+
+            axi_str_rxd_tvalid_IN : IN STD_LOGIC;
+            axi_str_rxd_tready_OUT : OUT STD_LOGIC;
+            axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+            axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
+            axi_str_txd_tready_IN : IN STD_LOGIC;
+            axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+            --axi_str_txd_prog_full_IN: IN STD_LOGIC
+
+            --done_OUT : OUT STD_LOGIC
+        );
     end component;
 
 
@@ -116,24 +133,20 @@ begin
     led0_g <= '1';
     led0_b <= '1';
 
-    clk_wiz_0_inst : clk_wiz_0
-       port map (
-          -- Clock out ports
-           clk_25MHz => clk_25MHz,
-           clk_50MHz => clk_50MHz,
-          -- Status and control signals
-           reset => reset_in,
-           -- Clock in ports
-           clk_in1 => clk_12MHz_in
-     );
+    process(clk_12MHz_in) is
+    begin
+        if rising_edge(clk_12MHz_in) then
+            reset_in_reg <= reset_in;
+        end if;
+    end process;
 
     reset_expander_inst: reset_expander
     generic map(
         g_NUM_CLKS => 2
     )
     port map (
-        reset_in => reset_in,
-        clk => clk_25MHz,
+        reset_in => reset_in_reg,
+        clk => clk_12MHz_in,
 
         reset_out_25MHz => reset,
         reset_clk_25MHz => clk_25MHz,
@@ -141,6 +154,17 @@ begin
         reset_out_50MHz => reset_50MHz,
         reset_clk_50MHz => clk_50MHz
     );
+
+    clk_wiz_0_inst : clk_wiz_0
+       port map (
+          -- Clock out ports
+           clk_25MHz => clk_25MHz,
+           clk_50MHz => clk_50MHz,
+          -- Status and control signals
+           reset => reset_in_reg,
+           -- Clock in ports
+           clk_in1 => clk_12MHz_in
+     );
 
     hb_instance : entity work.hb(rtl)
         port map(
@@ -164,11 +188,26 @@ begin
 
         axi_str_txd_tvalid_IN => axi_uart_txd_tvalid,
         axi_str_txd_tready_OUT => axi_uart_txd_tready,
-        axi_str_txd_tdata_IN =>axi_uart_txd_tdata,
-        axi_str_txd_prog_full_OUT => axi_uart_txd_prog_full
+        axi_str_txd_tdata_IN =>axi_uart_txd_tdata
+        --axi_str_txd_prog_full_OUT => axi_uart_txd_prog_full
     );
 
-    packet_router_inst: packet_router
+    --packet_router_inst: packet_router
+    --port map (
+    --    reset => reset,
+    --    clk => clk_25MHz,
+
+    --    axi_str_rxd_tvalid_IN => axi_uart_rxd_tvalid,
+    --    axi_str_rxd_tready_OUT => axi_uart_rxd_tready,
+    --    axi_str_rxd_tdata_IN => axi_uart_rxd_tdata,
+
+    --    axi_str_txd_tvalid_OUT => axi_uart_txd_tvalid,
+    --    axi_str_txd_tready_IN => axi_uart_txd_tready,
+    --    axi_str_txd_tdata_OUT =>axi_uart_txd_tdata,
+    --    axi_str_txd_prog_full_IN => axi_uart_txd_prog_full
+    --);
+
+    packet_handler_inst: packet_handler
     port map (
         reset => reset,
         clk => clk_25MHz,
@@ -179,20 +218,11 @@ begin
 
         axi_str_txd_tvalid_OUT => axi_uart_txd_tvalid,
         axi_str_txd_tready_IN => axi_uart_txd_tready,
-        axi_str_txd_tdata_OUT =>axi_uart_txd_tdata,
-        axi_str_txd_prog_full_IN => axi_uart_txd_prog_full
+        axi_str_txd_tdata_OUT =>axi_uart_txd_tdata
+        --axi_str_txd_prog_full_IN => axi_uart_txd_prog_full
+
+        --done_OUT => DOWNSTREAM_DONE_ARR(C_DESTINATION_TOP)
     );
 
-    --dmx_instance: entity work.dmx(rtl)
-    --    generic map(
-    --        g_ADDRESSES => g_ADDRESSES
-    --        )
-    --    port map(
-    --        reset => reset,
-    --        clk => clk,
-    --        dmx_rx => dmx_rx,
-    --        out_buf => rx_buf,
-    --        valid => led0_b
-    --    );
 
 end rtl;

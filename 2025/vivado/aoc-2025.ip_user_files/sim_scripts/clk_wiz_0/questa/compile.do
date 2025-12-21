@@ -9,6 +9,7 @@ vmap xil_defaultlib questa_lib/msim/xil_defaultlib
 
 vlog -work xpm -64 -incr -mfcu  -sv "+incdir+../../../../aoc-2025.srcs/sources_1/ip/clk_wiz_0" \
 "/opt/xilinx/Vivado/2023.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv" \
+"/opt/xilinx/Vivado/2023.2/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv" \
 "/opt/xilinx/Vivado/2023.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv" \
 
 vcom -work xpm -64 -93  \

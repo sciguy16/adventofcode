@@ -15,12 +15,18 @@ entity reset_expander is
 end reset_expander;
 
 architecture rtl of reset_expander is
+    attribute ASYNC_REG        : string;
+
     constant C_COUNTER_MAX: natural := 31;
     signal counter: natural range 0 to C_COUNTER_MAX := 0;
     signal reset_in_reg: std_logic := '0';
     signal reset_latch: std_logic := '0';
-    signal rst_pipe_25MHz: std_logic_vector(1 downto 0) := (others => '0');
-    signal rst_pipe_50MHz: std_logic_vector(3 downto 0) := (others => '0');
+    signal rst_pipe_25MHz: std_logic_vector(0 downto 0) := (others => '0');
+    signal rst_pipe_50MHz: std_logic_vector(2 downto 0) := (others => '0');
+
+    -- mark pipeline register inputs as asynchronous
+    attribute ASYNC_REG of rst_pipe_25MHz  : signal is "TRUE";
+    attribute ASYNC_REG of rst_pipe_50MHz  : signal is "TRUE";
 begin
     process(clk, reset_in) is
     begin
@@ -45,7 +51,7 @@ begin
             rst_pipe_25MHz <=
                 rst_pipe_25MHz(rst_pipe_25MHz'high-1 downto 0)
                 & reset_latch;
-            reset_out_25MHz <= rst_pipe_25MHz(rst_pipe_25MHz'high-1);
+            reset_out_25MHz <= rst_pipe_25MHz(rst_pipe_25MHz'high);
         end if;
     end process;
 
@@ -55,7 +61,7 @@ begin
             rst_pipe_50MHz <=
                 rst_pipe_50MHz(rst_pipe_50MHz'high-1 downto 0)
                 & reset_latch;
-            reset_out_50MHz <= rst_pipe_50MHz(rst_pipe_50MHz'high-1);
+            reset_out_50MHz <= rst_pipe_50MHz(rst_pipe_50MHz'high);
         end if;
     end process;
 end rtl;
