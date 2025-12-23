@@ -295,23 +295,21 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
     prog_full => open
   );
 
-  async_assignments: process is
-  begin
-    axi_str_rxd_tdata_OUT <=
-      axi_str_rxd_tdata_OUT_internal(7 downto 0)
-      & axi_str_rxd_tdata_OUT_internal(15 downto 8)
-      & axi_str_rxd_tdata_OUT_internal(23 downto 16)
-      & axi_str_rxd_tdata_OUT_internal(31 downto 24);
-    axi_str_txd_tdata_IN_internal <= 
-      axi_str_txd_tdata_IN(7 downto 0)
-      & axi_str_txd_tdata_IN(15 downto 8)
-      & axi_str_txd_tdata_IN(23 downto 16)
-      & axi_str_txd_tdata_IN(31 downto 24);
-  end process;
+  -- endianness swapping
+  axi_str_rxd_tdata_OUT <=
+    axi_str_rxd_tdata_OUT_internal(7 downto 0)
+    & axi_str_rxd_tdata_OUT_internal(15 downto 8)
+    & axi_str_rxd_tdata_OUT_internal(23 downto 16)
+    & axi_str_rxd_tdata_OUT_internal(31 downto 24);
+  axi_str_txd_tdata_IN_internal <= 
+    axi_str_txd_tdata_IN(7 downto 0)
+    & axi_str_txd_tdata_IN(15 downto 8)
+    & axi_str_txd_tdata_IN(23 downto 16)
+    & axi_str_txd_tdata_IN(31 downto 24);
 
   process (axi_clk, axi_nrst) is
   begin
-    if(rising_edge(axi_clk)) then
+    if rising_edge(axi_clk) then
       -- TX_STATE_INIT_INTERRUPT
       --  * Enable the interrupt on received data
       --  * Assert the init_complete signal to the RX process
@@ -368,17 +366,15 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
         when TX_STATE_WAIT_RESPONSE =>
             if (s_axi_bvalid = '1') then
               s_axi_bready <= '1';
-              if (s_axi_bresp = c_AXI_RESP_OKAY) then
+              with s_axi_bresp select tx_state <=
                 -- Byte was queued successfully
-                tx_state <= TX_STATE_IDLE;
-              else
+                TX_STATE_IDLE when c_AXI_RESP_OKAY,
                 -- TX FIFO is full, try again
-                tx_state <= TX_STATE_WRITE_DATA;
-              end if;
+                TX_STATE_WRITE_DATA when others;
             end if;
       end case;
 
-      if (axi_nrst = '0') then
+      if axi_nrst = '0' then
         init_complete <= '0';
         tx_state <= TX_STATE_INIT_INTERRUPT;
         s_axi_awvalid <= '0';
@@ -440,12 +436,12 @@ axis_dwidth_converter_8_32_inst : axis_dwidth_converter_8_32
           end if;
         when RX_STATE_WAIT_CONV =>
           if (uart_conv_rx_tready = '1') then
-              uart_conv_rx_tvalid <= '0';
+            uart_conv_rx_tvalid <= '0';
             rx_state <= RX_STATE_IDLE;
           end if;
         end case;
 
-      if (axi_nrst = '0') then
+      if axi_nrst = '0' then
         rx_state <= RX_STATE_WAIT_INIT;
         s_axi_arvalid <= '0';
         s_axi_rready <= '0';

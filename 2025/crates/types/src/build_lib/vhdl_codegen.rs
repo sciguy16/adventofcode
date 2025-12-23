@@ -6,6 +6,7 @@ const HEADER: &str = "\
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 ";
 pub const MAIN_TYPES: &str = r#"
     TYPE T_PACKET_HEADER IS RECORD
@@ -45,7 +46,8 @@ where
     writeln!(codegen, "{indent}-- {description}")?;
     writeln!(
         codegen,
-        "{indent}constant C_DESTINATION_{name}: natural := {id};",
+        "{indent}constant C_DESTINATION_{name}: unsigned(7 downto 0) \
+            := x\"{id:02x}\";",
     )
 }
 
@@ -72,7 +74,7 @@ where
         writeln!(
             codegen,
             "{indent}constant C_DESTINATION_{destination_name}_TYPE_{name}: \
-                natural := {id};",
+                unsigned(7 downto 0) := x\"{id:02x}\";",
         )?;
     }
     Ok(())

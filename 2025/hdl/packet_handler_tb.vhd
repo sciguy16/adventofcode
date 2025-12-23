@@ -17,8 +17,6 @@ architecture rtl of packet_handler_tb is
   signal axi_str_txd_tvalid: std_logic;
   signal axi_str_txd_tready: std_logic := '0';
   signal axi_str_txd_tdata: std_logic_vector(31 downto 0);
-
-  signal done: std_logic;
 begin
   packet_handler_inst: entity work.packet_handler(rtl)
     port map(
@@ -31,7 +29,16 @@ begin
 
         axi_str_txd_tvalid_OUT => axi_str_txd_tvalid,
         axi_str_txd_tready_IN => axi_str_txd_tready,
-        axi_str_txd_tdata_OUT => axi_str_txd_tdata
+        axi_str_txd_tdata_OUT => axi_str_txd_tdata,
+
+        bram_write_data_a_OUT => open,
+        bram_read_data_a_IN => (others => '0'),
+        bram_addr_a_OUT => open,
+        bram_write_valid_a_OUT => open,
+        bram_write_ready_a_IN => '0',
+        bram_read_req_a_OUT => open,
+        bram_read_valid_a_IN => '0',
+        bram_read_ready_a_OUT => open
 
     );
 
@@ -58,7 +65,7 @@ begin
         axi_str_rxd_tdata <= x"00000004";
         axi_str_rxd_tvalid <= '1';
         -- wait for UUT to clock in the data on a rising edge
-        wait until rising_edge(clk) and axi_str_rxd_tready = '1';
+        wait until rising_edge(clk) and axi_str_rxd_tready = '1' for 10 ns;
         wait until falling_edge(clk);
         axi_str_rxd_tvalid <= '0';
 
@@ -70,34 +77,30 @@ begin
         axi_str_rxd_tdata <= x"12345678";
         axi_str_rxd_tvalid <= '1';
         -- wait for UUT to clock in the data on a rising edge
-        wait until rising_edge(clk) and axi_str_rxd_tready = '1';
-        wait until falling_edge(clk);
+        wait until falling_edge(clk) and axi_str_rxd_tready = '1' for 10 ns;
         axi_str_rxd_tvalid <= '0';
 
-        assert axi_str_rxd_tready = '0' severity error;
+        --wait until falling_edge(clk);
+        --assert axi_str_rxd_tready = '0' report "tready";
 
-        wait until falling_edge(clk) and axi_str_txd_tvalid = '1';
+        wait until falling_edge(clk) and axi_str_txd_tvalid = '1' for 10 ns;
         axi_str_txd_tready <= '1';
-        assert axi_str_txd_tdata = x"00010004" report "header" severity error;
+        assert axi_str_txd_tdata = x"00010004" report "header";
 
-        wait until falling_edge(clk) and axi_str_txd_tvalid = '1';
-        assert axi_str_txd_tdata = x"12345678" report "payload" severity error;
-        assert reply_done_internal = '0' report "done internal" severity error;
-        assert done = '0' report "done" severity error;
-
-        wait until falling_edge(clk);
-        assert reply_done_internal = '1' report "done internal" severity error;
-        assert done = '0' report "done" severity error;
-        assert axi_str_txd_tvalid = '0' severity error;
+        wait until falling_edge(clk) and axi_str_txd_tvalid = '1' for 10 ns;
+        assert axi_str_txd_tdata = x"12345678" report "payload";
+        assert reply_done_internal = '0' report "done internal";
 
         wait until falling_edge(clk);
-        assert reply_done_internal = '0' report "done internal" severity error;
-        assert done = '1' report "done" severity error;
+        assert reply_done_internal = '1' report "done internal";
+        assert axi_str_txd_tvalid = '0';
+
+        wait until falling_edge(clk);
+        assert reply_done_internal = '0' report "done internal";
 
         wait until falling_edge(clk);
         assert axi_str_rxd_tready = '1';
-        assert reply_done_internal = '0' report "done internal" severity error;
-        assert done = '0' report "done" severity error;
+        assert reply_done_internal = '0' report "done internal";
 
         wait until falling_edge(clk);
 

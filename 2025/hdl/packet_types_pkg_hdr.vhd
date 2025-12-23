@@ -2,6 +2,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 PACKAGE packet_types_pkg_hdr is
     TYPE T_PACKET_HEADER IS RECORD
@@ -19,11 +20,11 @@ PACKAGE packet_types_pkg_hdr is
     constant C_NUM_DESTINATIONS: natural := 1;
 
     -- Top-level packets, e.g. ping/pong
-    constant C_DESTINATION_top: natural := 0;
-    constant C_DESTINATION_top_TYPE_ping: natural := 0;
-    constant C_DESTINATION_top_TYPE_pong: natural := 1;
-    constant C_DESTINATION_top_TYPE_write_ram: natural := 2;
-    constant C_DESTINATION_top_TYPE_write_ram_ack: natural := 3;
-    constant C_DESTINATION_top_TYPE_read_ram: natural := 4;
-    constant C_DESTINATION_top_TYPE_read_ram_ack: natural := 5;
+    constant C_DESTINATION_top: unsigned(7 downto 0) := x"00";
+    constant C_DESTINATION_top_TYPE_ping: unsigned(7 downto 0) := x"00";
+    constant C_DESTINATION_top_TYPE_pong: unsigned(7 downto 0) := x"01";
+    constant C_DESTINATION_top_TYPE_write_ram: unsigned(7 downto 0) := x"02";
+    constant C_DESTINATION_top_TYPE_write_ram_ack: unsigned(7 downto 0) := x"03";
+    constant C_DESTINATION_top_TYPE_read_ram: unsigned(7 downto 0) := x"04";
+    constant C_DESTINATION_top_TYPE_read_ram_ack: unsigned(7 downto 0) := x"05";
 END PACKAGE packet_types_pkg_hdr;
