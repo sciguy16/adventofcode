@@ -1,19 +1,19 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-// Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+// Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
-// Tool Version: Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-// Date        : Sat Dec  6 20:36:05 2025
+// Tool Version: Vivado v.2025.2 (lin64) Build 6299465 Fri Nov 14 12:34:56 MST 2025
+// Date        : Tue Dec 23 11:21:46 2025
 // Host        : nanaka.davenet.rocks running 64-bit Debian GNU/Linux forky/sid
-// Command     : write_verilog -force -mode funcsim -rename_top axis_data_fifo_cdc_32x64 -prefix
-//               axis_data_fifo_cdc_32x64_ axis_data_fifo_tx_32_sim_netlist.v
-// Design      : axis_data_fifo_tx_32
+// Command     : write_verilog -force -mode funcsim
+//               /home/david/gits/adventofcode/2025/vivado/aoc-2025.runs/axis_data_fifo_cdc_32x64_synth_1/axis_data_fifo_cdc_32x64_sim_netlist.v
+// Design      : axis_data_fifo_cdc_32x64
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
 // Device      : xc7s25csga225-1
 // --------------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
-(* CHECK_LICENSE_TYPE = "axis_data_fifo_tx_32,axis_data_fifo_v2_0_11_top,{}" *) (* DowngradeIPIdentifiedWarnings = "yes" *) (* X_CORE_INFO = "axis_data_fifo_v2_0_11_top,Vivado 2023.2" *) 
+(* CHECK_LICENSE_TYPE = "axis_data_fifo_cdc_32x64,axis_data_fifo_v2_0_17_top,{}" *) (* DowngradeIPIdentifiedWarnings = "yes" *) (* X_CORE_INFO = "axis_data_fifo_v2_0_17_top,Vivado 2025.2" *) 
 (* NotValidForBitStream *)
 module axis_data_fifo_cdc_32x64
    (s_axis_aresetn,
@@ -26,15 +26,15 @@ module axis_data_fifo_cdc_32x64
     m_axis_tready,
     m_axis_tdata,
     prog_full);
-  (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 S_RSTIF RST" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_RSTIF, POLARITY ACTIVE_LOW, INSERT_VIP 0" *) input s_axis_aresetn;
-  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 S_CLKIF CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_CLKIF, ASSOCIATED_BUSIF S_AXIS, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, PHASE 0.0, INSERT_VIP 0" *) input s_axis_aclk;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TVALID" *) input s_axis_tvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 S_RSTIF RST" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_RSTIF, POLARITY ACTIVE_LOW, INSERT_VIP 0" *) input s_axis_aresetn;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 S_CLKIF CLK" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_CLKIF, ASSOCIATED_BUSIF S_AXIS, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, PHASE 0.0, INSERT_VIP 0" *) input s_axis_aclk;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TVALID" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXIS, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) input s_axis_tvalid;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TREADY" *) output s_axis_tready;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TDATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXIS, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) input [31:0]s_axis_tdata;
-  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 M_CLKIF CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_CLKIF, ASSOCIATED_BUSIF M_AXIS, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, PHASE 0.0, INSERT_VIP 0" *) input m_axis_aclk;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TVALID" *) output m_axis_tvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TDATA" *) input [31:0]s_axis_tdata;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 M_CLKIF CLK" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_CLKIF, ASSOCIATED_BUSIF M_AXIS, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, PHASE 0.0, INSERT_VIP 0" *) input m_axis_aclk;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TVALID" *) (* X_INTERFACE_MODE = "master" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXIS, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) output m_axis_tvalid;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TREADY" *) input m_axis_tready;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TDATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXIS, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) output [31:0]m_axis_tdata;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TDATA" *) output [31:0]m_axis_tdata;
   output prog_full;
 
   wire m_axis_aclk;
@@ -114,7 +114,7 @@ module axis_data_fifo_cdc_32x64
   (* LP_TUSER_WIDTH = "1" *) 
   (* LP_USE_ADV_FEATURES = "825241650" *) 
   (* LP_WR_DATA_COUNT_WIDTH = "7" *) 
-  axis_data_fifo_cdc_32x64_axis_data_fifo_v2_0_11_top inst
+  axis_data_fifo_cdc_32x64_axis_data_fifo_v2_0_17_top inst
        (.almost_empty(NLW_inst_almost_empty_UNCONNECTED),
         .almost_full(NLW_inst_almost_full_UNCONNECTED),
         .axis_rd_data_count(NLW_inst_axis_rd_data_count_UNCONNECTED[31:0]),
@@ -167,8 +167,8 @@ endmodule
 (* LP_PROG_EMPTY_THRESH = "5" *) (* LP_PROG_FULL_THRESH = "11" *) (* LP_RD_DATA_COUNT_WIDTH = "7" *) 
 (* LP_RELATED_CLOCKS = "0" *) (* LP_S_ACLKEN_CAN_TOGGLE = "0" *) (* LP_TDATA_WIDTH = "32" *) 
 (* LP_TDEST_WIDTH = "1" *) (* LP_TID_WIDTH = "1" *) (* LP_TUSER_WIDTH = "1" *) 
-(* LP_USE_ADV_FEATURES = "825241650" *) (* LP_WR_DATA_COUNT_WIDTH = "7" *) 
-module axis_data_fifo_cdc_32x64_axis_data_fifo_v2_0_11_top
+(* LP_USE_ADV_FEATURES = "825241650" *) (* LP_WR_DATA_COUNT_WIDTH = "7" *) (* ORIG_REF_NAME = "axis_data_fifo_v2_0_17_top" *) 
+module axis_data_fifo_cdc_32x64_axis_data_fifo_v2_0_17_top
    (s_axis_aclk,
     s_axis_aresetn,
     s_axis_aclken,
@@ -361,12 +361,14 @@ module axis_data_fifo_cdc_32x64_axis_data_fifo_v2_0_11_top
   (* CASCADE_HEIGHT = "0" *) 
   (* CDC_SYNC_STAGES = "3" *) 
   (* CLOCKING_MODE = "0" *) 
+  (* DONT_TOUCH *) 
   (* ECC_MODE = "0" *) 
   (* EN_ADV_FEATURE_AXIS = "16'b0001000000000010" *) 
   (* EN_ADV_FEATURE_AXIS_INT = "16'b0001000000000010" *) 
   (* EN_ALMOST_EMPTY_INT = "1'b0" *) 
   (* EN_ALMOST_FULL_INT = "1'b0" *) 
   (* EN_DATA_VALID_INT = "1'b1" *) 
+  (* EN_SIM_ASSERT_ERR = "warning" *) 
   (* FIFO_DEPTH = "64" *) 
   (* FIFO_MEMORY_TYPE = "0" *) 
   (* LOG_DEPTH_AXIS = "6" *) 
@@ -430,10 +432,10 @@ module axis_data_fifo_cdc_32x64_axis_data_fifo_v2_0_11_top
         .wr_data_count_axis({\gen_fifo.xpm_fifo_axis_inst_n_47 ,\gen_fifo.xpm_fifo_axis_inst_n_48 ,\gen_fifo.xpm_fifo_axis_inst_n_49 ,\gen_fifo.xpm_fifo_axis_inst_n_50 ,\gen_fifo.xpm_fifo_axis_inst_n_51 ,\gen_fifo.xpm_fifo_axis_inst_n_52 ,\gen_fifo.xpm_fifo_axis_inst_n_53 }));
 endmodule
 
-(* DEST_SYNC_FF = "3" *) (* INIT_SYNC_FF = "1" *) (* REG_OUTPUT = "0" *) 
-(* SIM_ASSERT_CHK = "0" *) (* SIM_LOSSLESS_GRAY_CHK = "0" *) (* VERSION = "0" *) 
-(* WIDTH = "6" *) (* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "true" *) 
-(* xpm_cdc = "GRAY" *) 
+(* DEST_SYNC_FF = "3" *) (* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_gray" *) 
+(* REG_OUTPUT = "0" *) (* SIM_ASSERT_CHK = "0" *) (* SIM_LOSSLESS_GRAY_CHK = "0" *) 
+(* VERSION = "0" *) (* WIDTH = "6" *) (* XPM_MODULE = "TRUE" *) 
+(* keep_hierarchy = "soft" *) (* xpm_cdc = "GRAY" *) 
 module axis_data_fifo_cdc_32x64_xpm_cdc_gray
    (src_clk,
     src_in_bin,
@@ -733,8 +735,8 @@ endmodule
 (* DEST_SYNC_FF = "3" *) (* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_gray" *) 
 (* REG_OUTPUT = "0" *) (* SIM_ASSERT_CHK = "0" *) (* SIM_LOSSLESS_GRAY_CHK = "0" *) 
 (* VERSION = "0" *) (* WIDTH = "6" *) (* XPM_MODULE = "TRUE" *) 
-(* keep_hierarchy = "true" *) (* xpm_cdc = "GRAY" *) 
-module axis_data_fifo_cdc_32x64_xpm_cdc_gray__2
+(* keep_hierarchy = "soft" *) (* xpm_cdc = "GRAY" *) 
+module axis_data_fifo_cdc_32x64_xpm_cdc_gray__1
    (src_clk,
     src_in_bin,
     dest_clk,
@@ -1033,7 +1035,7 @@ endmodule
 (* DEST_SYNC_FF = "5" *) (* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_gray" *) 
 (* REG_OUTPUT = "0" *) (* SIM_ASSERT_CHK = "0" *) (* SIM_LOSSLESS_GRAY_CHK = "0" *) 
 (* VERSION = "0" *) (* WIDTH = "7" *) (* XPM_MODULE = "TRUE" *) 
-(* keep_hierarchy = "true" *) (* xpm_cdc = "GRAY" *) 
+(* keep_hierarchy = "soft" *) (* xpm_cdc = "GRAY" *) 
 module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized0
    (src_clk,
     src_in_bin,
@@ -1044,6 +1046,7 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized0
   input dest_clk;
   output [6:0]dest_out_bin;
 
+  wire \<const0> ;
   wire [6:0]async_path;
   wire dest_clk;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[0] ;
@@ -1051,13 +1054,19 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized0
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[2] ;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[3] ;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[4] ;
-  wire [5:0]\^dest_out_bin ;
   wire [5:0]gray_enc;
   wire src_clk;
   wire [6:0]src_in_bin;
 
   assign dest_out_bin[6] = \dest_graysync_ff[4] [6];
-  assign dest_out_bin[5:0] = \^dest_out_bin [5:0];
+  assign dest_out_bin[5] = \<const0> ;
+  assign dest_out_bin[4] = \<const0> ;
+  assign dest_out_bin[3] = \<const0> ;
+  assign dest_out_bin[2] = \<const0> ;
+  assign dest_out_bin[1] = \<const0> ;
+  assign dest_out_bin[0] = \<const0> ;
+  GND GND
+       (.G(\<const0> ));
   (* ASYNC_REG *) 
   (* KEEP = "true" *) 
   (* XPM_CDC = "GRAY" *) 
@@ -1373,52 +1382,6 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized0
         .D(\dest_graysync_ff[3] [6]),
         .Q(\dest_graysync_ff[4] [6]),
         .R(1'b0));
-  LUT2 #(
-    .INIT(4'h6)) 
-    \dest_out_bin[0]_INST_0 
-       (.I0(\dest_graysync_ff[4] [0]),
-        .I1(\^dest_out_bin [1]),
-        .O(\^dest_out_bin [0]));
-  LUT6 #(
-    .INIT(64'h6996966996696996)) 
-    \dest_out_bin[1]_INST_0 
-       (.I0(\dest_graysync_ff[4] [1]),
-        .I1(\dest_graysync_ff[4] [3]),
-        .I2(\dest_graysync_ff[4] [5]),
-        .I3(\dest_graysync_ff[4] [6]),
-        .I4(\dest_graysync_ff[4] [4]),
-        .I5(\dest_graysync_ff[4] [2]),
-        .O(\^dest_out_bin [1]));
-  LUT5 #(
-    .INIT(32'h96696996)) 
-    \dest_out_bin[2]_INST_0 
-       (.I0(\dest_graysync_ff[4] [2]),
-        .I1(\dest_graysync_ff[4] [4]),
-        .I2(\dest_graysync_ff[4] [6]),
-        .I3(\dest_graysync_ff[4] [5]),
-        .I4(\dest_graysync_ff[4] [3]),
-        .O(\^dest_out_bin [2]));
-  LUT4 #(
-    .INIT(16'h6996)) 
-    \dest_out_bin[3]_INST_0 
-       (.I0(\dest_graysync_ff[4] [3]),
-        .I1(\dest_graysync_ff[4] [5]),
-        .I2(\dest_graysync_ff[4] [6]),
-        .I3(\dest_graysync_ff[4] [4]),
-        .O(\^dest_out_bin [3]));
-  LUT3 #(
-    .INIT(8'h96)) 
-    \dest_out_bin[4]_INST_0 
-       (.I0(\dest_graysync_ff[4] [4]),
-        .I1(\dest_graysync_ff[4] [6]),
-        .I2(\dest_graysync_ff[4] [5]),
-        .O(\^dest_out_bin [4]));
-  LUT2 #(
-    .INIT(4'h6)) 
-    \dest_out_bin[5]_INST_0 
-       (.I0(\dest_graysync_ff[4] [5]),
-        .I1(\dest_graysync_ff[4] [6]),
-        .O(\^dest_out_bin [5]));
   (* SOFT_HLUTNM = "soft_lutpair2" *) 
   LUT2 #(
     .INIT(4'h6)) 
@@ -1508,7 +1471,7 @@ endmodule
 (* DEST_SYNC_FF = "3" *) (* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_gray" *) 
 (* REG_OUTPUT = "0" *) (* SIM_ASSERT_CHK = "0" *) (* SIM_LOSSLESS_GRAY_CHK = "0" *) 
 (* VERSION = "0" *) (* WIDTH = "7" *) (* XPM_MODULE = "TRUE" *) 
-(* keep_hierarchy = "true" *) (* xpm_cdc = "GRAY" *) 
+(* keep_hierarchy = "soft" *) (* xpm_cdc = "GRAY" *) 
 module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized1
    (src_clk,
     src_in_bin,
@@ -1519,18 +1482,25 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized1
   input dest_clk;
   output [6:0]dest_out_bin;
 
+  wire \<const0> ;
   wire [6:0]async_path;
   wire dest_clk;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[0] ;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[1] ;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) (* xpm_cdc = "GRAY" *) wire [6:0]\dest_graysync_ff[2] ;
-  wire [5:0]\^dest_out_bin ;
   wire [5:0]gray_enc;
   wire src_clk;
   wire [6:0]src_in_bin;
 
   assign dest_out_bin[6] = \dest_graysync_ff[2] [6];
-  assign dest_out_bin[5:0] = \^dest_out_bin [5:0];
+  assign dest_out_bin[5] = \<const0> ;
+  assign dest_out_bin[4] = \<const0> ;
+  assign dest_out_bin[3] = \<const0> ;
+  assign dest_out_bin[2] = \<const0> ;
+  assign dest_out_bin[1] = \<const0> ;
+  assign dest_out_bin[0] = \<const0> ;
+  GND GND
+       (.G(\<const0> ));
   (* ASYNC_REG *) 
   (* KEEP = "true" *) 
   (* XPM_CDC = "GRAY" *) 
@@ -1720,52 +1690,6 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized1
         .D(\dest_graysync_ff[1] [6]),
         .Q(\dest_graysync_ff[2] [6]),
         .R(1'b0));
-  LUT2 #(
-    .INIT(4'h6)) 
-    \dest_out_bin[0]_INST_0 
-       (.I0(\dest_graysync_ff[2] [0]),
-        .I1(\^dest_out_bin [1]),
-        .O(\^dest_out_bin [0]));
-  LUT6 #(
-    .INIT(64'h6996966996696996)) 
-    \dest_out_bin[1]_INST_0 
-       (.I0(\dest_graysync_ff[2] [1]),
-        .I1(\dest_graysync_ff[2] [3]),
-        .I2(\dest_graysync_ff[2] [5]),
-        .I3(\dest_graysync_ff[2] [6]),
-        .I4(\dest_graysync_ff[2] [4]),
-        .I5(\dest_graysync_ff[2] [2]),
-        .O(\^dest_out_bin [1]));
-  LUT5 #(
-    .INIT(32'h96696996)) 
-    \dest_out_bin[2]_INST_0 
-       (.I0(\dest_graysync_ff[2] [2]),
-        .I1(\dest_graysync_ff[2] [4]),
-        .I2(\dest_graysync_ff[2] [6]),
-        .I3(\dest_graysync_ff[2] [5]),
-        .I4(\dest_graysync_ff[2] [3]),
-        .O(\^dest_out_bin [2]));
-  LUT4 #(
-    .INIT(16'h6996)) 
-    \dest_out_bin[3]_INST_0 
-       (.I0(\dest_graysync_ff[2] [3]),
-        .I1(\dest_graysync_ff[2] [5]),
-        .I2(\dest_graysync_ff[2] [6]),
-        .I3(\dest_graysync_ff[2] [4]),
-        .O(\^dest_out_bin [3]));
-  LUT3 #(
-    .INIT(8'h96)) 
-    \dest_out_bin[4]_INST_0 
-       (.I0(\dest_graysync_ff[2] [4]),
-        .I1(\dest_graysync_ff[2] [6]),
-        .I2(\dest_graysync_ff[2] [5]),
-        .O(\^dest_out_bin [4]));
-  LUT2 #(
-    .INIT(4'h6)) 
-    \dest_out_bin[5]_INST_0 
-       (.I0(\dest_graysync_ff[2] [5]),
-        .I1(\dest_graysync_ff[2] [6]),
-        .O(\^dest_out_bin [5]));
   (* SOFT_HLUTNM = "soft_lutpair9" *) 
   LUT2 #(
     .INIT(4'h6)) 
@@ -1853,8 +1777,9 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_gray__parameterized1
 endmodule
 
 (* DEF_VAL = "1'b0" *) (* DEST_SYNC_FF = "3" *) (* INIT = "0" *) 
-(* INIT_SYNC_FF = "1" *) (* SIM_ASSERT_CHK = "0" *) (* VERSION = "0" *) 
-(* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "true" *) (* xpm_cdc = "SYNC_RST" *) 
+(* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_sync_rst" *) (* SIM_ASSERT_CHK = "0" *) 
+(* VERSION = "0" *) (* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "soft" *) 
+(* xpm_cdc = "SYNC_RST" *) 
 module axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst
    (src_rst,
     dest_clk,
@@ -1905,9 +1830,9 @@ endmodule
 
 (* DEF_VAL = "1'b0" *) (* DEST_SYNC_FF = "3" *) (* INIT = "0" *) 
 (* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_sync_rst" *) (* SIM_ASSERT_CHK = "0" *) 
-(* VERSION = "0" *) (* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "true" *) 
+(* VERSION = "0" *) (* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "soft" *) 
 (* xpm_cdc = "SYNC_RST" *) 
-module axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__3
+module axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__parameterized0
    (src_rst,
     dest_clk,
     dest_rst);
@@ -1957,9 +1882,9 @@ endmodule
 
 (* DEF_VAL = "1'b0" *) (* DEST_SYNC_FF = "3" *) (* INIT = "0" *) 
 (* INIT_SYNC_FF = "1" *) (* ORIG_REF_NAME = "xpm_cdc_sync_rst" *) (* SIM_ASSERT_CHK = "0" *) 
-(* VERSION = "0" *) (* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "true" *) 
+(* VERSION = "0" *) (* XPM_MODULE = "TRUE" *) (* keep_hierarchy = "soft" *) 
 (* xpm_cdc = "SYNC_RST" *) 
-module axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__4
+module axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__parameterized0__1
    (src_rst,
     dest_clk,
     dest_rst);
@@ -2007,6 +1932,7 @@ module axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__4
         .R(1'b0));
 endmodule
 
+(* ORIG_REF_NAME = "xpm_counter_updn" *) 
 module axis_data_fifo_cdc_32x64_xpm_counter_updn
    (S,
     \count_value_i_reg[0]_0 ,
@@ -3004,17 +2930,18 @@ endmodule
 (* AXIS_DATA_WIDTH = "44" *) (* AXIS_FINAL_DATA_WIDTH = "44" *) (* CASCADE_HEIGHT = "0" *) 
 (* CDC_SYNC_STAGES = "3" *) (* CLOCKING_MODE = "independent_clock" *) (* ECC_MODE = "no_ecc" *) 
 (* EN_ADV_FEATURE_AXIS = "16'b0001000000000010" *) (* EN_ADV_FEATURE_AXIS_INT = "16'b0001000000000010" *) (* EN_ALMOST_EMPTY_INT = "1'b0" *) 
-(* EN_ALMOST_FULL_INT = "1'b0" *) (* EN_DATA_VALID_INT = "1'b1" *) (* FIFO_DEPTH = "64" *) 
-(* FIFO_MEMORY_TYPE = "auto" *) (* LOG_DEPTH_AXIS = "6" *) (* PACKET_FIFO = "false" *) 
-(* PKT_SIZE_LT8 = "1'b0" *) (* PROG_EMPTY_THRESH = "5" *) (* PROG_FULL_THRESH = "11" *) 
-(* P_COMMON_CLOCK = "0" *) (* P_ECC_MODE = "0" *) (* P_FIFO_MEMORY_TYPE = "0" *) 
-(* P_PKT_MODE = "0" *) (* RD_DATA_COUNT_WIDTH = "7" *) (* RELATED_CLOCKS = "0" *) 
-(* SIM_ASSERT_CHK = "0" *) (* TDATA_OFFSET = "32" *) (* TDATA_WIDTH = "32" *) 
-(* TDEST_OFFSET = "42" *) (* TDEST_WIDTH = "1" *) (* TID_OFFSET = "41" *) 
-(* TID_WIDTH = "1" *) (* TKEEP_OFFSET = "40" *) (* TSTRB_OFFSET = "36" *) 
-(* TUSER_MAX_WIDTH = "4053" *) (* TUSER_OFFSET = "43" *) (* TUSER_WIDTH = "1" *) 
-(* USE_ADV_FEATURES = "825241650" *) (* USE_ADV_FEATURES_INT = "825241650" *) (* WR_DATA_COUNT_WIDTH = "7" *) 
-(* XPM_MODULE = "TRUE" *) (* dont_touch = "true" *) 
+(* EN_ALMOST_FULL_INT = "1'b0" *) (* EN_DATA_VALID_INT = "1'b1" *) (* EN_SIM_ASSERT_ERR = "warning" *) 
+(* FIFO_DEPTH = "64" *) (* FIFO_MEMORY_TYPE = "auto" *) (* LOG_DEPTH_AXIS = "6" *) 
+(* ORIG_REF_NAME = "xpm_fifo_axis" *) (* PACKET_FIFO = "false" *) (* PKT_SIZE_LT8 = "1'b0" *) 
+(* PROG_EMPTY_THRESH = "5" *) (* PROG_FULL_THRESH = "11" *) (* P_COMMON_CLOCK = "0" *) 
+(* P_ECC_MODE = "0" *) (* P_FIFO_MEMORY_TYPE = "0" *) (* P_PKT_MODE = "0" *) 
+(* RD_DATA_COUNT_WIDTH = "7" *) (* RELATED_CLOCKS = "0" *) (* SIM_ASSERT_CHK = "0" *) 
+(* TDATA_OFFSET = "32" *) (* TDATA_WIDTH = "32" *) (* TDEST_OFFSET = "42" *) 
+(* TDEST_WIDTH = "1" *) (* TID_OFFSET = "41" *) (* TID_WIDTH = "1" *) 
+(* TKEEP_OFFSET = "40" *) (* TSTRB_OFFSET = "36" *) (* TUSER_MAX_WIDTH = "4053" *) 
+(* TUSER_OFFSET = "43" *) (* TUSER_WIDTH = "1" *) (* USE_ADV_FEATURES = "825241650" *) 
+(* USE_ADV_FEATURES_INT = "825241650" *) (* WR_DATA_COUNT_WIDTH = "7" *) (* XPM_MODULE = "TRUE" *) 
+(* dont_touch = "true" *) 
 module axis_data_fifo_cdc_32x64_xpm_fifo_axis
    (s_aresetn,
     s_aclk,
@@ -3149,7 +3076,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_axis
   (* VERSION = "0" *) 
   (* XPM_CDC = "SYNC_RST" *) 
   (* XPM_MODULE = "TRUE" *) 
-  axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__3 \gaxis_rst_sync.xpm_cdc_sync_rst_inst 
+  axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst \gaxis_rst_sync.xpm_cdc_sync_rst_inst 
        (.dest_clk(s_aclk),
         .dest_rst(rst_axis),
         .src_rst(\gaxis_rst_sync.xpm_cdc_sync_rst_inst_i_1_n_0 ));
@@ -3172,6 +3099,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_axis
   (* EN_PE = "1'b0" *) 
   (* EN_PF = "1'b1" *) 
   (* EN_RDC = "1'b0" *) 
+  (* EN_SIM_ASSERT_ERR = "warning" *) 
   (* EN_UF = "1'b0" *) 
   (* EN_WACK = "1'b0" *) 
   (* EN_WDC = "1'b0" *) 
@@ -3184,7 +3112,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_axis
   (* FIFO_WRITE_DEPTH = "64" *) 
   (* FULL_RESET_VALUE = "1" *) 
   (* FULL_RST_VAL = "1'b1" *) 
-  (* KEEP_HIERARCHY = "soft" *) 
+  (* KEEP_HIERARCHY = "SOFT" *) 
   (* PE_THRESH_ADJ = "3" *) 
   (* PE_THRESH_MAX = "59" *) 
   (* PE_THRESH_MIN = "5" *) 
@@ -3260,23 +3188,24 @@ endmodule
 (* DOUT_RESET_VALUE = "" *) (* ECC_MODE = "0" *) (* ENABLE_ECC = "0" *) 
 (* EN_ADV_FEATURE = "16'b0001000000000010" *) (* EN_AE = "1'b0" *) (* EN_AF = "1'b0" *) 
 (* EN_DVLD = "1'b1" *) (* EN_OF = "1'b0" *) (* EN_PE = "1'b0" *) 
-(* EN_PF = "1'b1" *) (* EN_RDC = "1'b0" *) (* EN_UF = "1'b0" *) 
-(* EN_WACK = "1'b0" *) (* EN_WDC = "1'b0" *) (* FG_EQ_ASYM_DOUT = "1'b0" *) 
-(* FIFO_MEMORY_TYPE = "0" *) (* FIFO_MEM_TYPE = "0" *) (* FIFO_READ_DEPTH = "64" *) 
-(* FIFO_READ_LATENCY = "0" *) (* FIFO_SIZE = "2816" *) (* FIFO_WRITE_DEPTH = "64" *) 
-(* FULL_RESET_VALUE = "1" *) (* FULL_RST_VAL = "1'b1" *) (* PE_THRESH_ADJ = "3" *) 
-(* PE_THRESH_MAX = "59" *) (* PE_THRESH_MIN = "5" *) (* PF_THRESH_ADJ = "9" *) 
-(* PF_THRESH_MAX = "59" *) (* PF_THRESH_MIN = "8" *) (* PROG_EMPTY_THRESH = "5" *) 
-(* PROG_FULL_THRESH = "11" *) (* RD_DATA_COUNT_WIDTH = "7" *) (* RD_DC_WIDTH_EXT = "7" *) 
-(* RD_LATENCY = "2" *) (* RD_MODE = "1" *) (* RD_PNTR_WIDTH = "6" *) 
-(* READ_DATA_WIDTH = "44" *) (* READ_MODE = "1" *) (* READ_MODE_LL = "1" *) 
-(* RELATED_CLOCKS = "0" *) (* REMOVE_WR_RD_PROT_LOGIC = "0" *) (* SIM_ASSERT_CHK = "0" *) 
-(* USE_ADV_FEATURES = "825241650" *) (* VERSION = "0" *) (* WAKEUP_TIME = "0" *) 
-(* WIDTH_RATIO = "1" *) (* WRITE_DATA_WIDTH = "44" *) (* WR_DATA_COUNT_WIDTH = "7" *) 
-(* WR_DC_WIDTH_EXT = "7" *) (* WR_DEPTH_LOG = "6" *) (* WR_PNTR_WIDTH = "6" *) 
-(* WR_RD_RATIO = "0" *) (* WR_WIDTH_LOG = "6" *) (* XPM_MODULE = "TRUE" *) 
-(* both_stages_valid = "3" *) (* invalid = "0" *) (* keep_hierarchy = "soft" *) 
-(* stage1_valid = "2" *) (* stage2_valid = "1" *) 
+(* EN_PF = "1'b1" *) (* EN_RDC = "1'b0" *) (* EN_SIM_ASSERT_ERR = "warning" *) 
+(* EN_UF = "1'b0" *) (* EN_WACK = "1'b0" *) (* EN_WDC = "1'b0" *) 
+(* FG_EQ_ASYM_DOUT = "1'b0" *) (* FIFO_MEMORY_TYPE = "0" *) (* FIFO_MEM_TYPE = "0" *) 
+(* FIFO_READ_DEPTH = "64" *) (* FIFO_READ_LATENCY = "0" *) (* FIFO_SIZE = "2816" *) 
+(* FIFO_WRITE_DEPTH = "64" *) (* FULL_RESET_VALUE = "1" *) (* FULL_RST_VAL = "1'b1" *) 
+(* ORIG_REF_NAME = "xpm_fifo_base" *) (* PE_THRESH_ADJ = "3" *) (* PE_THRESH_MAX = "59" *) 
+(* PE_THRESH_MIN = "5" *) (* PF_THRESH_ADJ = "9" *) (* PF_THRESH_MAX = "59" *) 
+(* PF_THRESH_MIN = "8" *) (* PROG_EMPTY_THRESH = "5" *) (* PROG_FULL_THRESH = "11" *) 
+(* RD_DATA_COUNT_WIDTH = "7" *) (* RD_DC_WIDTH_EXT = "7" *) (* RD_LATENCY = "2" *) 
+(* RD_MODE = "1" *) (* RD_PNTR_WIDTH = "6" *) (* READ_DATA_WIDTH = "44" *) 
+(* READ_MODE = "1" *) (* READ_MODE_LL = "1" *) (* RELATED_CLOCKS = "0" *) 
+(* REMOVE_WR_RD_PROT_LOGIC = "0" *) (* SIM_ASSERT_CHK = "0" *) (* USE_ADV_FEATURES = "825241650" *) 
+(* VERSION = "0" *) (* WAKEUP_TIME = "0" *) (* WIDTH_RATIO = "1" *) 
+(* WRITE_DATA_WIDTH = "44" *) (* WR_DATA_COUNT_WIDTH = "7" *) (* WR_DC_WIDTH_EXT = "7" *) 
+(* WR_DEPTH_LOG = "6" *) (* WR_PNTR_WIDTH = "6" *) (* WR_RD_RATIO = "0" *) 
+(* WR_WIDTH_LOG = "6" *) (* XPM_MODULE = "TRUE" *) (* both_stages_valid = "3" *) 
+(* invalid = "0" *) (* keep_hierarchy = "soft" *) (* stage1_valid = "2" *) 
+(* stage2_valid = "1" *) 
 module axis_data_fifo_cdc_32x64_xpm_fifo_base
    (sleep,
     rst,
@@ -3534,7 +3463,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_base
   (* WIDTH = "6" *) 
   (* XPM_CDC = "GRAY" *) 
   (* XPM_MODULE = "TRUE" *) 
-  axis_data_fifo_cdc_32x64_xpm_cdc_gray__2 \gen_cdc_pntr.wr_pntr_cdc_inst 
+  axis_data_fifo_cdc_32x64_xpm_cdc_gray__1 \gen_cdc_pntr.wr_pntr_cdc_inst 
        (.dest_clk(rd_clk),
         .dest_out_bin(wr_pntr_rd_cdc),
         .src_clk(wr_clk),
@@ -3672,7 +3601,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_base
   (* ECC_MODE = "0" *) 
   (* ECC_TYPE = "NONE" *) 
   (* IGNORE_INIT_SYNTH = "0" *) 
-  (* KEEP_HIERARCHY = "soft" *) 
+  (* KEEP_HIERARCHY = "SOFT" *) 
   (* MAX_NUM_CHAR = "0" *) 
   (* \MEM.ADDRESS_SPACE  *) 
   (* \MEM.ADDRESS_SPACE_BEGIN  = "0" *) 
@@ -3702,6 +3631,10 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_base
   (* P_MIN_WIDTH_DATA_SHFT = "44" *) 
   (* P_NUM_COLS_WRITE_A = "1" *) 
   (* P_NUM_COLS_WRITE_B = "1" *) 
+  (* P_NUM_COL_READ_A = "1" *) 
+  (* P_NUM_COL_READ_B = "1" *) 
+  (* P_NUM_COL_WRITE_A = "1" *) 
+  (* P_NUM_COL_WRITE_B = "1" *) 
   (* P_NUM_ROWS_READ_A = "1" *) 
   (* P_NUM_ROWS_READ_B = "1" *) 
   (* P_NUM_ROWS_WRITE_A = "1" *) 
@@ -3709,8 +3642,12 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_base
   (* P_SDP_WRITE_MODE = "yes" *) 
   (* P_WIDTH_ADDR_LSB_READ_A = "0" *) 
   (* P_WIDTH_ADDR_LSB_READ_B = "0" *) 
+  (* P_WIDTH_ADDR_LSB_READ_COLL_A = "1" *) 
+  (* P_WIDTH_ADDR_LSB_READ_COLL_B = "1" *) 
   (* P_WIDTH_ADDR_LSB_WRITE_A = "0" *) 
   (* P_WIDTH_ADDR_LSB_WRITE_B = "0" *) 
+  (* P_WIDTH_ADDR_LSB_WRITE_COLL_A = "1" *) 
+  (* P_WIDTH_ADDR_LSB_WRITE_COLL_B = "1" *) 
   (* P_WIDTH_ADDR_READ_A = "6" *) 
   (* P_WIDTH_ADDR_READ_B = "6" *) 
   (* P_WIDTH_ADDR_WRITE_A = "6" *) 
@@ -3841,6 +3778,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_base
         .wrst_busy(wrst_busy));
 endmodule
 
+(* ORIG_REF_NAME = "xpm_fifo_reg_bit" *) 
 module axis_data_fifo_cdc_32x64_xpm_fifo_reg_bit
    (rst_d1,
     d_out_int_reg_0,
@@ -3908,6 +3846,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_reg_bit
         .O(\gen_pf_ic_rc.gpf_ic.prog_full_i_i_2_n_0 ));
 endmodule
 
+(* ORIG_REF_NAME = "xpm_fifo_reg_vec" *) 
 module axis_data_fifo_cdc_32x64_xpm_fifo_reg_vec
    (Q,
     s_axis_tvalid,
@@ -4189,6 +4128,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_reg_vec_0
         .R(\reg_out_i_reg[0]_0 ));
 endmodule
 
+(* ORIG_REF_NAME = "xpm_fifo_rst" *) 
 module axis_data_fifo_cdc_32x64_xpm_fifo_rst
    (\gen_rst_ic.fifo_rd_rst_ic_reg_0 ,
     wrst_busy,
@@ -4458,7 +4398,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_rst
   (* VERSION = "0" *) 
   (* XPM_CDC = "SYNC_RST" *) 
   (* XPM_MODULE = "TRUE" *) 
-  axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst \gen_rst_ic.rrst_wr_inst 
+  axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__parameterized0 \gen_rst_ic.rrst_wr_inst 
        (.dest_clk(wr_clk),
         .dest_rst(\gen_rst_ic.fifo_rd_rst_wr_i ),
         .src_rst(\gen_rst_ic.fifo_rd_rst_ic_reg_0 ));
@@ -4522,7 +4462,7 @@ module axis_data_fifo_cdc_32x64_xpm_fifo_rst
   (* VERSION = "0" *) 
   (* XPM_CDC = "SYNC_RST" *) 
   (* XPM_MODULE = "TRUE" *) 
-  axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__4 \gen_rst_ic.wrst_rd_inst 
+  axis_data_fifo_cdc_32x64_xpm_cdc_sync_rst__parameterized0__1 \gen_rst_ic.wrst_rd_inst 
        (.dest_clk(rd_clk),
         .dest_rst(\gen_rst_ic.fifo_wr_rst_rd ),
         .src_rst(\gen_rst_ic.fifo_wr_rst_ic ));
@@ -4558,15 +4498,18 @@ endmodule
 (* ECC_TYPE = "NONE" *) (* IGNORE_INIT_SYNTH = "0" *) (* MAX_NUM_CHAR = "0" *) 
 (* MEMORY_INIT_FILE = "none" *) (* MEMORY_INIT_PARAM = "" *) (* MEMORY_OPTIMIZATION = "true" *) 
 (* MEMORY_PRIMITIVE = "0" *) (* MEMORY_SIZE = "2816" *) (* MEMORY_TYPE = "1" *) 
-(* MESSAGE_CONTROL = "0" *) (* NUM_CHAR_LOC = "0" *) (* P_ECC_MODE = "0" *) 
-(* P_ENABLE_BYTE_WRITE_A = "0" *) (* P_ENABLE_BYTE_WRITE_B = "0" *) (* P_MAX_DEPTH_DATA = "64" *) 
-(* P_MEMORY_OPT = "yes" *) (* P_MEMORY_PRIMITIVE = "auto" *) (* P_MIN_WIDTH_DATA = "44" *) 
-(* P_MIN_WIDTH_DATA_A = "44" *) (* P_MIN_WIDTH_DATA_B = "44" *) (* P_MIN_WIDTH_DATA_ECC = "44" *) 
-(* P_MIN_WIDTH_DATA_LDW = "4" *) (* P_MIN_WIDTH_DATA_SHFT = "44" *) (* P_NUM_COLS_WRITE_A = "1" *) 
-(* P_NUM_COLS_WRITE_B = "1" *) (* P_NUM_ROWS_READ_A = "1" *) (* P_NUM_ROWS_READ_B = "1" *) 
-(* P_NUM_ROWS_WRITE_A = "1" *) (* P_NUM_ROWS_WRITE_B = "1" *) (* P_SDP_WRITE_MODE = "yes" *) 
-(* P_WIDTH_ADDR_LSB_READ_A = "0" *) (* P_WIDTH_ADDR_LSB_READ_B = "0" *) (* P_WIDTH_ADDR_LSB_WRITE_A = "0" *) 
-(* P_WIDTH_ADDR_LSB_WRITE_B = "0" *) (* P_WIDTH_ADDR_READ_A = "6" *) (* P_WIDTH_ADDR_READ_B = "6" *) 
+(* MESSAGE_CONTROL = "0" *) (* NUM_CHAR_LOC = "0" *) (* ORIG_REF_NAME = "xpm_memory_base" *) 
+(* P_ECC_MODE = "0" *) (* P_ENABLE_BYTE_WRITE_A = "0" *) (* P_ENABLE_BYTE_WRITE_B = "0" *) 
+(* P_MAX_DEPTH_DATA = "64" *) (* P_MEMORY_OPT = "yes" *) (* P_MEMORY_PRIMITIVE = "auto" *) 
+(* P_MIN_WIDTH_DATA = "44" *) (* P_MIN_WIDTH_DATA_A = "44" *) (* P_MIN_WIDTH_DATA_B = "44" *) 
+(* P_MIN_WIDTH_DATA_ECC = "44" *) (* P_MIN_WIDTH_DATA_LDW = "4" *) (* P_MIN_WIDTH_DATA_SHFT = "44" *) 
+(* P_NUM_COLS_WRITE_A = "1" *) (* P_NUM_COLS_WRITE_B = "1" *) (* P_NUM_COL_READ_A = "1" *) 
+(* P_NUM_COL_READ_B = "1" *) (* P_NUM_COL_WRITE_A = "1" *) (* P_NUM_COL_WRITE_B = "1" *) 
+(* P_NUM_ROWS_READ_A = "1" *) (* P_NUM_ROWS_READ_B = "1" *) (* P_NUM_ROWS_WRITE_A = "1" *) 
+(* P_NUM_ROWS_WRITE_B = "1" *) (* P_SDP_WRITE_MODE = "yes" *) (* P_WIDTH_ADDR_LSB_READ_A = "0" *) 
+(* P_WIDTH_ADDR_LSB_READ_B = "0" *) (* P_WIDTH_ADDR_LSB_READ_COLL_A = "1" *) (* P_WIDTH_ADDR_LSB_READ_COLL_B = "1" *) 
+(* P_WIDTH_ADDR_LSB_WRITE_A = "0" *) (* P_WIDTH_ADDR_LSB_WRITE_B = "0" *) (* P_WIDTH_ADDR_LSB_WRITE_COLL_A = "1" *) 
+(* P_WIDTH_ADDR_LSB_WRITE_COLL_B = "1" *) (* P_WIDTH_ADDR_READ_A = "6" *) (* P_WIDTH_ADDR_READ_B = "6" *) 
 (* P_WIDTH_ADDR_WRITE_A = "6" *) (* P_WIDTH_ADDR_WRITE_B = "6" *) (* P_WIDTH_COL_WRITE_A = "44" *) 
 (* P_WIDTH_COL_WRITE_B = "44" *) (* RAM_DECOMP = "auto" *) (* READ_DATA_WIDTH_A = "44" *) 
 (* READ_DATA_WIDTH_B = "44" *) (* READ_LATENCY_A = "2" *) (* READ_LATENCY_B = "2" *) 
@@ -4713,7 +4656,8 @@ module axis_data_fifo_cdc_32x64_xpm_memory_base
   (* \MEM.PORTB.DATA_MSB  = "43" *) 
   (* METHODOLOGY_DRC_VIOS = "" *) 
   (* RTL_RAM_BITS = "2816" *) 
-  (* RTL_RAM_NAME = "inst/gen_fifo.xpm_fifo_axis_inst/xpm_fifo_base_inst/gen_sdpram.xpm_memory_base_inst/gen_wr_a.gen_word_narrow.mem_reg" *) 
+  (* RTL_RAM_NAME = "xpm_memory_base/gen_wr_a.gen_word_narrow.mem_reg" *) 
+  (* RTL_RAM_STYLE = "auto" *) 
   (* RTL_RAM_TYPE = "RAM_SDP" *) 
   (* ram_addr_begin = "0" *) 
   (* ram_addr_end = "511" *) 

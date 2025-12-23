@@ -1,8 +1,8 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-// Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+// Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
-// Tool Version: Vivado v.2023.2 (lin64) Build 4029153 Fri Oct 13 20:13:54 MDT 2023
-// Date        : Sat Dec  6 19:46:55 2025
+// Tool Version: Vivado v.2025.2 (lin64) Build 6299465 Fri Nov 14 12:34:56 MST 2025
+// Date        : Tue Dec 23 11:21:40 2025
 // Host        : nanaka.davenet.rocks running 64-bit Debian GNU/Linux forky/sid
 // Command     : write_verilog -force -mode funcsim
 //               /home/david/gits/adventofcode/2025/vivado/aoc-2025.runs/axis_dwidth_converter_8_32_synth_1/axis_dwidth_converter_8_32_sim_netlist.v
@@ -13,7 +13,7 @@
 // --------------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
-(* CHECK_LICENSE_TYPE = "axis_dwidth_converter_8_32,axis_dwidth_converter_v1_1_28_axis_dwidth_converter,{}" *) (* DowngradeIPIdentifiedWarnings = "yes" *) (* X_CORE_INFO = "axis_dwidth_converter_v1_1_28_axis_dwidth_converter,Vivado 2023.2" *) 
+(* CHECK_LICENSE_TYPE = "axis_dwidth_converter_8_32,axis_dwidth_converter_v1_1_34_axis_dwidth_converter,{}" *) (* DowngradeIPIdentifiedWarnings = "yes" *) (* X_CORE_INFO = "axis_dwidth_converter_v1_1_34_axis_dwidth_converter,Vivado 2025.2" *) 
 (* NotValidForBitStream *)
 module axis_dwidth_converter_8_32
    (aclk,
@@ -24,14 +24,14 @@ module axis_dwidth_converter_8_32
     m_axis_tvalid,
     m_axis_tready,
     m_axis_tdata);
-  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLKIF CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLKIF, FREQ_HZ 10000000, FREQ_TOLERANCE_HZ 0, PHASE 0.0, INSERT_VIP 0" *) input aclk;
-  (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RSTIF RST" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RSTIF, POLARITY ACTIVE_LOW, INSERT_VIP 0" *) input aresetn;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TVALID" *) input s_axis_tvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLKIF CLK" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLKIF, ASSOCIATED_BUSIF S_AXIS:M_AXIS, ASSOCIATED_RESET aresetn, ASSOCIATED_CLKEN aclken, FREQ_HZ 10000000, FREQ_TOLERANCE_HZ 0, PHASE 0.0, INSERT_VIP 0" *) input aclk;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RSTIF RST" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RSTIF, POLARITY ACTIVE_LOW, INSERT_VIP 0" *) input aresetn;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TVALID" *) (* X_INTERFACE_MODE = "slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXIS, TDATA_NUM_BYTES 1, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) input s_axis_tvalid;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TREADY" *) output s_axis_tready;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TDATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXIS, TDATA_NUM_BYTES 1, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) input [7:0]s_axis_tdata;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TVALID" *) output m_axis_tvalid;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS TDATA" *) input [7:0]s_axis_tdata;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TVALID" *) (* X_INTERFACE_MODE = "master" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXIS, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) output m_axis_tvalid;
   (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TREADY" *) input m_axis_tready;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TDATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXIS, TDATA_NUM_BYTES 4, TDEST_WIDTH 0, TID_WIDTH 0, TUSER_WIDTH 0, HAS_TREADY 1, HAS_TSTRB 0, HAS_TKEEP 0, HAS_TLAST 0, FREQ_HZ 100000000, PHASE 0.0, LAYERED_METADATA undef, INSERT_VIP 0" *) output [31:0]m_axis_tdata;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TDATA" *) output [31:0]m_axis_tdata;
 
   wire aclk;
   wire aresetn;
@@ -86,7 +86,7 @@ module axis_dwidth_converter_8_32
   (* P_M_RATIO = "1" *) 
   (* P_SS_TKEEP_REQUIRED = "0" *) 
   (* P_S_RATIO = "4" *) 
-  axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axis_dwidth_converter inst
+  axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_34_axis_dwidth_converter inst
        (.aclk(aclk),
         .aclken(1'b1),
         .aresetn(aresetn),
@@ -119,11 +119,11 @@ endmodule
 (* G_MASK_SS_TDEST = "64" *) (* G_MASK_SS_TID = "32" *) (* G_MASK_SS_TKEEP = "8" *) 
 (* G_MASK_SS_TLAST = "16" *) (* G_MASK_SS_TREADY = "1" *) (* G_MASK_SS_TSTRB = "4" *) 
 (* G_MASK_SS_TUSER = "128" *) (* G_TASK_SEVERITY_ERR = "2" *) (* G_TASK_SEVERITY_INFO = "0" *) 
-(* G_TASK_SEVERITY_WARNING = "1" *) (* ORIG_REF_NAME = "axis_dwidth_converter_v1_1_28_axis_dwidth_converter" *) (* P_AXIS_SIGNAL_SET = "32'b00000000000000000000000000000011" *) 
+(* G_TASK_SEVERITY_WARNING = "1" *) (* ORIG_REF_NAME = "axis_dwidth_converter_v1_1_34_axis_dwidth_converter" *) (* P_AXIS_SIGNAL_SET = "32'b00000000000000000000000000000011" *) 
 (* P_D1_REG_CONFIG = "0" *) (* P_D1_TUSER_WIDTH = "1" *) (* P_D2_TDATA_WIDTH = "32" *) 
 (* P_D2_TUSER_WIDTH = "4" *) (* P_D3_REG_CONFIG = "0" *) (* P_D3_TUSER_WIDTH = "4" *) 
 (* P_M_RATIO = "1" *) (* P_SS_TKEEP_REQUIRED = "0" *) (* P_S_RATIO = "4" *) 
-module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axis_dwidth_converter
+module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_34_axis_dwidth_converter
    (aclk,
     aresetn,
     aclken,
@@ -206,7 +206,7 @@ module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axis_dwidth_conv
         .D(p_0_in),
         .Q(areset_r),
         .R(1'b0));
-  axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axisc_upsizer \gen_upsizer_conversion.axisc_upsizer_0 
+  axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_34_axisc_upsizer \gen_upsizer_conversion.axisc_upsizer_0 
        (.aclk(aclk),
         .areset_r(areset_r),
         .m_axis_tdata(m_axis_tdata),
@@ -217,8 +217,8 @@ module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axis_dwidth_conv
         .\state_reg[1]_0 (m_axis_tvalid));
 endmodule
 
-(* ORIG_REF_NAME = "axis_dwidth_converter_v1_1_28_axisc_upsizer" *) 
-module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axisc_upsizer
+(* ORIG_REF_NAME = "axis_dwidth_converter_v1_1_34_axisc_upsizer" *) 
+module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_34_axisc_upsizer
    (\state_reg[0]_0 ,
     \state_reg[1]_0 ,
     m_axis_tdata,
@@ -493,49 +493,49 @@ module axis_dwidth_converter_8_32_axis_dwidth_converter_v1_1_28_axisc_upsizer
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[0]),
         .Q(r0_data[0]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[1] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[1]),
         .Q(r0_data[1]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[2] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[2]),
         .Q(r0_data[2]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[3] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[3]),
         .Q(r0_data[3]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[4] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[4]),
         .Q(r0_data[4]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[5] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[5]),
         .Q(r0_data[5]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[6] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[6]),
         .Q(r0_data[6]),
-        .R(1'b0));
+        .R(areset_r));
   FDRE \r0_data_reg[7] 
        (.C(aclk),
         .CE(\state_reg[0]_0 ),
         .D(s_axis_tdata[7]),
         .Q(r0_data[7]),
-        .R(1'b0));
+        .R(areset_r));
   LUT6 #(
     .INIT(64'hFFFFFFF0FF70FF70)) 
     \r0_reg_sel[0]_i_1 

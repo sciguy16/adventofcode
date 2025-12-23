@@ -1,10 +1,10 @@
-// (c) Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-// (c) Copyright 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
-// 
+// Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+// Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+// -------------------------------------------------------------------------------
 // This file contains confidential and proprietary information
 // of AMD and is protected under U.S. and international copyright
 // and other intellectual property laws.
-// 
+//
 // DISCLAIMER
 // This disclaimer is not a license and does not grant any
 // rights to the materials distributed herewith. Except as
@@ -26,7 +26,7 @@
 // by a third party) even if such damage or loss was
 // reasonably foreseeable or AMD had been advised of the
 // possibility of the same.
-// 
+//
 // CRITICAL APPLICATIONS
 // AMD products are not designed or intended to be fail-
 // safe, or for use in any application requiring fail-safe
@@ -40,47 +40,58 @@
 // liability of any use of AMD products in Critical
 // Applications, subject only to applicable laws and
 // regulations governing limitations on product liability.
-// 
+//
 // THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 // PART OF THIS FILE AT ALL TIMES.
-// 
+//
 // DO NOT MODIFY THIS FILE.
 
-// IP VLNV: xilinx.com:ip:axi_uartlite:2.0
-// IP Revision: 39
+// MODULE VLNV: xilinx.com:ip:axi_uartlite:2.0
 
-// The following must be inserted into your Verilog file for this
-// core to be instantiated. Change the instance name and port connections
-// (in parentheses) to your own signal names.
+`timescale 1ps / 1ps
 
-//----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-axi_uartlite_0 your_instance_name (
-  .s_axi_aclk(s_axi_aclk),        // input wire s_axi_aclk
-  .s_axi_aresetn(s_axi_aresetn),  // input wire s_axi_aresetn
-  .interrupt(interrupt),          // output wire interrupt
-  .s_axi_awaddr(s_axi_awaddr),    // input wire [3 : 0] s_axi_awaddr
-  .s_axi_awvalid(s_axi_awvalid),  // input wire s_axi_awvalid
-  .s_axi_awready(s_axi_awready),  // output wire s_axi_awready
-  .s_axi_wdata(s_axi_wdata),      // input wire [31 : 0] s_axi_wdata
-  .s_axi_wstrb(s_axi_wstrb),      // input wire [3 : 0] s_axi_wstrb
-  .s_axi_wvalid(s_axi_wvalid),    // input wire s_axi_wvalid
-  .s_axi_wready(s_axi_wready),    // output wire s_axi_wready
-  .s_axi_bresp(s_axi_bresp),      // output wire [1 : 0] s_axi_bresp
-  .s_axi_bvalid(s_axi_bvalid),    // output wire s_axi_bvalid
-  .s_axi_bready(s_axi_bready),    // input wire s_axi_bready
-  .s_axi_araddr(s_axi_araddr),    // input wire [3 : 0] s_axi_araddr
-  .s_axi_arvalid(s_axi_arvalid),  // input wire s_axi_arvalid
-  .s_axi_arready(s_axi_arready),  // output wire s_axi_arready
-  .s_axi_rdata(s_axi_rdata),      // output wire [31 : 0] s_axi_rdata
-  .s_axi_rresp(s_axi_rresp),      // output wire [1 : 0] s_axi_rresp
-  .s_axi_rvalid(s_axi_rvalid),    // output wire s_axi_rvalid
-  .s_axi_rready(s_axi_rready),    // input wire s_axi_rready
-  .rx(rx),                        // input wire rx
-  .tx(tx)                        // output wire tx
+`include "vivado_interfaces.svh"
+
+module axi_uartlite_0_sv (
+  (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI" *)
+  (* X_INTERFACE_MODE = "slave S_AXI" *)
+  (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, DATA_WIDTH 32, PROTOCOL AXI4LITE, FREQ_HZ 100000000, ID_WIDTH 0, ADDR_WIDTH 4, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, READ_WRITE_MODE READ_WRITE, HAS_BURST 0, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, HAS_WSTRB 1, HAS_BRESP 1, HAS_RRESP 1, SUPPORTS_NARROW_BURST 0, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1, MAX_BURST_LENGTH 1, PHASE 0.0, NUM_READ_THREADS 1, NUM_WRITE_THREADS 1, RUSER_BITS_PER_BYTE 0, WUSER_BITS_PER_BYTE 0, INSERT_VIP 0" *)
+  vivado_axi4_lite_v1_0.slave S_AXI,
+  (* X_INTERFACE_IGNORE = "true" *)
+  input wire s_axi_aclk,
+  (* X_INTERFACE_IGNORE = "true" *)
+  input wire s_axi_aresetn,
+  (* X_INTERFACE_IGNORE = "true" *)
+  output wire interrupt,
+  (* X_INTERFACE_IGNORE = "true" *)
+  input wire rx,
+  (* X_INTERFACE_IGNORE = "true" *)
+  output wire tx
 );
-// INST_TAG_END ------ End INSTANTIATION Template ---------
 
-// You must compile the wrapper file axi_uartlite_0.v when simulating
-// the core, axi_uartlite_0. When compiling the wrapper file, be sure to
-// reference the Verilog simulation library.
+  axi_uartlite_0 inst (
+    .s_axi_aclk(s_axi_aclk),
+    .s_axi_aresetn(s_axi_aresetn),
+    .interrupt(interrupt),
+    .s_axi_awaddr(S_AXI.AWADDR),
+    .s_axi_awvalid(S_AXI.AWVALID),
+    .s_axi_awready(S_AXI.AWREADY),
+    .s_axi_wdata(S_AXI.WDATA),
+    .s_axi_wstrb(S_AXI.WSTRB),
+    .s_axi_wvalid(S_AXI.WVALID),
+    .s_axi_wready(S_AXI.WREADY),
+    .s_axi_bresp(S_AXI.BRESP),
+    .s_axi_bvalid(S_AXI.BVALID),
+    .s_axi_bready(S_AXI.BREADY),
+    .s_axi_araddr(S_AXI.ARADDR),
+    .s_axi_arvalid(S_AXI.ARVALID),
+    .s_axi_arready(S_AXI.ARREADY),
+    .s_axi_rdata(S_AXI.RDATA),
+    .s_axi_rresp(S_AXI.RRESP),
+    .s_axi_rvalid(S_AXI.RVALID),
+    .s_axi_rready(S_AXI.RREADY),
+    .rx(rx),
+    .tx(tx)
+  );
 
+endmodule

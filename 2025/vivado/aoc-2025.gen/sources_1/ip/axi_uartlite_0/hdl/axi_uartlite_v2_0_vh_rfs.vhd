@@ -1,4 +1,4 @@
--- (c) Copyright 2007-2010, 2023 Advanced Micro Devices, Inc. All rights reserved.
+-- (c) Copyright 2025 Advanced Micro Devices, Inc. All rights reserved.
 --
 -- This file contains confidential and proprietary information
 -- of AMD and is protected under U.S. and international copyright
@@ -43,207 +43,124 @@
 -- THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 -- PART OF THIS FILE AT ALL TIMES.
 ------------------------------------------------------------
---
--------------------------------------------------------------------------------
--- Filename:      dynshreg_i_f.vhd
---
--- Description:   This module implements a dynamic shift register with clock
---                enable. (Think, for example, of the function of the SRL16E.)
---                The width and depth of the shift register are selectable
---                via generics C_WIDTH and C_DEPTH, respectively. The C_FAMILY
---                allows the implementation to be tailored to the target
---                FPGA family. An inferred implementation is used if C_FAMILY
---                is "nofamily" (the default) or if synthesis will not produce
---                an optimal implementation.  Otherwise, a structural
---                implementation will be generated.
---
---                There is no restriction on the values of C_WIDTH and
---                C_DEPTH and, in particular, the C_DEPTH does not have
---                to be a power of two.
---
---                This version allows the client to specify the initial value
---                of the contents of the shift register, as applied
---                during configuration.
---
---
--- VHDL-Standard:   VHDL'93
--------------------------------------------------------------------------------
--- Naming Conventions:
---      active low signals:                     "*_n"
---      clock signals:                          "clk", "clk_div#", "clk_#x" 
---      reset signals:                          "rst", "rst_n" 
---      generics:                               "C_*" 
---      user defined types:                     "*_TYPE" 
---      state machine next state:               "*_ns" 
---      state machine current state:            "*_cs" 
---      combinatorial signals:                  "*_com" 
---      pipelined or register delay signals:    "*_d#" 
---      counter signals:                        "*cnt*"
---      clock enable signals:                   "*_ce" 
---      internal version of output port         "*_i"
---      device pins:                            "*_pin" 
---      ports:                                  - Names begin with Uppercase 
---      processes:                              "*_PROCESS" 
---      component instantiations:               "<ENTITY_>I_<#|FUNC>
--------------------------------------------------------------------------------
---      predecessor value by # clks:            "*_p#"
-
----(
 library ieee;
-use     ieee.std_logic_1164.all;
-use     ieee.numeric_std.UNSIGNED;
-use     ieee.numeric_std.TO_INTEGER;
---
-library lib_pkg_v1_0_3;
-    use lib_pkg_v1_0_3.all;
-    use lib_pkg_v1_0_3.lib_pkg.clog2;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-
---------------------------------------------------------------------------------
--- Explanations of generics and ports regarding aspects that may not be obvious.
---
--- C_DWIDTH
-   --------
--- Theoretically, C_DWIDTH may be set to zero and this could be a more
--- natural or preferrable way of excluding a dynamic shift register
--- in a client than using a VHDL Generate statement. However, this usage is not
--- tested, and the user should expect that some VHDL tools will be deficient
--- with respect to handling this properly.
---
--- C_INIT_VALUE
-   ---------------
--- C_INIT_VALUE can be used to specify the initial values of the elements
--- in the dynamic shift register, i.e. the values to be present after config-
--- uration. C_INIT_VALUE need not be the same size as the dynamic shift
--- register, i.e. C_DWIDTH*C_DEPTH. When smaller, C_INIT_VALUE
--- is replicated as many times as needed (possibly fractionally the last time)
--- to form a full initial value that is the size of the shift register.
--- So, if C_INIT_VALUE is left at its default value--an array of size one
--- whose value is '0'--the shift register will initialize with all bits at
--- all addresses set to '0'. This will also be the case if C_INIT_VALUE is a
--- null (size zero) array.
--- When determined according to the rules outlined above, the full
--- initial value is a std_logic_vector value from (0 to C_DWIDTH*C_DEPTH-1). It
--- is allocated to the addresses of the dynamic shift register in this
--- manner: The first C_DWIDTH values (i.e. 0 to C_CWIDTH-1) assigned to
--- the corresponding indices at address 0, the second C_DWIDTH values
--- assigned to address 1, and so forth.
--- Please note that the shift register is not resettable after configuration.
---
--- Addr
-   ----
--- Addr addresses the elements of the dynamic shift register. Addr=0 causes
--- the most recently shifted-in element to appear at Dout, Addr=1
--- the second most recently shifted in element, etc. If C_DEPTH is not
--- a power of two, then not all of the values of Addr correspond to an
--- element in the shift register. When such an address is applied, the value
--- of Dout is undefined until a valid address is established.
---------------------------------------------------------------------------------
-entity dynshreg_i_f is
+entity srl_fifo is
   generic (
-    C_DEPTH  : positive := 32;
-    C_DWIDTH : natural := 1;
-    C_INIT_VALUE : bit_vector := "0";
-    C_FAMILY : string := "nofamily"
-  );
+    C_DWIDTH : natural;
+    C_DEPTH  : positive
+    );
   port (
-    Clk   : in  std_logic;
-    Clken : in  std_logic;
-    Addr  : in  std_logic_vector(0 to clog2(C_DEPTH)-1);
-    Din   : in  std_logic_vector(0 to C_DWIDTH-1);
-    Dout  : out std_logic_vector(0 to C_DWIDTH-1)
-  );
-end dynshreg_i_f;
+    Clk           : in  std_logic;
+    Reset         : in  std_logic;
+    FIFO_Write    : in  std_logic;
+    Data_In       : in  std_logic_vector(0 to C_DWIDTH-1);
+    FIFO_Read     : in  std_logic;
+    Data_Out      : out std_logic_vector(0 to C_DWIDTH-1);
+    FIFO_Empty    : out std_logic;
+    FIFO_Full     : out std_logic
+    );
 
+end entity srl_fifo;
 
-architecture behavioral of dynshreg_i_f is
+architecture imp of srl_fifo is
 
-  constant USE_INFERRED     : boolean := true;
-    type     bv2sl_type is array(bit) of std_logic;
-  constant bv2sl      : bv2sl_type := ('0' => '0', '1' => '1');
-  function min(a, b: natural) return natural is
+  attribute DowngradeIPIdentifiedWarnings: string;
+  attribute DowngradeIPIdentifiedWarnings of imp : architecture is "yes";
+
+  -- Function clog2 - returns the integer ceiling of the base 2 logarithm of x
+  function clog2(x : positive) return natural is
+    variable r  : natural := 0;
+    variable rp : natural := 1; -- rp tracks the value 2**r
+  begin 
+    while rp < x loop -- Termination condition T: x <= 2**r
+      -- Loop invariant L: 2**(r-1) < x
+      r := r + 1;
+      if rp > integer'high - rp then exit; end if;  -- If doubling rp overflows
+        -- the integer range, the doubled value would exceed x, so safe to exit.
+      rp := rp + rp;
+    end loop;
+    -- L and T  <->  2**(r-1) < x <= 2**r  <->  (r-1) < log2(x) <= r
+    return r; --
+  end clog2;
+
+  function bitwise_or(s: std_logic_vector) return std_logic is
+    variable v: std_logic := '0';
   begin
-      if a<b then return a; else return b; end if;
-  end min;
+    for i in s'range loop v := v or s(i); end loop;
+    return v;
+  end bitwise_or;
 
-  --
-  ------------------------------------------------------------------------------
-  -- Function used to establish the full initial value. (See the comments for
-  -- C_INIT_VALUE, above.)
-  ------------------------------------------------------------------------------
-  function full_initial_value(w : natural; d : positive; v : bit_vector
-                             ) return bit_vector is
-    variable r : bit_vector(0 to w*d-1);
-    variable i, j : natural;
-             -- i - the index where filling of r continues
-             -- j - the amount to fill on the cur. iteration of the while loop
-  begin
-    if w = 0 then null;  -- Handle the case where the shift reg width is zero
-    elsif v'length = 0 then r := (others => '0');
-    else
-      i := 0;
-      while i /= r'length loop
-          j := min(v'length, r'length-i);
-          r(i to i+j-1) := v(0 to j-1);
-          i := i+j;
-      end loop;
-    end if;
-    return r;
-  end full_initial_value;
+  constant ADDR_BITS : integer := clog2(C_DEPTH);
 
-  constant FULL_INIT_VAL : bit_vector(0 to C_DWIDTH*C_DEPTH -1)
-                         := full_initial_value(C_DWIDTH, C_DEPTH, C_INIT_VALUE);
+  type shregType is array (0 to C_DEPTH-1) of std_logic_vector(0 to C_DWIDTH-1);
+  signal data: shregType;
 
-  -- As of I.32, XST is not infering optimal dynamic shift registers for
-  -- depths not a power of two (by not taking advantage of don't care
-  -- at output when address not within the range of the depth)
-  -- or a power of two less than the native SRL depth (by building shift
-  -- register out of discrete FFs and LUTs instead of SRLs).
-
- ---------------------------------------------------------------------------- 
- -- Unisim components declared locally for maximum avoidance of default
- -- binding and vcomponents version issues.
- ---------------------------------------------------------------------------- 
-
+  -- An extra bit will be carried as the empty flag.
+  signal addr_i                 : std_logic_vector(ADDR_BITS downto 0);  
+  signal addr_i_p1              : std_logic_vector(ADDR_BITS downto 0);
+  signal fifo_full_p1           : std_logic;
 
 begin
 
-  INFERRED_GEN : if USE_INFERRED = true generate
-    --
-    type dataType is array (0 to C_DEPTH-1) of std_logic_vector(0 to C_DWIDTH-1);
-    --
-    function fill_data(w: natural; d: positive; v: bit_vector
-                      ) return dataType is
-        variable r : dataType;
-    begin
-        for i in 0 to d-1 loop
-           for j in 0 to w-1 loop
-               r(i)(j) := bv2sl(v(i*w+j)); 
-           end loop;
-        end loop;
-        return r;
-    end fill_data;
-
-    signal data: dataType := fill_data(C_DWIDTH, C_DEPTH, FULL_INIT_VAL);
-    --
+  -- The address counter
+  CNT_I_P1_PROC : process(addr_i, FIFO_Read, FIFO_Write) is
   begin
-    process(Clk)
-    begin
-      if Clk'event and Clk = '1' then
-        if Clken = '1' then
-          data <= Din & data(0 to C_DEPTH-2);
-        end if;
+    if (FIFO_Read = '1' and FIFO_Write = '0') then
+      addr_i_p1 <= std_logic_vector(unsigned(addr_i) - 1);
+    elsif (FIFO_Read = '0' and FIFO_Write = '1') then
+      addr_i_p1 <= std_logic_vector(unsigned(addr_i) + 1);
+    else
+      addr_i_p1 <= addr_i;
+    end if;
+  end process;
+
+  CNT_I_PROC : process(Clk) is
+  begin
+    if Clk'event and Clk = '1' then
+      if Reset = '1' then
+        addr_i <= (others => '1');  -- Note: the counter resets to all ones
+      else
+        addr_i <= addr_i_p1;
       end if;
-    end process;
+    end if;
+  end process;
 
-    Dout <= data(TO_INTEGER(UNSIGNED(Addr)))
-                when (TO_INTEGER(UNSIGNED(Addr)) < C_DEPTH)
-                else
-            (others => '-');
-  end generate INFERRED_GEN;
-  ---)
+  -- The dynamic shift register that holds the FIFO elements
+  process(Clk)
+  begin
+    if Clk'event and Clk = '1' then
+      if FIFO_Write = '1' then
+        data <= Data_In & data(0 to C_DEPTH-2);
+      end if;
+    end if;
+  end process;
 
-end behavioral;
+  Data_Out <= data(TO_INTEGER(UNSIGNED(addr_i(ADDR_BITS-1 downto 0))))
+              when (TO_INTEGER(UNSIGNED(addr_i(ADDR_BITS-1 downto 0))) < C_DEPTH)
+              else (others => '-');
+
+  -- Full flag
+  fifo_full_p1 <= '1' when (addr_i_p1 = std_logic_vector(TO_UNSIGNED(C_DEPTH-1, ADDR_BITS+1)))
+                      else '0';
+
+  FULL_PROCESS: process (Clk)
+  begin
+    if Clk'event and Clk='1' then
+      if Reset='1' then
+        FIFO_Full <= '0';
+      else
+        FIFO_Full <= fifo_full_p1;
+      end if;
+    end if;
+  end process;
+
+  -- Empty flag
+  FIFO_Empty <= addr_i(ADDR_BITS);
+
+end architecture imp;
 
 
 -- (c) Copyright 2007, 2011, 2023 Advanced Micro Devices, Inc. All rights reserved.
@@ -324,13 +241,9 @@ use IEEE.numeric_std.UNSIGNED;
 use IEEE.numeric_std.to_unsigned;
 use IEEE.numeric_std."-";
 
-library lib_srl_fifo_v1_0_3;
--- dynshreg_i_f refered from proc_common_v4_00_a
-library axi_uartlite_v2_0_33;
--- uartlite_core refered from axi_uartlite_v2_0_33
-use axi_uartlite_v2_0_33.all;
--- srl_fifo_f refered from proc_common_v4_00_a
-use lib_srl_fifo_v1_0_3.srl_fifo_f;
+library axi_uartlite_v2_0_39;
+-- uartlite_core refered from axi_uartlite_v2_0_39
+use axi_uartlite_v2_0_39.all;
 
 -------------------------------------------------------------------------------
 -- Port Declaration
@@ -443,25 +356,6 @@ begin  -- architecture IMP
     --                        gets shifted for 16 times(as Addr = 15) when 
     --                        EN_16x_Baud is high.
     ---------------------------------------------------------------------------
---    MID_START_BIT_SRL16_I : entity axi_uartlite_v2_0_33.dynshreg_i_f
---      generic map
---       (
---        C_DEPTH      => 16,
---        C_DWIDTH     => 1,
---        C_INIT_VALUE => X"8000",
---        C_FAMILY     => C_FAMILY
---       )
---      port map
---       (
---        Clk      => Clk,
---        Clken    => EN_16x_Baud,
---        Addr     => "1111",
---        Din(0)   => div16,
---        Dout(0)  => div16
---       );
-
--- replacing SRL with Flops
-
     SHIFTER: Process (Clk) is
     begin
         if (Clk'event and Clk = '1') then -- rising clock edge
@@ -723,12 +617,11 @@ begin  -- architecture IMP
     --------------------------------------------------------------------------
     -- SRL_FIFO_I : Transmit FIFO Interface
     --------------------------------------------------------------------------
-    SRL_FIFO_I : entity lib_srl_fifo_v1_0_3.srl_fifo_f
+    SRL_FIFO_I : entity axi_uartlite_v2_0_39.srl_fifo
       generic map 
        (
         C_DWIDTH   => C_DATA_BITS,
-        C_DEPTH    => 16,
-        C_FAMILY   => C_FAMILY
+        C_DEPTH    => 16
        )
       port map
        (
@@ -824,17 +717,12 @@ end architecture RTL;
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-library lib_srl_fifo_v1_0_3;
-library lib_cdc_v1_0_2;
-use lib_cdc_v1_0_2.cdc_sync;
+library xpm;
+use xpm.vcomponents.all;
 
--- dynshreg_i_f refered from proc_common_v4_0
--- srl_fifo_f refered from proc_common_v4_0
-use lib_srl_fifo_v1_0_3.srl_fifo_f;
-
-library axi_uartlite_v2_0_33;
--- uartlite_core refered from axi_uartlite_v2_0_33
-use axi_uartlite_v2_0_33.all;
+library axi_uartlite_v2_0_39;
+-- uartlite_core refered from axi_uartlite_v2_0_39
+use axi_uartlite_v2_0_39.all;
 
 -------------------------------------------------------------------------------
 -- Port Declaration
@@ -963,25 +851,19 @@ begin  -- architecture RTL
     ---------------------------------------------------------------------------
     -- RX_SAMPLING : Double sample RX to avoid meta-stability
     ---------------------------------------------------------------------------
-INPUT_DOUBLE_REGS3 : entity lib_cdc_v1_0_2.cdc_sync
-    generic map (
-        C_CDC_TYPE                 => 1,
-        C_RESET_STATE              => 0,
-        C_SINGLE_BIT               => 1,
-        C_VECTOR_WIDTH             => 32,
-        C_MTBF_STAGES              => 4
-    )
-    port map (
-        prmry_aclk                 => '0',
-        prmry_resetn               => '0',
-        prmry_in                   => RX,
-        prmry_vect_in              => (others => '0'),
-
-        scndry_aclk                => Clk,
-        scndry_resetn              => '0',
-        scndry_out                 => RX_D2,
-        scndry_vect_out            => open
-    );
+INPUT_DOUBLE_REGS3 : xpm_cdc_single
+generic map (
+  DEST_SYNC_FF   => 4,
+  SRC_INPUT_REG  => 0,
+  INIT_SYNC_FF   => 0,
+  SIM_ASSERT_CHK => 0
+  )
+port map (
+  src_clk  => '0',
+  src_in   => RX,
+  dest_clk => Clk,
+  dest_out => RX_D2
+  );
 
 
 --    RX_SAMPLING: process (Clk) is
@@ -1125,25 +1007,7 @@ INPUT_DOUBLE_REGS3 : entity lib_cdc_v1_0_2.cdc_sync
     -- Starting with the first start_Edge_Detected_Bit and for every new 
     -- sample_points until stop_Bit_Position is reached
     -------------------------------------------------------------------------
---    DELAY_16_I : entity axi_uartlite_v2_0_33.dynshreg_i_f
---      generic map 
---       (
---        C_DEPTH  => 16,
---        C_DWIDTH => 1,
---        C_FAMILY => C_FAMILY
---       )
---      port map
---       (
---        Clk      => Clk,
---        Clken    => EN_16x_Baud,
---        Addr     => "1111",
---        Din(0)   => recycle,
---        Dout(0)  => sample_Point
---       );
-
--- replacing with flops
-
-  SHIFTER: Process (Clk) is
+    SHIFTER: Process (Clk) is
     begin
         if (Clk'event and Clk = '1') then -- rising clock edge
              if Reset = '1' then          -- synchronous reset (active high)
@@ -1276,12 +1140,11 @@ INPUT_DOUBLE_REGS3 : entity lib_cdc_v1_0_2.cdc_sync
     ---------------------------------------------------------------------------
     -- SRL_FIFO_I : Receive FIFO Interface
     ---------------------------------------------------------------------------
-    SRL_FIFO_I : entity lib_srl_fifo_v1_0_3.srl_fifo_f
+    SRL_FIFO_I : entity axi_uartlite_v2_0_39.srl_fifo
       generic map
        (
         C_DWIDTH   => C_DATA_BITS,
-        C_DEPTH    => 16,
-        C_FAMILY   => C_FAMILY
+        C_DEPTH    => 16
        )
       port map
        (
@@ -1292,8 +1155,7 @@ INPUT_DOUBLE_REGS3 : entity lib_cdc_v1_0_2.cdc_sync
         FIFO_Read  => fifo_rd,
         Data_Out   => RX_Data,
         FIFO_Full  => RX_Buffer_Full_I,
-        FIFO_Empty => rx_Data_Empty,
-        Addr       => open
+        FIFO_Empty => rx_Data_Empty
        );
 
     RX_Data_Present  <= not rx_Data_Empty;
@@ -1534,13 +1396,13 @@ end architecture RTL;
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-library axi_uartlite_v2_0_33;
--- baudrate refered from axi_uartlite_v2_0_33
-use axi_uartlite_v2_0_33.baudrate;
--- uartlite_rx refered from axi_uartlite_v2_0_33
-use axi_uartlite_v2_0_33.uartlite_rx;
--- uartlite_tx refered from axi_uartlite_v2_0_33
-use axi_uartlite_v2_0_33.uartlite_tx;
+library axi_uartlite_v2_0_39;
+-- baudrate refered from axi_uartlite_v2_0_39
+use axi_uartlite_v2_0_39.baudrate;
+-- uartlite_rx refered from axi_uartlite_v2_0_39
+use axi_uartlite_v2_0_39.uartlite_rx;
+-- uartlite_tx refered from axi_uartlite_v2_0_39
+use axi_uartlite_v2_0_39.uartlite_tx;
 
 -------------------------------------------------------------------------------
 -- Port Declaration
@@ -1704,7 +1566,7 @@ begin  -- architecture IMP
     -------------------------------------------------------------------------
     -- BAUD_RATE_I : Instansiating the baudrate module
     -------------------------------------------------------------------------
-    BAUD_RATE_I : entity axi_uartlite_v2_0_33.baudrate
+    BAUD_RATE_I : entity axi_uartlite_v2_0_39.baudrate
         generic map
          (
           C_RATIO      => RATIO
@@ -1892,7 +1754,7 @@ begin  -- architecture IMP
     -------------------------------------------------------------------------
     -- UARTLITE_RX_I : Instansiating the receive module
     -------------------------------------------------------------------------
-    UARTLITE_RX_I : entity axi_uartlite_v2_0_33.uartlite_rx
+    UARTLITE_RX_I : entity axi_uartlite_v2_0_39.uartlite_rx
       generic map
        (
         C_FAMILY         => C_FAMILY,
@@ -1919,7 +1781,7 @@ begin  -- architecture IMP
     -------------------------------------------------------------------------
     -- UARTLITE_TX_I : Instansiating the transmit module
     -------------------------------------------------------------------------
-    UARTLITE_TX_I : entity axi_uartlite_v2_0_33.uartlite_tx
+    UARTLITE_TX_I : entity axi_uartlite_v2_0_39.uartlite_tx
       generic map
        (
         C_FAMILY        => C_FAMILY,
@@ -2029,9 +1891,9 @@ use axi_lite_ipif_v3_0_4.ipif_pkg.calc_num_ce;
 -- axi_lite_ipif refered from axi_lite_ipif_v2_0
     use axi_lite_ipif_v3_0_4.axi_lite_ipif;
 
-library axi_uartlite_v2_0_33;
--- uartlite_core refered from axi_uartlite_v2_0_33
-use axi_uartlite_v2_0_33.uartlite_core;
+library axi_uartlite_v2_0_39;
+-- uartlite_core refered from axi_uartlite_v2_0_39
+use axi_uartlite_v2_0_39.uartlite_core;
 
 -------------------------------------------------------------------------------
 -- Port Declaration
@@ -2217,7 +2079,7 @@ begin  -- architecture IMP
     --------------------------------------------------------------------------
     -- Instansiating the UART core
     --------------------------------------------------------------------------
-    UARTLITE_CORE_I : entity axi_uartlite_v2_0_33.uartlite_core
+    UARTLITE_CORE_I : entity axi_uartlite_v2_0_39.uartlite_core
       generic map
        (
         C_FAMILY             => C_FAMILY,

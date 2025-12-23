@@ -46,7 +46,7 @@
 -- 
 -- DO NOT MODIFY THIS FILE.
 -- IP VLNV: xilinx.com:ip:axi_uartlite:2.0
--- IP Revision: 33
+-- IP Revision: 39
 
 -- The following code must appear in the VHDL architecture header.
 
