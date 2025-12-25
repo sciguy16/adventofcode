@@ -96,7 +96,7 @@ fn do_run(port: &str) -> Result<()> {
         response,
         WriteRamAck {
             offset: 0x0000_0000,
-            ok: 0x0001,
+            ok: 0x0100_0000,
         }
         .into()
     );
@@ -114,6 +114,7 @@ fn do_run(port: &str) -> Result<()> {
         response,
         ReadRamAck {
             offset: 0x0000_0000,
+            ok: 0x0100_0000,
             data: [0xaa; 128],
         }
         .into()

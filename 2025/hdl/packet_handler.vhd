@@ -103,7 +103,7 @@ begin
         v_packet_len := x"0008";
       when C_DESTINATION_top_TYPE_read_ram =>
         v_header_typ := C_DESTINATION_top_TYPE_read_ram_ack;
-        v_packet_len := x"0084";
+        v_packet_len := x"0088";
       when others =>
         v_header_typ := x"00";
         v_packet_len := x"0004";

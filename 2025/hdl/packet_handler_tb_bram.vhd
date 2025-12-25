@@ -195,7 +195,7 @@ begin
       wait until rising_edge(clk) and axi_str_txd_tvalid = '1' for c_TIMEOUT;
       wait until falling_edge(clk);
       assert axi_str_txd_tvalid = '1' report "READ ACK header valid";
-      assert axi_str_txd_tdata = x"00050084" report "READ ACK header data";
+      assert axi_str_txd_tdata = x"00050088" report "READ ACK header data";
       axi_str_txd_tready <= '1';
 
       -- ACK payload = BRAM OFFSET
