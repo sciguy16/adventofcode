@@ -1,14 +1,155 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use color_eyre::{Result, eyre::eyre};
+use mio_serial::{SerialPort, SerialPortType, UsbPortInfo};
+use std::sync::mpsc;
+use types::{Header, SerDe, codegen::top::Types};
+
+const BAUD: u32 = 115200;
+
+pub struct PortInfo {
+    pub name: String,
+    pub info: UsbPortInfo,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub fn list_ports() -> Result<Vec<PortInfo>> {
+    let available_ports = mio_serial::available_ports()?;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    Ok(available_ports
+        .into_iter()
+        .filter_map(|port| {
+            if let SerialPortType::UsbPort(info) = port.port_type {
+                Some(PortInfo {
+                    name: port.port_name,
+                    info,
+                })
+            } else {
+                None
+            }
+        })
+        .collect())
+}
+
+pub struct SerialHandler {
+    port: Box<dyn SerialPort>,
+    read_rx: mpsc::Receiver<Types>,
+}
+
+impl SerialHandler {
+    pub fn open(port: &str) -> Result<Self> {
+        let port = mio_serial::new(port, BAUD).open()?;
+        let read_port = port.try_clone()?;
+        let (read_tx, read_rx) = mpsc::channel();
+        read_thread(read_port, read_tx);
+
+        Ok(Self { port, read_rx })
     }
+
+    pub fn send(&mut self, packet: Types) -> Result<Types> {
+        let mut buf = [0; 1024];
+        let len = packet.serialise(&mut buf)?;
+        let to_send = &buf[..len];
+        println!("Sending: {to_send:02x?}");
+        self.port.write_all(to_send)?;
+
+        let response = self.read_rx.recv()?;
+        println!("Received response: {response:02x?}");
+
+        Ok(response)
+    }
+
+    pub fn ping_pong(&mut self) -> Result<()> {
+        use types::codegen::top::{Ping, Pong};
+
+        let data = rand::random();
+        let ping = Ping { data };
+        let response = self.send(ping.into())?;
+
+        if response == (Pong { data }) {
+            Ok(())
+        } else {
+            Err(eyre!("Ping response mismatch"))
+        }
+    }
+
+    pub fn write_ram(&mut self, offset: u32, data: [u8; 128]) -> Result<()> {
+        use types::codegen::top::{Types, WriteRam, WriteRamAck};
+
+        let write_ram = Types::from(WriteRam { offset, data });
+        let response = self.send(write_ram)?;
+        if response
+            == (WriteRamAck {
+                offset: 0x0000_0000,
+                ok: 0x0100_0000,
+            })
+        {
+            Ok(())
+        } else {
+            Err(eyre!("WriteRam response mismatch"))
+        }
+    }
+
+    pub fn read_ram(&mut self, offset: u32) -> Result<[u8; 128]> {
+        use types::codegen::top::{ReadRam, Types};
+
+        let read_ram = Types::from(ReadRam {
+            offset: 0x0000_0000,
+        });
+        let response = self.send(read_ram)?;
+        if let Types::ReadRamAck(response) = response
+            && response.offset == offset
+            && response.ok == 0x0100_0000
+        {
+            Ok(response.data)
+        } else {
+            Err(eyre!("ReadRam response mismatch"))
+        }
+    }
+}
+
+fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
+    enum RxState {
+        Header,
+        Payload,
+    }
+    std::thread::spawn(move || {
+        let mut state = RxState::Header;
+        let mut header = Header {
+            destination: 0,
+            ty: 0,
+            len: 0,
+        };
+        let mut buf = [0; 4];
+        let mut receive_buf = Vec::new();
+        loop {
+            let Ok(()) = port.read_exact(&mut buf) else {
+                continue;
+            };
+            println!("Read 4 bytes: {:02x?}", &buf);
+
+            receive_buf.extend_from_slice(&buf);
+            state = match state {
+                RxState::Header => {
+                    header = Header::from(buf);
+                    RxState::Payload
+                }
+                RxState::Payload => {
+                    if receive_buf.len() == usize::from(header.len) + 4 {
+                        println!(
+                            "Received packet: {}",
+                            hex::encode(&receive_buf),
+                        );
+                        match Types::deserialise(&receive_buf) {
+                            Ok(parsed) => tx.send(parsed).unwrap(),
+                            Err(err) => {
+                                eprintln!("Deserialisation failed: {err}")
+                            }
+                        }
+                        receive_buf.clear();
+                        RxState::Header
+                    } else {
+                        RxState::Payload
+                    }
+                }
+            };
+        }
+    });
 }

@@ -94,7 +94,7 @@ begin
       clk_25MHz => clk_25MHz,
       clk_50MHz => clk_50MHz,
       -- Status and control signals
-      reset => reset_in_reg,
+      reset => reset_in,
       -- Clock in ports
       clk_in1 => clk_12MHz_in
     );

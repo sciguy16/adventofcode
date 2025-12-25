@@ -130,6 +130,16 @@ pub mod {{ dest.name }} {
             Self::{{ ty.name|struct_name }}(inner)
         }
     }
+
+    impl PartialEq<{{ ty.name|struct_name }}> for Types {
+        fn eq(&self, rhs: &{{ ty.name|struct_name }}) -> bool {
+            if let Self::{{ ty.name|struct_name }}(inner) = &self {
+                inner == rhs
+            } else {
+                false
+            }
+        }
+    }
 {% endfor -%}{# ty in destination.types #}
 }
 

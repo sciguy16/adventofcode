@@ -119,4 +119,14 @@ pub mod top {
         }
     }
 
+    impl PartialEq<Ping> for Types {
+        fn eq(&self, rhs: &Ping) -> bool {
+            if let Self::Ping(inner) = &self {
+                inner == rhs
+            } else {
+                false
+            }
+        }
+    }
+
 }
