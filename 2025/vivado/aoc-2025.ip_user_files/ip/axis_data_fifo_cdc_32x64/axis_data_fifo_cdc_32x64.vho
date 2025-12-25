@@ -46,7 +46,7 @@
 -- 
 -- DO NOT MODIFY THIS FILE.
 -- IP VLNV: xilinx.com:ip:axis_data_fifo:2.0
--- IP Revision: 11
+-- IP Revision: 17
 
 -- The following code must appear in the VHDL architecture header.
 

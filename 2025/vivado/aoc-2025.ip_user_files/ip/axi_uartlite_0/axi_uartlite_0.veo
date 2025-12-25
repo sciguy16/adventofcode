@@ -47,7 +47,7 @@
 // DO NOT MODIFY THIS FILE.
 
 // IP VLNV: xilinx.com:ip:axi_uartlite:2.0
-// IP Revision: 33
+// IP Revision: 39
 
 // The following must be inserted into your Verilog file for this
 // core to be instantiated. Change the instance name and port connections

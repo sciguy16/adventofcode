@@ -48,7 +48,7 @@
 
 
 // IP VLNV: xilinx.com:ip:blk_mem_gen:8.4
-// IP Revision: 7
+// IP Revision: 12
 
 `timescale 1ns/1ps
 
@@ -69,6 +69,8 @@ module blk_mem_gen_0 (
 );
 
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTA CLK" *)
+(* X_INTERFACE_MODE = "slave" *)
+(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME BRAM_PORTA, MEM_ADDRESS_MODE BYTE_ADDRESS, MEM_SIZE 8192, MEM_WIDTH 32, MEM_ECC NONE, MASTER_TYPE OTHER, READ_LATENCY 1" *)
 input wire clka;
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTA EN" *)
 input wire ena;
@@ -78,10 +80,11 @@ input wire [0 : 0] wea;
 input wire [8 : 0] addra;
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTA DIN" *)
 input wire [31 : 0] dina;
-(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME BRAM_PORTA, MEM_SIZE 8192, MEM_WIDTH 32, MEM_ECC NONE, MASTER_TYPE OTHER, READ_LATENCY 1" *)
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTA DOUT" *)
 output wire [31 : 0] douta;
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTB CLK" *)
+(* X_INTERFACE_MODE = "slave" *)
+(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME BRAM_PORTB, MEM_ADDRESS_MODE BYTE_ADDRESS, MEM_SIZE 8192, MEM_WIDTH 32, MEM_ECC NONE, MASTER_TYPE OTHER, READ_LATENCY 1" *)
 input wire clkb;
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTB EN" *)
 input wire enb;
@@ -91,11 +94,10 @@ input wire [0 : 0] web;
 input wire [10 : 0] addrb;
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTB DIN" *)
 input wire [7 : 0] dinb;
-(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME BRAM_PORTB, MEM_SIZE 8192, MEM_WIDTH 32, MEM_ECC NONE, MASTER_TYPE OTHER, READ_LATENCY 1" *)
 (* X_INTERFACE_INFO = "xilinx.com:interface:bram:1.0 BRAM_PORTB DOUT" *)
 output wire [7 : 0] doutb;
 
-  blk_mem_gen_v8_4_7 #(
+  blk_mem_gen_v8_4_12 #(
     .C_FAMILY("spartan7"),
     .C_XDEVICEFAMILY("spartan7"),
     .C_ELABORATION_DIR("./"),
@@ -175,7 +177,7 @@ output wire [7 : 0] doutb;
     .clka(clka),
     .rsta(1'D0),
     .ena(ena),
-    .regcea(1'D0),
+    .regcea(1'D1),
     .wea(wea),
     .addra(addra),
     .dina(dina),
@@ -183,7 +185,7 @@ output wire [7 : 0] doutb;
     .clkb(clkb),
     .rstb(1'D0),
     .enb(enb),
-    .regceb(1'D0),
+    .regceb(1'D1),
     .web(web),
     .addrb(addrb),
     .dinb(dinb),

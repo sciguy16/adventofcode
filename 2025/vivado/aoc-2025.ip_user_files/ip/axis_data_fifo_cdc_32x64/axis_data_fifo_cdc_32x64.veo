@@ -47,7 +47,7 @@
 // DO NOT MODIFY THIS FILE.
 
 // IP VLNV: xilinx.com:ip:axis_data_fifo:2.0
-// IP Revision: 11
+// IP Revision: 17
 
 // The following must be inserted into your Verilog file for this
 // core to be instantiated. Change the instance name and port connections
