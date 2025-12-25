@@ -36,6 +36,7 @@ begin
       reset => reset,
       clk => clk,
       axi_clk => axi_clk,
+      axi_nrst => not reset,
       rx_IN => uart_loopback,
       tx_OUT => uart_loopback,
 
@@ -45,8 +46,7 @@ begin
 
       axi_str_txd_tvalid_IN => axi_str_txd_tvalid,
       axi_str_txd_tready_OUT => axi_str_txd_tready,
-      axi_str_txd_tdata_IN => axi_str_txd_tdata,
-      axi_str_txd_prog_full_OUT => open
+      axi_str_txd_tdata_IN => axi_str_txd_tdata
     );
 
     -- in the simulation time, call it 1 clock cycle per ns
@@ -81,7 +81,7 @@ begin
       -- wait for it to appear on receive side
       wait until (axi_str_rxd_tvalid = '1');
       axi_str_rxd_tready <= '1';
-      assert axi_str_rxd_tdata = x"1234567";
+      assert axi_str_rxd_tdata = x"12345678";
       wait for 2 ns;
       axi_str_rxd_tready <= '0';
      

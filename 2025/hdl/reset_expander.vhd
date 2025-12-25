@@ -28,7 +28,7 @@ architecture rtl of reset_expander is
     attribute ASYNC_REG of rst_pipe_25MHz  : signal is "TRUE";
     attribute ASYNC_REG of rst_pipe_50MHz  : signal is "TRUE";
 begin
-    process(clk, reset_in) is
+    process(clk) is
     begin
         if(rising_edge(clk)) then
             reset_in_reg <= reset_in;

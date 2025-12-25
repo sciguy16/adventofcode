@@ -28,7 +28,7 @@ destinations:
     - name: offset
       width_bytes: 4
     - name: ok
-      width_bytes: 1
+      width_bytes: 4
   - id: 4
     name: read_ram
     payload:
@@ -39,6 +39,9 @@ destinations:
     reply-to: read_ram
     payload:
     - name: offset
+      width_bytes: 4
+    # bodge some padding into the okay field
+    - name: ok
       width_bytes: 4
     - name: data
       width_bytes: 128

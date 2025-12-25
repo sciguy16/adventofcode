@@ -15,7 +15,7 @@ end hb;
 architecture rtl of hb is
     signal counter: integer := 0;
     begin
-    process(clk, reset) is
+    process(clk) is
     begin
         if(rising_edge(clk)) then
             if (reset = '1') then
