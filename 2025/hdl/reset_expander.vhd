@@ -21,7 +21,7 @@ architecture rtl of reset_expander is
     signal counter: natural range 0 to C_COUNTER_MAX := 0;
     signal reset_in_reg: std_logic := '0';
     signal reset_latch: std_logic := '0';
-    signal rst_pipe_25MHz: std_logic_vector(0 downto 0) := (others => '0');
+    signal rst_pipe_25MHz: std_logic := '0';
     signal rst_pipe_50MHz: std_logic_vector(2 downto 0) := (others => '0');
 
     -- mark pipeline register inputs as asynchronous
@@ -48,10 +48,8 @@ begin
     process(reset_clk_25MHz) is
     begin
         if rising_edge(reset_clk_25MHz) then
-            rst_pipe_25MHz <=
-                rst_pipe_25MHz(rst_pipe_25MHz'high-1 downto 0)
-                & reset_latch;
-            reset_out_25MHz <= rst_pipe_25MHz(rst_pipe_25MHz'high);
+            rst_pipe_25MHz <= reset_latch;
+            reset_out_25MHz <= rst_pipe_25MHz;
         end if;
     end process;
 

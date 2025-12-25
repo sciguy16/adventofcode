@@ -69,9 +69,9 @@ begin
   led0_g <= '1';
   led0_b <= '1';
 
-  process(clk_12MHz_in) is
+  process(clk_25MHz) is
   begin
-    if rising_edge(clk_12MHz_in) then
+    if rising_edge(clk_25MHz) then
       reset_in_reg <= reset_in;
     end if;
   end process;
@@ -79,7 +79,7 @@ begin
   reset_expander_inst : entity work.reset_expander(rtl)
     port map (
       reset_in => reset_in_reg,
-      clk      => clk_12MHz_in,
+      clk      => clk_25MHz,
 
       reset_out_25MHz => reset,
       reset_clk_25MHz => clk_25MHz,
