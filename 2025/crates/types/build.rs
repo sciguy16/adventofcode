@@ -4,7 +4,7 @@ use std::{fs::File, path::Path};
 #[path = "src/build_lib/mod.rs"]
 mod build_lib;
 
-use build_lib::{build_rust_codegen, Result, PACKETDEFS};
+use build_lib::{PACKETDEFS, Result, build_rust_codegen};
 
 fn main() -> Result<()> {
     println!("cargo::rerun-if-changed=../../packetdefs.yaml");

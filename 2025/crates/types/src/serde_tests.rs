@@ -1,6 +1,6 @@
 use crate::{
-    codegen::top::{self, Ping, Pong},
     SerDe, Type,
+    codegen::top::{self, Ping, Pong},
 };
 use hex_literal::hex;
 

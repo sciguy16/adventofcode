@@ -43,12 +43,7 @@ fn print_ports(available_ports: &[PortInfo]) -> Result<()> {
 fn do_run(port: &str) -> Result<()> {
     let mut port = SerialHandler::open(port)?;
 
-    port.ping_pong()?;
-
-    let data = [0xaa; 128];
-    port.write_ram(0x00, data)?;
-    let read_back = port.read_ram(0x00)?;
-    assert_eq!(data, read_back);
+    port.self_test()?;
 
     Ok(())
 }

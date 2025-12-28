@@ -1,9 +1,10 @@
 use color_eyre::{Result, eyre::eyre};
 use mio_serial::{SerialPort, SerialPortType, UsbPortInfo};
-use std::sync::mpsc;
+use std::{sync::mpsc, time::Duration};
 use types::{Header, SerDe, codegen::top::Types};
 
 const BAUD: u32 = 115200;
+const RECV_TIMEOUT: Duration = Duration::from_secs(10);
 
 pub struct PortInfo {
     pub name: String,
@@ -50,7 +51,7 @@ impl SerialHandler {
         println!("Sending: {to_send:02x?}");
         self.port.write_all(to_send)?;
 
-        let response = self.read_rx.recv()?;
+        let response = self.read_rx.recv_timeout(RECV_TIMEOUT)?;
         println!("Received response: {response:02x?}");
 
         Ok(response)
@@ -101,6 +102,23 @@ impl SerialHandler {
             Ok(response.data)
         } else {
             Err(eyre!("ReadRam response mismatch"))
+        }
+    }
+
+    pub fn self_test(&mut self) -> Result<()> {
+        self.ping_pong()?;
+
+        let data = rand::random();
+        self.write_ram(0x00, data)?;
+        let read_back = self.read_ram(0x00)?;
+        if data == read_back {
+            Ok(())
+        } else {
+            Err(eyre!(
+                "Data readback mismatch!\nSent: {}\nRead: {}",
+                hex::encode(data),
+                hex::encode(read_back),
+            ))
         }
     }
 }
