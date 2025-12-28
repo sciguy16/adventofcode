@@ -1,0 +1,6 @@
+preferred_case = "lower"
+standard = "2008"
+
+[lint]
+unused = true
+unnecessary_work_library = false
