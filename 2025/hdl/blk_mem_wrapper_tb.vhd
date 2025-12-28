@@ -15,7 +15,6 @@ architecture rtl of blk_mem_wrapper_tb is
   signal addr_a_in         : std_logic := '0';
   signal write_valid_a_in  : std_logic := '0';
   signal write_ready_a_out : std_logic;
-  signal read_req_a_in     : std_logic := '0';
   signal read_valid_a_out  : std_logic;
   signal read_ready_a_in   : std_logic := '0';
 
@@ -31,7 +30,6 @@ begin
       addr_a_in         => addr_a_in,
       write_valid_a_in  => write_valid_a_in,
       write_ready_a_out => write_ready_a_out,
-      read_req_a_in     => read_req_a_in,
       read_valid_a_out  => read_valid_a_out,
       read_ready_a_in   => read_ready_a_in
     );
@@ -41,7 +39,7 @@ begin
 
   stimulus : process
     alias uut_bram_write_enable_a is
-    << signal uut.bram_write_enable_a : std_logic_vector(0 downto 0) >>;
+    << signal uut.bram_write_enable_a : std_logic >>;
     alias uut_bram_addr_a is
     << signal uut.bram_addr_a : std_logic_vector(8 downto 0) >>;
     alias uut_bram_din_a is
@@ -60,10 +58,10 @@ begin
     addr_a_in <= '1';
 
     wait until falling_edge(clk);
-    assert uut_bram_write_enable_a = "0";
-    assert uut_bram_addr_a = 9x"00000000";
-    assert uut_bram_din_a = x"00000000";
-    assert uut_bram_dout_a = x"00000000";
+    assert uut_bram_write_enable_a = '0' report "uut_bram_write_enable_a is " & std_logic'image(uut_bram_write_enable_a);
+    assert uut_bram_addr_a = 9x"00000000" report "uut_bram_addr_a is " & to_hstring(uut_bram_addr_a);
+    assert uut_bram_din_a = x"00000000" report "uut_bram_din_a is " & to_hstring(uut_bram_din_a);
+    assert uut_bram_dout_a = x"00000000" report "uut_bram_dout_a is " & to_hstring(uut_bram_dout_a);
 
     wait for 5 ns;
 
@@ -72,10 +70,10 @@ begin
     write_valid_a_in <= '1';
 
     wait until falling_edge(clk);
-    assert uut_bram_write_enable_a = "1";
-    assert uut_bram_addr_a = 9x"00000000";
-    assert uut_bram_din_a = x"a0a0a0a0";
-    assert uut_bram_dout_a = x"00000000";
+    assert uut_bram_write_enable_a = '1' report "uut_bram_write_enable_a is " & std_logic'image(uut_bram_write_enable_a);
+    assert uut_bram_addr_a = 9x"00000001" report "uut_bram_addr_a is " & to_hstring(uut_bram_addr_a);
+    assert uut_bram_din_a = x"a0a0a0a0" report "uut_bram_din_a is " & to_hstring(uut_bram_din_a);
+    assert uut_bram_dout_a = x"a0a0a0a0" report "uut_bram_dout_a is " & to_hstring(uut_bram_dout_a);
 
     data_a_in        <= x"00000000";
     addr_a_in        <= '1';
@@ -83,18 +81,16 @@ begin
 
     wait until falling_edge(clk);
     addr_a_in     <= '0';
-    read_req_a_in <= '1';
 
     wait until falling_edge(clk);
-    assert read_valid_a_out = '0';
+    assert read_valid_a_out = '1' report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
     wait until falling_edge(clk);
-    assert read_valid_a_out = '1' report "a valid";
-    assert data_a_out = x"a0a0a0a0" report "a data";
+    assert read_valid_a_out = '1' report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    assert data_a_out = x"a0a0a0a0" report "data_a_out is " & to_hstring(data_a_out);
     read_ready_a_in <= '1';
-    read_req_a_in   <= '0';
 
     wait until falling_edge(clk);
-    assert read_valid_a_out = '0';
+    assert read_valid_a_out = '1' report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
     read_ready_a_in <= '0';
 
     wait until falling_edge(clk);
@@ -103,6 +99,7 @@ begin
     data_a_in <= x"00000000";
     addr_a_in <= '1';
     wait until falling_edge(clk);
+    assert data_a_out = x"00000000" report "data_a_out is " & to_hstring(data_a_out);
     data_a_in        <= x"11111111";
     write_valid_a_in <= '1';
     addr_a_in        <= '0';
@@ -121,38 +118,41 @@ begin
 
     wait until falling_edge(clk);
     addr_a_in       <= '0';
+    -- valid is deasserted for one cycle while address is clocked in
+    assert read_valid_a_out = '0'
+      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+
+
+    wait until falling_edge(clk);
     read_ready_a_in <= '1';
-    read_req_a_in   <= '1';
-    assert read_valid_a_out = '0';
+    wait until falling_edge(clk);
+    assert read_valid_a_out = '1'
+      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    assert data_a_out = x"11111111"
+      report "data_a_out is " & to_hstring(data_a_out) & " expected 11111111";
 
     wait until falling_edge(clk);
-    assert read_valid_a_out = '0';
+    assert read_valid_a_out = '1'
+      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    assert data_a_out = x"22222222"
+      report "data_a_out is " & to_hstring(data_a_out) & " expected 22222222";
 
     wait until falling_edge(clk);
-    assert read_valid_a_out = '1';
-    assert data_a_out = x"11111111";
+    assert read_valid_a_out = '1'
+      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    assert data_a_out = x"33333333"
+      report "data_a_out is " & to_hstring(data_a_out) & " expected 33333333";
 
     wait until falling_edge(clk);
-    wait until falling_edge(clk);
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1';
-    assert data_a_out = x"22222222";
+    assert read_valid_a_out = '1'
+      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    assert data_a_out = x"44444444"
+      report "data_a_out is " & to_hstring(data_a_out) & " expected 44444444";
 
     wait until falling_edge(clk);
-    wait until falling_edge(clk);
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1';
-    assert data_a_out = x"33333333";
-
-    wait until falling_edge(clk);
-    wait until falling_edge(clk);
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1';
-    assert data_a_out = x"44444444";
-
-    wait until falling_edge(clk);
-    read_req_a_in <= '0';
-    assert read_valid_a_out = '0';
+    assert read_valid_a_out = '1'
+      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    read_ready_a_in <= '0';
 
     wait until falling_edge(clk);
     wait until falling_edge(clk);

@@ -47,7 +47,6 @@ architecture rtl of aoc_top is
   signal bram_addr_a        : std_logic;
   signal bram_write_valid_a : std_logic;
   signal bram_write_ready_a : std_logic;
-  signal bram_read_req_a    : std_logic;
   signal bram_read_valid_a  : std_logic;
   signal bram_read_ready_a  : std_logic;
 
@@ -142,12 +141,11 @@ begin
       bram_addr_a_OUT        => bram_addr_a,
       bram_write_valid_a_OUT => bram_write_valid_a,
       bram_write_ready_a_IN  => bram_write_ready_a,
-      bram_read_req_a_OUT    => bram_read_req_a,
       bram_read_valid_a_IN   => bram_read_valid_a,
       bram_read_ready_a_OUT  => bram_read_ready_a
     );
 
-  blk_mem_wrapper_int : entity work.blk_mem_wrapper(rtl)
+  blk_mem_wrapper_inst : entity work.blk_mem_wrapper(rtl)
     port map(
       reset => reset,
       clk   => clk_25MHz,
@@ -157,7 +155,6 @@ begin
       addr_a_in         => bram_addr_a,
       write_valid_a_in  => bram_write_valid_a,
       write_ready_a_out => bram_write_ready_a,
-      read_req_a_in     => bram_read_req_a,
       read_valid_a_out  => bram_read_valid_a,
       read_ready_a_in   => bram_read_ready_a
     );

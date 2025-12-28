@@ -1,2 +1,2 @@
-blk_mem_gen_0_sim_netlist.vhdl,vhdl,xil_defaultlib,../../../ip/blk_mem_gen_0/blk_mem_gen_0_sim_netlist.vhdl,
+blk_mem_gen_0_sim_netlist.vhdl,vhdl,xil_defaultlib,../../../ip/blk_mem_gen_0/blk_mem_gen_0_sim_netlist.vhdl,incdir="../../../../../../../../../../opt/xilinx/2025.2/data/rsb/busdef"
 glbl.v,Verilog,xil_defaultlib,glbl.v

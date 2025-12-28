@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 use work.packet_types_pkg_hdr.ALL;
 use work.packet_handler_pkg.ALL;
@@ -77,6 +78,8 @@ begin
         << signal packet_handler_inst.reply_done: std_logic >>;
       alias rx_state_internal is
         << signal packet_handler_inst.rx_state: T_RX_STATE >>;
+      variable counter_byte: std_logic_vector(7 downto 0);
+      variable counter_tdata: std_logic_vector(31 downto 0);
     begin
       reset <= '1';
       wait until rising_edge(clk);
@@ -113,7 +116,10 @@ begin
       -- data to write - 32 words
       for word in 0 to 31 loop
         --report "word = " & integer'image(word);
-        axi_str_rxd_tdata <= x"12345678";
+        counter_byte := std_logic_vector(to_unsigned(word, counter_byte'length));
+        counter_tdata := counter_byte & counter_byte & counter_byte & counter_byte;
+        axi_str_rxd_tdata <= counter_tdata;
+          
         axi_str_rxd_tvalid <= '1';
         -- wait for UUT to clock in the data on a rising edge
         wait until rising_edge(clk) and axi_str_rxd_tready = '1' for c_TIMEOUT;
@@ -222,9 +228,12 @@ begin
           end if;
         end loop;
         --report "tvalid on falling edge" & integer'image(word);
+
+        counter_byte := std_logic_vector(to_unsigned(word, counter_byte'length));
+        counter_tdata := counter_byte & counter_byte & counter_byte & counter_byte;
         assert axi_str_txd_tvalid = '1'
           report "READ ACK data valid word" & integer'image(word);
-        assert axi_str_txd_tdata = x"12345678"
+        assert axi_str_txd_tdata = counter_tdata
           report "READ ACK data word" & integer'image(word);
         wait until rising_edge(clk);
       end loop;

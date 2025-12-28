@@ -48,7 +48,6 @@ entity packet_handler is
     bram_addr_a_OUT        : OUT std_logic;
     bram_write_valid_a_OUT : OUT std_logic;
     bram_write_ready_a_IN  : IN  std_logic;
-    bram_read_req_a_OUT    : OUT std_logic;
     bram_read_valid_a_IN   : IN  std_logic;
     bram_read_ready_a_OUT  : OUT std_logic
   );
@@ -87,6 +86,16 @@ architecture rtl of packet_handler is
   signal axi_reply_data: std_logic_vector(31 downto 0) := (others => '0');
   signal axi_reply_data_valid: boolean := false;
   signal axi_reply_data_done: boolean := false;
+
+  ATTRIBUTE MARK_DEBUG: string;
+  ATTRIBUTE MARK_DEBUG of rx_state: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of PACKET_TYPE: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of RX_PACKET_LENGTH: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of RAM_OFFSET: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of payload_counter: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of reply_payload_counter: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of reply_done: signal is "TRUE";
+  ATTRIBUTE MARK_DEBUG of reply_state: signal is "TRUE";
 
 begin
   set_reply_header: process(PACKET_TYPE) is
@@ -188,15 +197,15 @@ begin
           axi_str_rxd_tready_OUT <= '0';
           if bram_write_ready_a_IN = '1' then
             axi_str_rxd_tready_OUT <= '1';
+            bram_write_valid_a_OUT <= '0';
             rx_state               <=
               --RX_STATE_SEND_REPLY when payload_counter = RX_PACKET_LENGTH
               --else 
               RX_STATE_WRITE_RAM;
           else
+            bram_write_valid_a_OUT <= '1';
             rx_state <= RX_STATE_WRITE_RAM_WAIT_READY;
           end if;
-        --when RX_STATE_READ_RAM =>
-        --  rx_state <= RX_STATE_IDLE;
         when RX_STATE_SEND_REPLY =>
           if reply_done = '1' then
             rx_state <= RX_STATE_IDLE;
@@ -220,7 +229,6 @@ begin
   begin
     if rising_edge(clk) then
       reply_done             <= '0';
-      bram_read_req_a_OUT    <= '0';
       bram_read_ready_a_OUT  <= '0';
 
       case reply_state is
@@ -260,7 +268,6 @@ begin
               REPLY_STATE_WAIT_DONE when others;
           end if;
         when REPLY_STATE_SEND_BRAM_DATA =>
-          bram_read_req_a_OUT <= '1';
           bram_read_ready_a_OUT <= '1';
           if axi_reply_data_done then
             axi_reply_data_valid <= false;
@@ -269,7 +276,6 @@ begin
               reply_done             <= '1';
               reply_state            <= REPLY_STATE_WAIT_DONE;
             else
-              bram_read_req_a_OUT <= '1';
               bram_read_ready_a_OUT <= '1';
               reply_state <= REPLY_STATE_SEND_BRAM_DATA_WAIT_READ_VALID;
             end if;
@@ -277,7 +283,6 @@ begin
             reply_state <= REPLY_STATE_SEND_BRAM_DATA;
           end if;
         when REPLY_STATE_SEND_BRAM_DATA_WAIT_READ_VALID =>
-          bram_read_req_a_OUT <= '1';
           bram_read_ready_a_OUT <= '1';
           if bram_read_valid_a_IN = '1' then
             axi_reply_data <= bram_read_data_a_IN;
