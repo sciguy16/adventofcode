@@ -11,6 +11,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 use work.packet_types_pkg_hdr.ALL;
+use work.aoc_top_pkg_hdr.ALL;
 
 entity aoc_top is
   port(
@@ -42,13 +43,43 @@ architecture rtl of aoc_top is
   signal axi_uart_txd_tready : std_logic;
   signal axi_uart_txd_tdata  : std_logic_vector(31 downto 0);
 
-  signal bram_write_data_a  : std_logic_vector(31 downto 0);
-  signal bram_read_data_a   : std_logic_vector(31 downto 0);
-  signal bram_addr_a        : std_logic;
-  signal bram_write_valid_a : std_logic;
-  signal bram_write_ready_a : std_logic;
-  signal bram_read_valid_a  : std_logic;
-  signal bram_read_ready_a  : std_logic;
+  --signal bram_write_data_a  : std_logic_vector(31 downto 0);
+  --signal bram_read_data_a   : std_logic_vector(31 downto 0);
+  --signal bram_addr_a        : std_logic;
+  --signal bram_write_valid_a : std_logic;
+  --signal bram_write_ready_a : std_logic;
+  --signal bram_read_valid_a  : std_logic;
+  --signal bram_read_ready_a  : std_logic;
+
+  -- Write controls --
+  signal bram_axi_write_word_offset_port_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+  signal bram_axi_awlen_port_a : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  signal bram_axi_awvalid_port_a : STD_LOGIC;
+  signal bram_axi_awready_port_a : STD_LOGIC;
+
+  -- Write data --
+  signal bram_axi_wdata_port_a : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal bram_axi_wlast_port_a : STD_LOGIC;
+  signal bram_axi_wvalid_port_a : STD_LOGIC;
+  signal bram_axi_wready_port_a : STD_LOGIC;
+
+  -- Write response --
+  signal bram_axi_bresp_port_a : STD_LOGIC_VECTOR(1 DOWNTO 0);
+  signal bram_axi_bvalid_port_a : STD_LOGIC;
+  signal bram_axi_bready_port_a : STD_LOGIC;
+
+  -- Read controls --
+  signal bram_axi_read_word_offset_port_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+  signal bram_axi_arlen_port_a : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  signal bram_axi_arvalid_port_a : STD_LOGIC;
+  signal bram_axi_arready_port_a : STD_LOGIC;
+
+  -- Read data --
+  signal bram_axi_rdata_port_a : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal bram_axi_rresp_port_a : STD_LOGIC_VECTOR(1 DOWNTO 0);
+  signal bram_axi_rlast_port_a : STD_LOGIC;
+  signal bram_axi_rvalid_port_a : STD_LOGIC;
+  signal bram_axi_rready_port_a : STD_LOGIC;
 
   component clk_wiz_0
     port
@@ -136,13 +167,37 @@ begin
       axi_str_txd_tready_IN  => axi_uart_txd_tready,
       axi_str_txd_tdata_OUT  => axi_uart_txd_tdata,
 
-      bram_write_data_a_OUT  => bram_write_data_a,
-      bram_read_data_a_IN    => bram_read_data_a,
-      bram_addr_a_OUT        => bram_addr_a,
-      bram_write_valid_a_OUT => bram_write_valid_a,
-      bram_write_ready_a_IN  => bram_write_ready_a,
-      bram_read_valid_a_IN   => bram_read_valid_a,
-      bram_read_ready_a_OUT  => bram_read_ready_a
+      -- BRAM Port A controls --
+
+      -- Write controls --
+      m_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+      m_axi_awlen_port_a_OUT => bram_axi_awlen_port_a,
+      m_axi_awvalid_port_a_OUT => bram_axi_awvalid_port_a,
+      m_axi_awready_port_a_IN => bram_axi_awready_port_a,
+
+      -- Write data --
+      m_axi_wdata_port_a_OUT => bram_axi_wdata_port_a,
+      m_axi_wlast_port_a_OUT => bram_axi_wlast_port_a,
+      m_axi_wvalid_port_a_OUT => bram_axi_wvalid_port_a,
+      m_axi_wready_port_a_IN => bram_axi_wready_port_a,
+
+      -- Write response --
+      m_axi_bresp_port_a_IN => bram_axi_bresp_port_a,
+      m_axi_bvalid_port_a_IN => bram_axi_bvalid_port_a,
+      m_axi_bready_port_a_OUT => bram_axi_bready_port_a,
+
+      -- Read controls --
+      m_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+      m_axi_arlen_port_a_OUT => bram_axi_arlen_port_a,
+      m_axi_arvalid_port_a_OUT => bram_axi_arvalid_port_a,
+      m_axi_arready_port_a_IN => bram_axi_arready_port_a,
+
+      -- Read data --
+      m_axi_rdata_port_a_IN => bram_axi_rdata_port_a,
+      m_axi_rresp_port_a_IN => bram_axi_rresp_port_a,
+      m_axi_rlast_port_a_IN => bram_axi_rlast_port_a,
+      m_axi_rvalid_port_a_IN => bram_axi_rvalid_port_a,
+      m_axi_rready_port_a_OUT => bram_axi_rready_port_a
     );
 
   blk_mem_wrapper_inst : entity work.blk_mem_wrapper(rtl)
@@ -150,13 +205,46 @@ begin
       reset => reset,
       clk   => clk_25MHz,
 
-      data_a_in         => bram_write_data_a,
-      data_a_out        => bram_read_data_a,
-      addr_a_in         => bram_addr_a,
-      write_valid_a_in  => bram_write_valid_a,
-      write_ready_a_out => bram_write_ready_a,
-      read_valid_a_out  => bram_read_valid_a,
-      read_ready_a_in   => bram_read_ready_a
+      -- Port A controls --
+
+      -- Write controls --
+      s_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+      s_axi_awlen_port_a => bram_axi_awlen_port_a,
+      s_axi_awvalid_port_a => bram_axi_awvalid_port_a,
+      s_axi_awready_port_a => bram_axi_awready_port_a,
+
+      -- Write data --
+      s_axi_wdata_port_a => bram_axi_wdata_port_a,
+      s_axi_wlast_port_a => bram_axi_wlast_port_a,
+      s_axi_wvalid_port_a => bram_axi_wvalid_port_a,
+      s_axi_wready_port_a => bram_axi_wready_port_a,
+
+      -- Write response --
+      s_axi_bresp_port_a => bram_axi_bresp_port_a,
+      s_axi_bvalid_port_a => bram_axi_bvalid_port_a,
+      s_axi_bready_port_a => bram_axi_bready_port_a,
+
+      -- Read controls --
+      s_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+      s_axi_arlen_port_a => bram_axi_arlen_port_a,
+      s_axi_arvalid_port_a => bram_axi_arvalid_port_a,
+      s_axi_arready_port_a => bram_axi_arready_port_a,
+
+      -- Read data --
+      s_axi_rdata_port_a => bram_axi_rdata_port_a,
+      s_axi_rresp_port_a => bram_axi_rresp_port_a,
+      s_axi_rlast_port_a => bram_axi_rlast_port_a,
+      s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
+      s_axi_rready_port_a => bram_axi_rready_port_a
+
+      -- Port B controls --
+      --data_a_in         => bram_write_data_a,
+      --data_a_out        => bram_read_data_a,
+      --addr_a_in         => bram_addr_a,
+      --write_valid_a_in  => bram_write_valid_a,
+      --write_ready_a_out => bram_write_ready_a,
+      --read_valid_a_out  => bram_read_valid_a,
+      --read_ready_a_in   => bram_read_ready_a
     );
 
 end rtl;

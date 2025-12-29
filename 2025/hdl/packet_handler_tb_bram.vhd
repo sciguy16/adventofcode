@@ -23,228 +23,303 @@ architecture rtl of packet_handler_tb_bram is
   signal axi_str_txd_tready: std_logic := '0';
   signal axi_str_txd_tdata: std_logic_vector(31 downto 0);
 
-  signal bram_write_data_a: std_logic_vector(31 downto 0);
-  signal bram_read_data_a: std_logic_vector(31 downto 0);
-  signal bram_addr_a: std_logic;
-  signal bram_write_valid_a: std_logic;
-  signal bram_write_ready_a: std_logic;
-  signal bram_read_req_a: std_logic;
-  signal bram_read_valid_a: std_logic;
-  signal bram_read_ready_a: std_logic;
+  -- Write controls --
+  signal bram_axi_write_word_offset_port_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+  signal bram_axi_awlen_port_a : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  signal bram_axi_awvalid_port_a : STD_LOGIC;
+  signal bram_axi_awready_port_a : STD_LOGIC;
+
+  -- Write data --
+  signal bram_axi_wdata_port_a : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal bram_axi_wlast_port_a : STD_LOGIC;
+  signal bram_axi_wvalid_port_a : STD_LOGIC;
+  signal bram_axi_wready_port_a : STD_LOGIC;
+
+  -- Write response --
+  signal bram_axi_bresp_port_a : STD_LOGIC_VECTOR(1 DOWNTO 0);
+  signal bram_axi_bvalid_port_a : STD_LOGIC;
+  signal bram_axi_bready_port_a : STD_LOGIC;
+
+  -- Read controls --
+  signal bram_axi_read_word_offset_port_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+  signal bram_axi_arlen_port_a : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  signal bram_axi_arvalid_port_a : STD_LOGIC;
+  signal bram_axi_arready_port_a : STD_LOGIC;
+
+  -- Read data --
+  signal bram_axi_rdata_port_a : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal bram_axi_rresp_port_a : STD_LOGIC_VECTOR(1 DOWNTO 0);
+  signal bram_axi_rlast_port_a : STD_LOGIC;
+  signal bram_axi_rvalid_port_a : STD_LOGIC;
+  signal bram_axi_rready_port_a : STD_LOGIC;
+
+  signal verbose: boolean := false;
+
+  procedure wait_edge is
+  begin
+    wait until rising_edge(clk);
+    wait for 2 ns;
+  end procedure wait_edge;
+
+  procedure wait_eq(
+    signal value: in std_logic;
+    expected: in std_logic;
+    message: in string
+  ) is
+    variable clock_count: integer := 0;
+  begin
+    if verbose then
+      report "wait for: " & message severity note;
+    end if;
+    wait_edge;
+    while value /= expected loop
+      wait_edge;
+      clock_count := clock_count + 1;
+      if clock_count = 10 then
+        report "condition not met after timeout: " & message severity failure;
+        exit;
+      end if;
+    end loop;
+  end procedure wait_eq;
+
 begin
   packet_handler_inst: entity work.packet_handler(rtl)
-    port map(
-      reset => reset,
-      clk => clk,
+  port map(
+    reset => reset,
+    clk => clk,
 
-      axi_str_rxd_tvalid_IN => axi_str_rxd_tvalid,
-      axi_str_rxd_tready_OUT => axi_str_rxd_tready,
-      axi_str_rxd_tdata_IN => axi_str_rxd_tdata,
+    axi_str_rxd_tvalid_IN => axi_str_rxd_tvalid,
+    axi_str_rxd_tready_OUT => axi_str_rxd_tready,
+    axi_str_rxd_tdata_IN => axi_str_rxd_tdata,
 
-      axi_str_txd_tvalid_OUT => axi_str_txd_tvalid,
-      axi_str_txd_tready_IN => axi_str_txd_tready,
-      axi_str_txd_tdata_OUT => axi_str_txd_tdata,
+    axi_str_txd_tvalid_OUT => axi_str_txd_tvalid,
+    axi_str_txd_tready_IN => axi_str_txd_tready,
+    axi_str_txd_tdata_OUT => axi_str_txd_tdata,
 
-      bram_write_data_a_OUT => bram_write_data_a,
-      bram_read_data_a_IN => bram_read_data_a,
-      bram_addr_a_OUT => bram_addr_a,
-      bram_write_valid_a_OUT => bram_write_valid_a,
-      bram_write_ready_a_IN => bram_write_ready_a,
-      bram_read_req_a_OUT => bram_read_req_a,
-      bram_read_valid_a_IN => bram_read_valid_a,
-      bram_read_ready_a_OUT => bram_read_ready_a
+    -- BRAM Port A controls --
 
-    );
+    -- Write controls --
+    m_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+    m_axi_awlen_port_a_OUT => bram_axi_awlen_port_a,
+    m_axi_awvalid_port_a_OUT => bram_axi_awvalid_port_a,
+    m_axi_awready_port_a_IN => bram_axi_awready_port_a,
 
-    blk_mem_wrapper_int: entity work.blk_mem_wrapper(rtl)
-    port map(
-      reset => reset,
-      clk => clk,
+    -- Write data --
+    m_axi_wdata_port_a_OUT => bram_axi_wdata_port_a,
+    m_axi_wlast_port_a_OUT => bram_axi_wlast_port_a,
+    m_axi_wvalid_port_a_OUT => bram_axi_wvalid_port_a,
+    m_axi_wready_port_a_IN => bram_axi_wready_port_a,
 
-      data_a_in => bram_write_data_a,
-      data_a_out => bram_read_data_a,
-      addr_a_in => bram_addr_a,
-      write_valid_a_in => bram_write_valid_a,
-      write_ready_a_out => bram_write_ready_a,
-      read_req_a_in => bram_read_req_a,
-      read_valid_a_out => bram_read_valid_a,
-      read_ready_a_in => bram_read_ready_a
-    );
+    -- Write response --
+    m_axi_bresp_port_a_IN => bram_axi_bresp_port_a,
+    m_axi_bvalid_port_a_IN => bram_axi_bvalid_port_a,
+    m_axi_bready_port_a_OUT => bram_axi_bready_port_a,
 
-    clk <= not clk after c_HALF_PERIOD_25_MHz; 
+    -- Read controls --
+    m_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+    m_axi_arlen_port_a_OUT => bram_axi_arlen_port_a,
+    m_axi_arvalid_port_a_OUT => bram_axi_arvalid_port_a,
+    m_axi_arready_port_a_IN => bram_axi_arready_port_a,
 
-    stimulus: process
-      alias reply_done_internal is
-        << signal packet_handler_inst.reply_done: std_logic >>;
-      alias rx_state_internal is
-        << signal packet_handler_inst.rx_state: T_RX_STATE >>;
-      variable counter_byte: std_logic_vector(7 downto 0);
-      variable counter_tdata: std_logic_vector(31 downto 0);
-    begin
-      reset <= '1';
-      wait until rising_edge(clk);
-      wait until rising_edge(clk);
-      wait until rising_edge(clk);
-      wait until rising_edge(clk);
-      reset <= '0';
-      wait until rising_edge(clk);
+    -- Read data --
+    m_axi_rdata_port_a_IN => bram_axi_rdata_port_a,
+    m_axi_rresp_port_a_IN => bram_axi_rresp_port_a,
+    m_axi_rlast_port_a_IN => bram_axi_rlast_port_a,
+    m_axi_rvalid_port_a_IN => bram_axi_rvalid_port_a,
+    m_axi_rready_port_a_OUT => bram_axi_rready_port_a
+  );
 
-      report "SEND WRITE REQ";
+  clk <= not clk after c_HALF_PERIOD_25_MHz; 
 
-      -- packet header
-      wait until falling_edge(clk);
-      axi_str_rxd_tdata <= x"00020084"; -- WRITE RAM, LENGTH 128 + 4 = 0x84
+  stimulus: process
+    alias reply_done_internal is
+      << signal packet_handler_inst.reply_done: std_logic >>;
+    alias rx_state_internal is
+      << signal packet_handler_inst.rx_state: T_RX_STATE >>;
+    variable counter_byte: std_logic_vector(7 downto 0);
+    variable counter_tdata: std_logic_vector(31 downto 0);
+  begin
+    reset <= '1';
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    wait until rising_edge(clk);
+    reset <= '0';
+    wait until rising_edge(clk);
+
+    report "SEND WRITE REQ";
+
+    -- packet header
+    wait_edge;
+    axi_str_rxd_tdata <= x"00020084"; -- WRITE RAM, LENGTH 128 + 4 = 0x84
+    axi_str_rxd_tvalid <= '1';
+    -- wait for UUT to clock in the data on a rising edge
+    wait_eq(axi_str_rxd_tready, '1', "packet header");
+    --wait_edge;
+    axi_str_rxd_tvalid <= '0';
+
+    -- BRAM offset
+    axi_str_rxd_tdata <= x"00000000";
+    axi_str_rxd_tvalid <= '1';
+    -- wait for UUT to clock in the data on a rising edge
+    wait_eq(axi_str_rxd_tready, '1', "BRAM offset");
+    axi_str_rxd_tvalid <= '0';
+
+    -- data to write - 32 words
+    for word in 0 to 31 loop
+      --report "word = " & integer'image(word);
+      counter_byte := std_logic_vector(to_unsigned(word, counter_byte'length));
+      counter_tdata := counter_byte & counter_byte & counter_byte & counter_byte;
+      axi_str_rxd_tdata <= counter_tdata;
+        
       axi_str_rxd_tvalid <= '1';
       -- wait for UUT to clock in the data on a rising edge
-      wait until rising_edge(clk) and axi_str_rxd_tready = '1' for c_TIMEOUT;
-      wait until falling_edge(clk);
-      assert rx_state_internal = RX_STATE_RAM_OFFSET report "rx state offset";
-      axi_str_rxd_tvalid <= '0';
+      wait_eq(axi_str_rxd_tready, '1', "txd tready for word " & integer'image(word));
+      assert axi_str_rxd_tready = '1'
+        report "tready not asserted for word " & integer'image(word);
+    end loop;
+    axi_str_rxd_tvalid <= '0';
+
+    report "WAIT FOR WRITE ACK";
+
+    -- wait for TVALID on ack
+
+    -- ACK header
+    wait_eq(axi_str_txd_tvalid, '1', "txd valid for ack");
+    assert axi_str_txd_tvalid = '1' report "WRITE ACK header valid";
+    assert axi_str_txd_tdata = x"00030008" report "WRITE ACK header data";
+    axi_str_txd_tready <= '1';
+
+    -- ACK payload = BRAM OFFSET
+    wait_edge;
+    assert axi_str_txd_tvalid = '1' report "WRITE ACK offset valid";
+    assert axi_str_txd_tdata = x"00000000" report "WRITE ACK offset data";
+
+    -- ACK payload = BRAM WRITE OKAY
+    wait_edge;
+    assert axi_str_txd_tvalid = '1' report "WRITE ACK okay valid";
+    assert axi_str_txd_tdata = x"01000000" report "WRITE ACK okay data";
+
+    wait_edge;
+    axi_str_txd_tready <= '0';
+
+    wait_edge;
+    wait_edge;
+    wait_edge;
+
+    report "SEND READ REQ";
+
+    -- issue a read to verify the written data
+    -- packet header
+    wait_edge;
+    axi_str_rxd_tdata <= x"00040004"; -- WRITE RAM, LENGTH 128 + 4 = 0x84
+    axi_str_rxd_tvalid <= '1';
+    -- wait for UUT to clock in the data on a rising edge
+    wait_eq(axi_str_rxd_tready, '1', "rxd tready");
+    assert rx_state_internal = RX_STATE_RAM_OFFSET report "rx state offset";
+    axi_str_rxd_tvalid <= '0';
 
 
-      -- BRAM offset
-      axi_str_rxd_tdata <= x"00000000";
-      axi_str_rxd_tvalid <= '1';
-      -- wait for UUT to clock in the data on a rising edge
-      wait until rising_edge(clk) and axi_str_rxd_tready = '1' for c_TIMEOUT;
-      wait until falling_edge(clk);
-      assert rx_state_internal = RX_STATE_WRITE_RAM report "rx state write ram";
-      --assert rx_state_internal = RX_STATE_WRITE_RAM_WAIT_READY
-      --  report "rx state write ram wait ready";
-      axi_str_rxd_tvalid <= '0';
-
-      -- data to write - 32 words
-      for word in 0 to 31 loop
-        --report "word = " & integer'image(word);
-        counter_byte := std_logic_vector(to_unsigned(word, counter_byte'length));
-        counter_tdata := counter_byte & counter_byte & counter_byte & counter_byte;
-        axi_str_rxd_tdata <= counter_tdata;
-          
-        axi_str_rxd_tvalid <= '1';
-        -- wait for UUT to clock in the data on a rising edge
-        wait until rising_edge(clk) and axi_str_rxd_tready = '1' for c_TIMEOUT;
-        assert axi_str_rxd_tready = '1'
-          report "tready not asserted for word " & integer'image(word);
-        wait until falling_edge(clk);
-      end loop;
-      axi_str_rxd_tvalid <= '0';
-
-      report "WAIT FOR WRITE ACK";
-
-      -- wait for TVALID on ack
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-
-      -- ACK header
-      wait until rising_edge(clk) and axi_str_txd_tvalid = '1' for c_TIMEOUT;
-      wait until falling_edge(clk);
-      assert axi_str_txd_tvalid = '1' report "WRITE ACK header valid";
-      assert axi_str_txd_tdata = x"00030008" report "WRITE ACK header data";
-      axi_str_txd_tready <= '1';
-
-      -- ACK payload = BRAM OFFSET
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      assert axi_str_txd_tvalid = '1' report "WRITE ACK offset valid";
-      assert axi_str_txd_tdata = x"00000000" report "WRITE ACK offset data";
-
-      -- ACK payload = BRAM WRITE OKAY
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      assert axi_str_txd_tvalid = '1' report "WRITE ACK okay valid";
-      assert axi_str_txd_tdata = x"01000000" report "WRITE ACK okay data";
-
-      wait until falling_edge(clk);
-      axi_str_txd_tready <= '0';
-
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-
-      report "SEND READ REQ";
-
-      -- issue a read to verify the written data
-      -- packet header
-      wait until falling_edge(clk);
-      axi_str_rxd_tdata <= x"00040004"; -- WRITE RAM, LENGTH 128 + 4 = 0x84
-      axi_str_rxd_tvalid <= '1';
-      -- wait for UUT to clock in the data on a rising edge
-      wait until rising_edge(clk) and axi_str_rxd_tready = '1' for c_TIMEOUT;
-      wait until falling_edge(clk);
-      assert rx_state_internal = RX_STATE_RAM_OFFSET report "rx state offset";
-      axi_str_rxd_tvalid <= '0';
+    -- BRAM offset
+    axi_str_rxd_tdata <= x"00000000";
+    axi_str_rxd_tvalid <= '1';
+    -- wait for UUT to clock in the data on a rising edge
+    wait_eq(axi_str_rxd_tready, '1', "rxd tready");
+    assert rx_state_internal = RX_STATE_SEND_REPLY report "rx state read ram";
+    axi_str_rxd_tvalid <= '0';
 
 
-      -- BRAM offset
-      axi_str_rxd_tdata <= x"00000000";
-      axi_str_rxd_tvalid <= '1';
-      -- wait for UUT to clock in the data on a rising edge
-      wait until rising_edge(clk) and axi_str_rxd_tready = '1' for c_TIMEOUT;
-      wait until falling_edge(clk);
-      assert rx_state_internal = RX_STATE_SEND_REPLY report "rx state read ram";
-      --assert rx_state_internal = RX_STATE_WRITE_RAM_WAIT_READY
-      --  report "rx state write ram wait ready";
-      axi_str_rxd_tvalid <= '0';
+    report "WAIT FOR READ ACK";
+    verbose <= true;
+
+    -- wait for TVALID on ack
+
+    -- ACK header
+    wait_eq(axi_str_txd_tvalid, '1', "txd tvalid");
+    --wait_edge;
+    assert axi_str_txd_tvalid = '1' report "READ ACK header valid";
+    assert axi_str_txd_tdata = x"00050088" report "READ ACK header data";
+    axi_str_txd_tready <= '1';
+
+    -- ACK payload = BRAM OFFSET
+    wait_edge;
+    assert axi_str_txd_tvalid = '1' report "READ ACK offset valid";
+    assert axi_str_txd_tdata = x"00000000" report "READ ACK offset data";
+
+    -- ACK payload = BRAM WRITE OKAY
+    wait_edge;
+    assert axi_str_txd_tvalid = '1' report "READ ACK okay valid";
+    assert axi_str_txd_tdata = x"01000000" report "READ ACK okay data";
 
 
-      report "WAIT FOR READ ACK";
+    -- data read back - 32 words
+    for word in 0 to 31 loop
+      -- wait for UUT to clock out the data on a rising edge
+      wait_eq(axi_str_txd_tvalid, '1', "txd tvalid for word " & integer'image(word));
 
-      -- wait for TVALID on ack
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
+      counter_byte := std_logic_vector(to_unsigned(word, counter_byte'length));
+      counter_tdata := counter_byte & counter_byte & counter_byte & counter_byte;
+      assert axi_str_txd_tvalid = '1'
+        report "READ ACK data valid word" & integer'image(word);
+      assert axi_str_txd_tdata = counter_tdata
+        report "READ ACK data word" & integer'image(word);
+      --wait until rising_edge(clk);
+    end loop;
 
-      -- ACK header
-      wait until rising_edge(clk) and axi_str_txd_tvalid = '1' for c_TIMEOUT;
-      wait until falling_edge(clk);
-      assert axi_str_txd_tvalid = '1' report "READ ACK header valid";
-      assert axi_str_txd_tdata = x"00050088" report "READ ACK header data";
-      axi_str_txd_tready <= '1';
+    wait_edge;
+    axi_str_txd_tready <= '0';
 
-      -- ACK payload = BRAM OFFSET
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      assert axi_str_txd_tvalid = '1' report "READ ACK offset valid";
-      assert axi_str_txd_tdata = x"00000000" report "READ ACK offset data";
-
-      -- ACK payload = BRAM WRITE OKAY
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      assert axi_str_txd_tvalid = '1' report "READ ACK okay valid";
-      assert axi_str_txd_tdata = x"01000000" report "READ ACK okay data";
-
-
-      -- data read back - 32 words
-      for word in 0 to 31 loop
-        -- wait for UUT to clock out the data on a rising edge
-        --report "wait for tvalid on falling edge" & integer'image(word);
-        wait_valid: loop
-          wait until falling_edge(clk);
-          if axi_str_txd_tvalid = '1' then
-            exit wait_valid;
-          end if;
-        end loop;
-        --report "tvalid on falling edge" & integer'image(word);
-
-        counter_byte := std_logic_vector(to_unsigned(word, counter_byte'length));
-        counter_tdata := counter_byte & counter_byte & counter_byte & counter_byte;
-        assert axi_str_txd_tvalid = '1'
-          report "READ ACK data valid word" & integer'image(word);
-        assert axi_str_txd_tdata = counter_tdata
-          report "READ ACK data word" & integer'image(word);
-        wait until rising_edge(clk);
-      end loop;
-
-      wait until falling_edge(clk);
-      axi_str_txd_tready <= '0';
-
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
-      wait until falling_edge(clk);
+    wait_edge;
+    wait_edge;
+    wait_edge;
+    wait_edge;
     std.env.stop;
   end process;
+
+  blk_mem_wrapper_int: entity work.blk_mem_wrapper(rtl)
+  port map(
+    reset => reset,
+    clk => clk,
+
+    -- Port A controls --
+
+    -- Write controls --
+    s_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+    s_axi_awlen_port_a => bram_axi_awlen_port_a,
+    s_axi_awvalid_port_a => bram_axi_awvalid_port_a,
+    s_axi_awready_port_a => bram_axi_awready_port_a,
+
+    -- Write data --
+    s_axi_wdata_port_a => bram_axi_wdata_port_a,
+    s_axi_wlast_port_a => bram_axi_wlast_port_a,
+    s_axi_wvalid_port_a => bram_axi_wvalid_port_a,
+    s_axi_wready_port_a => bram_axi_wready_port_a,
+
+    -- Write response --
+    s_axi_bresp_port_a => bram_axi_bresp_port_a,
+    s_axi_bvalid_port_a => bram_axi_bvalid_port_a,
+    s_axi_bready_port_a => bram_axi_bready_port_a,
+
+    -- Read controls --
+    s_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+    s_axi_arlen_port_a => bram_axi_arlen_port_a,
+    s_axi_arvalid_port_a => bram_axi_arvalid_port_a,
+    s_axi_arready_port_a => bram_axi_arready_port_a,
+
+    -- Read data --
+    s_axi_rdata_port_a => bram_axi_rdata_port_a,
+    s_axi_rresp_port_a => bram_axi_rresp_port_a,
+    s_axi_rlast_port_a => bram_axi_rlast_port_a,
+    s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
+    s_axi_rready_port_a => bram_axi_rready_port_a
+
+    -- Port B controls --
+    --data_a_in         => bram_write_data_a,
+    --data_a_out        => bram_read_data_a,
+    --addr_a_in         => bram_addr_a,
+    --write_valid_a_in  => bram_write_valid_a,
+    --write_ready_a_out => bram_write_ready_a,
+    --read_valid_a_out  => bram_read_valid_a,
+    --read_ready_a_in   => bram_read_ready_a
+  );
 end rtl;

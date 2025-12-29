@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+use work.aoc_top_pkg_hdr.ALL;
 -- AXI LITE responses:
 --  OKAY (0b00):
 --    Normal access success. Indicates that a normal access has been successful
@@ -38,10 +39,6 @@ end axi_uart_wrapper;
 
 architecture rtl of axi_uart_wrapper is
 
-  constant c_AXI_RESP_OKAY   : std_logic_vector(1 downto 0) := "00";
-  constant c_AXI_RESP_EXOKAY : std_logic_vector(1 downto 0) := "01";
-  constant c_AXI_RESP_SLVERR : std_logic_vector(1 downto 0) := "10";
-  constant c_AXI_RESP_DECERR : std_logic_vector(1 downto 0) := "11";
 
   signal init_complete : std_logic := '0';
 

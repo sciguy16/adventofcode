@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+use work.aoc_top_pkg_hdr.ALL;
+
 entity blk_mem_wrapper_tb is
 end blk_mem_wrapper_tb;
 
@@ -10,14 +12,42 @@ architecture rtl of blk_mem_wrapper_tb is
   signal clk   : std_logic := '1';
   signal reset : std_logic := '1';
 
-  signal data_a_in         : std_logic_vector(31 downto 0) := (others => '0');
-  signal data_a_out        : std_logic_vector(31 downto 0);
-  signal addr_a_in         : std_logic := '0';
-  signal write_valid_a_in  : std_logic := '0';
-  signal write_ready_a_out : std_logic;
-  signal read_valid_a_out  : std_logic;
-  signal read_ready_a_in   : std_logic := '0';
+  -- Write controls --
+  signal bram_axi_write_word_offset_port_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+  signal bram_axi_awlen_port_a : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  signal bram_axi_awvalid_port_a : STD_LOGIC;
+  signal bram_axi_awready_port_a : STD_LOGIC;
 
+  -- Write data --
+  signal bram_axi_wdata_port_a : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal bram_axi_wlast_port_a : STD_LOGIC;
+  signal bram_axi_wvalid_port_a : STD_LOGIC;
+  signal bram_axi_wready_port_a : STD_LOGIC;
+
+  -- Write response --
+  signal bram_axi_bresp_port_a : STD_LOGIC_VECTOR(1 DOWNTO 0);
+  signal bram_axi_bvalid_port_a : STD_LOGIC;
+  signal bram_axi_bready_port_a : STD_LOGIC;
+
+  -- Read controls --
+  signal bram_axi_read_word_offset_port_a : STD_LOGIC_VECTOR(9 DOWNTO 0);
+  signal bram_axi_arlen_port_a : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  signal bram_axi_arvalid_port_a : STD_LOGIC;
+  signal bram_axi_arready_port_a : STD_LOGIC;
+
+  -- Read data --
+  signal bram_axi_rdata_port_a : STD_LOGIC_VECTOR(31 DOWNTO 0);
+  signal bram_axi_rresp_port_a : STD_LOGIC_VECTOR(1 DOWNTO 0);
+  signal bram_axi_rlast_port_a : STD_LOGIC;
+  signal bram_axi_rvalid_port_a : STD_LOGIC;
+  signal bram_axi_rready_port_a : STD_LOGIC;
+
+
+  procedure wait_edge is
+  begin
+    wait until rising_edge(clk);
+    wait for 2 ns;
+  end procedure wait_edge;
 
 begin
   uut : entity work.blk_mem_wrapper(rtl)
@@ -25,137 +55,170 @@ begin
       reset => reset,
       clk   => clk,
 
-      data_a_in         => data_a_in,
-      data_a_out        => data_a_out,
-      addr_a_in         => addr_a_in,
-      write_valid_a_in  => write_valid_a_in,
-      write_ready_a_out => write_ready_a_out,
-      read_valid_a_out  => read_valid_a_out,
-      read_ready_a_in   => read_ready_a_in
+      -- Port A controls --
+
+      -- Write controls --
+      s_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+      s_axi_awlen_port_a => bram_axi_awlen_port_a,
+      s_axi_awvalid_port_a => bram_axi_awvalid_port_a,
+      s_axi_awready_port_a => bram_axi_awready_port_a,
+
+      -- Write data --
+      s_axi_wdata_port_a => bram_axi_wdata_port_a,
+      s_axi_wlast_port_a => bram_axi_wlast_port_a,
+      s_axi_wvalid_port_a => bram_axi_wvalid_port_a,
+      s_axi_wready_port_a => bram_axi_wready_port_a,
+
+      -- Write response --
+      s_axi_bresp_port_a => bram_axi_bresp_port_a,
+      s_axi_bvalid_port_a => bram_axi_bvalid_port_a,
+      s_axi_bready_port_a => bram_axi_bready_port_a,
+
+      -- Read controls --
+      s_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+      s_axi_arlen_port_a => bram_axi_arlen_port_a,
+      s_axi_arvalid_port_a => bram_axi_arvalid_port_a,
+      s_axi_arready_port_a => bram_axi_arready_port_a,
+
+      -- Read data --
+      s_axi_rdata_port_a => bram_axi_rdata_port_a,
+      s_axi_rresp_port_a => bram_axi_rresp_port_a,
+      s_axi_rlast_port_a => bram_axi_rlast_port_a,
+      s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
+      s_axi_rready_port_a => bram_axi_rready_port_a
+
+      -- Port B controls --
+      --data_a_in         => bram_write_data_a,
+      --data_a_out        => bram_read_data_a,
+      --addr_a_in         => bram_addr_a,
+      --write_valid_a_in  => bram_write_valid_a,
+      --write_ready_a_out => bram_write_ready_a,
+      --read_valid_a_out  => bram_read_valid_a,
+      --read_ready_a_in   => bram_read_ready_a
     );
 
   clk <= not clk after c_HALF_PERIOD_25_MHz;
 
 
   stimulus : process
-    alias uut_bram_write_enable_a is
-    << signal uut.bram_write_enable_a : std_logic >>;
-    alias uut_bram_addr_a is
-    << signal uut.bram_addr_a : std_logic_vector(8 downto 0) >>;
-    alias uut_bram_din_a is
-    << signal uut.bram_din_a : std_logic_vector(31 downto 0) >>;
-    alias uut_bram_dout_a is
-    << signal uut.bram_dout_a : std_logic_vector(31 downto 0) >>;
   begin
 
     wait for 40 ns;
-    wait until falling_edge(clk);
+    wait_edge;
     reset <= '0';
+    bram_axi_rready_port_a <= '0';
 
+    wait_edge;
+    wait_edge;
 
-    wait until falling_edge(clk);
-    data_a_in <= x"00000000";
-    addr_a_in <= '1';
+    -- Write four words over the AXI interface
+    bram_axi_write_word_offset_port_a  <= 10x"0000";
+    bram_axi_awlen_port_a   <= x"04";
+    bram_axi_awvalid_port_a <= '1';
 
-    wait until falling_edge(clk);
-    assert uut_bram_write_enable_a = '0' report "uut_bram_write_enable_a is " & std_logic'image(uut_bram_write_enable_a);
-    assert uut_bram_addr_a = 9x"00000000" report "uut_bram_addr_a is " & to_hstring(uut_bram_addr_a);
-    assert uut_bram_din_a = x"00000000" report "uut_bram_din_a is " & to_hstring(uut_bram_din_a);
-    assert uut_bram_dout_a = x"00000000" report "uut_bram_dout_a is " & to_hstring(uut_bram_dout_a);
+    bram_axi_wdata_port_a <= x"00112233";
+    bram_axi_wlast_port_a <= '0';
+    bram_axi_wvalid_port_a <= '1';
 
-    wait for 5 ns;
+    while bram_axi_awready_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_awready_port_a = '1' report "AWREADY";
+    bram_axi_awvalid_port_a <= '0';
 
-    data_a_in        <= x"a0a0a0a0";
-    addr_a_in        <= '0';
-    write_valid_a_in <= '1';
+    while bram_axi_wready_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_wready_port_a = '1' report "WREADY";
 
-    wait until falling_edge(clk);
-    assert uut_bram_write_enable_a = '1' report "uut_bram_write_enable_a is " & std_logic'image(uut_bram_write_enable_a);
-    assert uut_bram_addr_a = 9x"00000001" report "uut_bram_addr_a is " & to_hstring(uut_bram_addr_a);
-    assert uut_bram_din_a = x"a0a0a0a0" report "uut_bram_din_a is " & to_hstring(uut_bram_din_a);
-    assert uut_bram_dout_a = x"a0a0a0a0" report "uut_bram_dout_a is " & to_hstring(uut_bram_dout_a);
+    bram_axi_wdata_port_a <= x"44556677";
+    wait_edge;
+    while bram_axi_wready_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_wready_port_a = '1' report "WREADY";
 
-    data_a_in        <= x"00000000";
-    addr_a_in        <= '1';
-    write_valid_a_in <= '0';
+    bram_axi_wdata_port_a <= x"8899aabb";
+    wait_edge;
+    while bram_axi_wready_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_wready_port_a = '1' report "WREADY";
 
-    wait until falling_edge(clk);
-    addr_a_in     <= '0';
+    bram_axi_wdata_port_a <= x"ccddeeff";
+    bram_axi_wlast_port_a <= '1';
+    wait_edge;
+    bram_axi_wlast_port_a <= '0';
+    while bram_axi_wready_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_wready_port_a = '1' report "WREADY";
 
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1' report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1' report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    assert data_a_out = x"a0a0a0a0" report "data_a_out is " & to_hstring(data_a_out);
-    read_ready_a_in <= '1';
+    bram_axi_wvalid_port_a <= '0';
 
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1' report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    read_ready_a_in <= '0';
+    bram_axi_bready_port_a <= '1';
+    while bram_axi_bvalid_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_bresp_port_a = c_AXI_RESP_OKAY;
+    bram_axi_bready_port_a <= '0';
 
-    wait until falling_edge(clk);
-    wait until falling_edge(clk);
+    wait_edge;
+    wait_edge;
 
-    data_a_in <= x"00000000";
-    addr_a_in <= '1';
-    wait until falling_edge(clk);
-    assert data_a_out = x"00000000" report "data_a_out is " & to_hstring(data_a_out);
-    data_a_in        <= x"11111111";
-    write_valid_a_in <= '1';
-    addr_a_in        <= '0';
+    -- Read the four words back
+    bram_axi_read_word_offset_port_a <= 10x"0000";
+    bram_axi_arlen_port_a <= x"04";
+    bram_axi_arvalid_port_a <= '1';
+    wait_edge;
+    while bram_axi_arready_port_a = '0' loop
+      wait_edge;
+    end loop;
+    bram_axi_arvalid_port_a <= '0';
 
-    wait until falling_edge(clk);
-    data_a_in <= x"22222222";
-    wait until falling_edge(clk);
-    data_a_in <= x"33333333";
-    wait until falling_edge(clk);
-    data_a_in <= x"44444444";
+    bram_axi_rready_port_a <= '1';
 
-    wait until falling_edge(clk);
-    write_valid_a_in <= '0';
-    data_a_in        <= x"00000000";
-    addr_a_in        <= '1';
+    wait_edge;
+    while bram_axi_rvalid_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_rvalid_port_a = '1' report "rvalid";
+    assert bram_axi_rdata_port_a = x"00112233" report "rdata";
+    assert bram_axi_rresp_port_a = c_AXI_RESP_OKAY report "rresp";
 
-    wait until falling_edge(clk);
-    addr_a_in       <= '0';
-    -- valid is deasserted for one cycle while address is clocked in
-    assert read_valid_a_out = '0'
-      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
+    wait_edge;
+    while bram_axi_rvalid_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_rvalid_port_a = '1' report "rvalid";
+    assert bram_axi_rdata_port_a = x"44556677" report "rdata";
+    assert bram_axi_rresp_port_a = c_AXI_RESP_OKAY report "rresp";
 
+    wait_edge;
+    while bram_axi_rvalid_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_rvalid_port_a = '1' report "rvalid";
+    assert bram_axi_rdata_port_a = x"8899aabb" report "rdata";
+    assert bram_axi_rresp_port_a = c_AXI_RESP_OKAY report "rresp";
 
-    wait until falling_edge(clk);
-    read_ready_a_in <= '1';
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1'
-      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    assert data_a_out = x"11111111"
-      report "data_a_out is " & to_hstring(data_a_out) & " expected 11111111";
+    wait_edge;
+    while bram_axi_rvalid_port_a = '0' loop
+      wait_edge;
+    end loop;
+    assert bram_axi_rvalid_port_a = '1' report "rvalid";
+    assert bram_axi_rdata_port_a = x"ccddeeff" report "rdata";
+    assert bram_axi_rresp_port_a = c_AXI_RESP_OKAY report "rresp";
 
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1'
-      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    assert data_a_out = x"22222222"
-      report "data_a_out is " & to_hstring(data_a_out) & " expected 22222222";
+    wait_edge;
+    assert bram_axi_rlast_port_a = '1' report "rlast";
+    bram_axi_rready_port_a <= '0';
 
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1'
-      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    assert data_a_out = x"33333333"
-      report "data_a_out is " & to_hstring(data_a_out) & " expected 33333333";
+    for idx in 0 to 5 loop
+      wait_edge;
+    end loop;
 
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1'
-      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    assert data_a_out = x"44444444"
-      report "data_a_out is " & to_hstring(data_a_out) & " expected 44444444";
-
-    wait until falling_edge(clk);
-    assert read_valid_a_out = '1'
-      report "read_valid_a_out is " & std_logic'image(read_valid_a_out);
-    read_ready_a_in <= '0';
-
-    wait until falling_edge(clk);
-    wait until falling_edge(clk);
+    -- TODO test the byte interface
 
     std.env.stop;
   end process;

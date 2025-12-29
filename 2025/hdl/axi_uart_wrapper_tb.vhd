@@ -1,6 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+use work.aoc_top_pkg_hdr.ALL;
+
 --package axi_uart_wrapper_tb_pkg is
 --  constant c_CYCLES_PER_BIT: integer:= 234; -- 27,000,000 (27Mhz) / 115200 Baud rate;
 --end package;

@@ -55,16 +55,21 @@
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
 blk_mem_gen_0 your_instance_name (
-  .clka(clka),    // input wire clka
-  .wea(wea),      // input wire [0 : 0] wea
-  .addra(addra),  // input wire [8 : 0] addra
-  .dina(dina),    // input wire [31 : 0] dina
-  .douta(douta),  // output wire [31 : 0] douta
-  .clkb(clkb),    // input wire clkb
-  .web(web),      // input wire [0 : 0] web
-  .addrb(addrb),  // input wire [10 : 0] addrb
-  .dinb(dinb),    // input wire [7 : 0] dinb
-  .doutb(doutb)  // output wire [7 : 0] doutb
+  .clka(clka),            // input wire clka
+  .rsta(rsta),            // input wire rsta
+  .ena(ena),              // input wire ena
+  .wea(wea),              // input wire [0 : 0] wea
+  .addra(addra),          // input wire [9 : 0] addra
+  .dina(dina),            // input wire [31 : 0] dina
+  .douta(douta),          // output wire [31 : 0] douta
+  .clkb(clkb),            // input wire clkb
+  .enb(enb),              // input wire enb
+  .web(web),              // input wire [0 : 0] web
+  .addrb(addrb),          // input wire [11 : 0] addrb
+  .dinb(dinb),            // input wire [7 : 0] dinb
+  .doutb(doutb),          // output wire [7 : 0] doutb
+  .rsta_busy(rsta_busy),  // output wire rsta_busy
+  .rstb_busy(rstb_busy)  // output wire rstb_busy
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 

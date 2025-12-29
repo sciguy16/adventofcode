@@ -18,20 +18,20 @@ architecture rtl of hb is
     process(clk) is
     begin
         if(rising_edge(clk)) then
-            if (reset = '1') then
-                hb_led <= '0';
-                counter <= 0;
+            counter <= counter + 1;
+            if (counter <= g_PERIOD/2 - 1) then
+                hb_led <= '1';
             else
-                counter <= counter + 1;
-                if (counter <= g_PERIOD/2 - 1) then
-                    hb_led <= '1';
-                else
-                    hb_led <= '0';
-                end if;
+                hb_led <= '0';
+            end if;
 
-                if(counter = g_PERIOD - 1) then
-                    counter <= 0;
-                end if;
+            if(counter = g_PERIOD - 1) then
+                counter <= 0;
+            end if;
+
+            if (reset = '1') then
+                hb_led <= '1';
+                counter <= 0;
             end if;
         end if;
     end process;
