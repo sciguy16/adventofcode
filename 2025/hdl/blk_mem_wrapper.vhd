@@ -19,35 +19,35 @@ entity blk_mem_wrapper is
 
     -- Write controls --
     -- Start address of write transaction, in words
-    s_axi_write_word_offset_port_a : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+    s_axi_write_word_offset_port_a_IN : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
     -- Burst length of write transaction, in words/data beats
-    s_axi_awlen_port_a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    s_axi_awvalid_port_a : IN STD_LOGIC;
-    s_axi_awready_port_a : OUT STD_LOGIC;
+    s_axi_awlen_port_a_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+    s_axi_awvalid_port_a_IN : IN STD_LOGIC;
+    s_axi_awready_port_a_OUT : OUT STD_LOGIC;
 
     -- Write data --
-    s_axi_wdata_port_a : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    s_axi_wlast_port_a : IN STD_LOGIC;
-    s_axi_wvalid_port_a : IN STD_LOGIC;
-    s_axi_wready_port_a : OUT STD_LOGIC;
+    s_axi_wdata_port_a_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    s_axi_wlast_port_a_IN : IN STD_LOGIC;
+    s_axi_wvalid_port_a_IN : IN STD_LOGIC;
+    s_axi_wready_port_a_OUT : OUT STD_LOGIC;
 
     -- Write response --
-    s_axi_bresp_port_a : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-    s_axi_bvalid_port_a : OUT STD_LOGIC;
-    s_axi_bready_port_a : IN STD_LOGIC;
+    s_axi_bresp_port_a_OUT : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+    s_axi_bvalid_port_a_OUT : OUT STD_LOGIC;
+    s_axi_bready_port_a_IN : IN STD_LOGIC;
 
     -- Read controls --
-    s_axi_read_word_offset_port_a : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-    s_axi_arlen_port_a : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    s_axi_arvalid_port_a : IN STD_LOGIC;
-    s_axi_arready_port_a : OUT STD_LOGIC;
+    s_axi_read_word_offset_port_a_IN : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+    s_axi_arlen_port_a_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+    s_axi_arvalid_port_a_IN : IN STD_LOGIC;
+    s_axi_arready_port_a_OUT : OUT STD_LOGIC;
 
     -- Read data --
-    s_axi_rdata_port_a : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-    s_axi_rresp_port_a : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-    s_axi_rlast_port_a : OUT STD_LOGIC;
-    s_axi_rvalid_port_a : OUT STD_LOGIC;
-    s_axi_rready_port_a : IN STD_LOGIC;
+    s_axi_rdata_port_a_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    s_axi_rresp_port_a_OUT : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+    s_axi_rlast_port_a_OUT : OUT STD_LOGIC;
+    s_axi_rvalid_port_a_OUT : OUT STD_LOGIC;
+    s_axi_rready_port_a_IN : IN STD_LOGIC;
 
     -- Port B controls --
     bram_addr_b_in: in std_logic_vector(11 downto 0);
@@ -264,13 +264,13 @@ begin
       s_axi_aresetn => not reset,
 
       -- Write controls
-      s_axi_awaddr(11 downto 2) => s_axi_write_word_offset_port_a,
+      s_axi_awaddr(11 downto 2) => s_axi_write_word_offset_port_a_IN,
       s_axi_awaddr(1 downto 0) => "00",
-      s_axi_awlen => s_axi_awlen_port_a,
+      s_axi_awlen => s_axi_awlen_port_a_IN,
       s_axi_awsize => c_AXI_BURST_SIZE_BYTES_4,
       s_axi_awburst => c_AXI_BURST_TYPE_INCR,
-      s_axi_awvalid => s_axi_awvalid_port_a,
-      s_axi_awready => s_axi_awready_port_a,
+      s_axi_awvalid => s_axi_awvalid_port_a_IN,
+      s_axi_awready => s_axi_awready_port_a_OUT,
 
       -- lock, cache, prot unused
       s_axi_awlock => '0',
@@ -278,25 +278,25 @@ begin
       s_axi_awprot => (others => '0'),
 
       -- Write data
-      s_axi_wdata => s_axi_wdata_port_a,
+      s_axi_wdata => s_axi_wdata_port_a_IN,
       s_axi_wstrb => "1111",
-      s_axi_wlast => s_axi_wlast_port_a,
-      s_axi_wvalid => s_axi_wvalid_port_a,
-      s_axi_wready => s_axi_wready_port_a,
+      s_axi_wlast => s_axi_wlast_port_a_IN,
+      s_axi_wvalid => s_axi_wvalid_port_a_IN,
+      s_axi_wready => s_axi_wready_port_a_OUT,
 
       -- Write response
-      s_axi_bresp => s_axi_bresp_port_a,
-      s_axi_bvalid => s_axi_bvalid_port_a,
-      s_axi_bready => s_axi_bready_port_a,
+      s_axi_bresp => s_axi_bresp_port_a_OUT,
+      s_axi_bvalid => s_axi_bvalid_port_a_OUT,
+      s_axi_bready => s_axi_bready_port_a_IN,
 
       -- Read controls
-      s_axi_araddr(11 downto 2) => s_axi_read_word_offset_port_a,
+      s_axi_araddr(11 downto 2) => s_axi_read_word_offset_port_a_IN,
       s_axi_araddr(1 downto 0) => "00",
-      s_axi_arlen => s_axi_arlen_port_a,
+      s_axi_arlen => s_axi_arlen_port_a_IN,
       s_axi_arsize => c_AXI_BURST_SIZE_BYTES_4,
       s_axi_arburst => c_AXI_BURST_TYPE_INCR,
-      s_axi_arvalid => s_axi_arvalid_port_a,
-      s_axi_arready => s_axi_arready_port_a,
+      s_axi_arvalid => s_axi_arvalid_port_a_IN,
+      s_axi_arready => s_axi_arready_port_a_OUT,
 
       -- lock, cache, prot unused
       s_axi_arlock => '0',
@@ -304,11 +304,11 @@ begin
       s_axi_arprot => (others => '0'),
 
       -- Read data
-      s_axi_rdata => s_axi_rdata_port_a,
-      s_axi_rresp => s_axi_rresp_port_a,
-      s_axi_rlast => s_axi_rlast_port_a,
-      s_axi_rvalid => s_axi_rvalid_port_a,
-      s_axi_rready => s_axi_rready_port_a,
+      s_axi_rdata => s_axi_rdata_port_a_OUT,
+      s_axi_rresp => s_axi_rresp_port_a_OUT,
+      s_axi_rlast => s_axi_rlast_port_a_OUT,
+      s_axi_rvalid => s_axi_rvalid_port_a_OUT,
+      s_axi_rready => s_axi_rready_port_a_IN,
 
       -- BRAM interface
       bram_rst_a => bram_reset_a,

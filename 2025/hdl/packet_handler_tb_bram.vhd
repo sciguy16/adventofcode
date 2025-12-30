@@ -106,7 +106,7 @@ begin
     -- BRAM Port A controls --
 
     -- Write controls --
-    m_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+    m_axi_write_word_offset_port_a_OUT => bram_axi_write_word_offset_port_a,
     m_axi_awlen_port_a_OUT => bram_axi_awlen_port_a,
     m_axi_awvalid_port_a_OUT => bram_axi_awvalid_port_a,
     m_axi_awready_port_a_IN => bram_axi_awready_port_a,
@@ -123,7 +123,7 @@ begin
     m_axi_bready_port_a_OUT => bram_axi_bready_port_a,
 
     -- Read controls --
-    m_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+    m_axi_read_word_offset_port_a_OUT => bram_axi_read_word_offset_port_a,
     m_axi_arlen_port_a_OUT => bram_axi_arlen_port_a,
     m_axi_arvalid_port_a_OUT => bram_axi_arvalid_port_a,
     m_axi_arready_port_a_IN => bram_axi_arready_port_a,
@@ -291,34 +291,34 @@ begin
     -- Port A controls --
 
     -- Write controls --
-    s_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
-    s_axi_awlen_port_a => bram_axi_awlen_port_a,
-    s_axi_awvalid_port_a => bram_axi_awvalid_port_a,
-    s_axi_awready_port_a => bram_axi_awready_port_a,
+    s_axi_write_word_offset_port_a_IN  => bram_axi_write_word_offset_port_a,
+    s_axi_awlen_port_a_IN  => bram_axi_awlen_port_a,
+    s_axi_awvalid_port_a_IN  => bram_axi_awvalid_port_a,
+    s_axi_awready_port_a_OUT  => bram_axi_awready_port_a,
 
     -- Write data --
-    s_axi_wdata_port_a => bram_axi_wdata_port_a,
-    s_axi_wlast_port_a => bram_axi_wlast_port_a,
-    s_axi_wvalid_port_a => bram_axi_wvalid_port_a,
-    s_axi_wready_port_a => bram_axi_wready_port_a,
+    s_axi_wdata_port_a_IN  => bram_axi_wdata_port_a,
+    s_axi_wlast_port_a_IN  => bram_axi_wlast_port_a,
+    s_axi_wvalid_port_a_IN  => bram_axi_wvalid_port_a,
+    s_axi_wready_port_a_OUT  => bram_axi_wready_port_a,
 
     -- Write response --
-    s_axi_bresp_port_a => bram_axi_bresp_port_a,
-    s_axi_bvalid_port_a => bram_axi_bvalid_port_a,
-    s_axi_bready_port_a => bram_axi_bready_port_a,
+    s_axi_bresp_port_a_OUT  => bram_axi_bresp_port_a,
+    s_axi_bvalid_port_a_OUT  => bram_axi_bvalid_port_a,
+    s_axi_bready_port_a_IN  => bram_axi_bready_port_a,
 
     -- Read controls --
-    s_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
-    s_axi_arlen_port_a => bram_axi_arlen_port_a,
-    s_axi_arvalid_port_a => bram_axi_arvalid_port_a,
-    s_axi_arready_port_a => bram_axi_arready_port_a,
+    s_axi_read_word_offset_port_a_IN  => bram_axi_read_word_offset_port_a,
+    s_axi_arlen_port_a_IN  => bram_axi_arlen_port_a,
+    s_axi_arvalid_port_a_IN  => bram_axi_arvalid_port_a,
+    s_axi_arready_port_a_OUT  => bram_axi_arready_port_a,
 
     -- Read data --
-    s_axi_rdata_port_a => bram_axi_rdata_port_a,
-    s_axi_rresp_port_a => bram_axi_rresp_port_a,
-    s_axi_rlast_port_a => bram_axi_rlast_port_a,
-    s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
-    s_axi_rready_port_a => bram_axi_rready_port_a,
+    s_axi_rdata_port_a_OUT  => bram_axi_rdata_port_a,
+    s_axi_rresp_port_a_OUT  => bram_axi_rresp_port_a,
+    s_axi_rlast_port_a_OUT  => bram_axi_rlast_port_a,
+    s_axi_rvalid_port_a_OUT  => bram_axi_rvalid_port_a,
+    s_axi_rready_port_a_IN  => bram_axi_rready_port_a,
 
     -- Port B controls --
     bram_addr_b_in => bram_addr_b_in,

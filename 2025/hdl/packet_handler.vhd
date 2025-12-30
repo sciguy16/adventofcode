@@ -61,7 +61,7 @@ entity packet_handler is
 
     -- Write controls --
     -- Start address of write transaction, in bytes?
-    m_axi_write_word_offset_port_a : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+    m_axi_write_word_offset_port_a_OUT : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
     -- Burst length of write transaction, in words/data beats
     m_axi_awlen_port_a_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
     m_axi_awvalid_port_a_OUT : OUT STD_LOGIC;
@@ -79,7 +79,7 @@ entity packet_handler is
     m_axi_bready_port_a_OUT : OUT STD_LOGIC;
 
     -- Read controls --
-    m_axi_read_word_offset_port_a : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+    m_axi_read_word_offset_port_a_OUT : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
     m_axi_arlen_port_a_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
     m_axi_arvalid_port_a_OUT : OUT STD_LOGIC;
     m_axi_arready_port_a_IN : IN STD_LOGIC;
@@ -235,7 +235,7 @@ begin
             -- interface (but only if the write request is valid)
             if PACKET_TYPE = C_DESTINATION_top_TYPE_write_ram
               and RX_PACKET_LENGTH_OKAY then
-              m_axi_write_word_offset_port_a  <= v_ram_offset(9 downto 0);
+              m_axi_write_word_offset_port_a_OUT  <= v_ram_offset(9 downto 0);
               --TODO validate that the word count fits into 8 bits
               m_axi_awlen_port_a_OUT   <=
                 std_logic_vector(RX_PACKET_LENGTH_WORDS(7 downto 0));
@@ -321,7 +321,7 @@ begin
         axi_str_rxd_tready_OUT <= '0';
         m_axi_awvalid_port_a_OUT <= '0';
         m_axi_bready_port_a_OUT <= '0';
-        m_axi_write_word_offset_port_a <= 10x"000";
+        m_axi_write_word_offset_port_a_OUT <= 10x"000";
         m_axi_awlen_port_a_OUT <= x"00";
       end if;
     end if;
@@ -384,7 +384,7 @@ begin
           reply_state <= REPLY_STATE_SETUP_BRAM_READ;
           -- set up the read request
           --TODO validate that the ram offset fits into 12 bits
-          m_axi_read_word_offset_port_a  <= RAM_OFFSET(9 downto 0);
+          m_axi_read_word_offset_port_a_OUT  <= RAM_OFFSET(9 downto 0);
           m_axi_arlen_port_a_OUT   <= std_logic_vector(c_BRAM_READ_LEN_WORDS);
           m_axi_arvalid_port_a_OUT <= '1';
 
@@ -422,7 +422,7 @@ begin
         reply_done                    <= '0';
         m_axi_arvalid_port_a_OUT      <= '0';
         m_axi_arlen_port_a_OUT        <= x"00";
-        m_axi_read_word_offset_port_a <= 10x"000";
+        m_axi_read_word_offset_port_a_OUT <= 10x"000";
         axi_str_txd_tdata_OUT   <= (others => '0');
       end if;
     end if;
