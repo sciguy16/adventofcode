@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="day_mux_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="day_mux_tb" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="607.501 ns"></ZoomEndTime>
+      <Cursor1Time time="402.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="338"></NameColumnWidth>
+      <ValueColumnWidth column_width="139"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="37" />
+   <wvobject type="logic" fp_name="/day_mux_tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/reset">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/day_sel_IN">
+      <obj_property name="ElementShortName">day_sel_IN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">day_sel_IN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/data_len_bytes_IN">
+      <obj_property name="ElementShortName">data_len_bytes_IN[11:0]</obj_property>
+      <obj_property name="ObjectShortName">data_len_bytes_IN[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/day_done_OUT">
+      <obj_property name="ElementShortName">day_done_OUT</obj_property>
+      <obj_property name="ObjectShortName">day_done_OUT</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/bram_addr_b_OUT">
+      <obj_property name="ElementShortName">bram_addr_b_OUT[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_b_OUT[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/bram_write_data_b_OUT">
+      <obj_property name="ElementShortName">bram_write_data_b_OUT[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_write_data_b_OUT[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/bram_read_data_b_IN">
+      <obj_property name="ElementShortName">bram_read_data_b_IN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_read_data_b_IN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/bram_port_b_write_enable_OUT">
+      <obj_property name="ElementShortName">bram_port_b_write_enable_OUT</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_write_enable_OUT</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/bram_port_b_enabled_IN">
+      <obj_property name="ElementShortName">bram_port_b_enabled_IN</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_enabled_IN</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/day_mux_tb/c_HALF_PERIOD_25_MHz">
+      <obj_property name="ElementShortName">c_HALF_PERIOD_25_MHz</obj_property>
+      <obj_property name="ObjectShortName">c_HALF_PERIOD_25_MHz</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/reset">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day_sel_IN">
+      <obj_property name="ElementShortName">day_sel_IN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">day_sel_IN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/data_len_bytes_IN">
+      <obj_property name="ElementShortName">data_len_bytes_IN[11:0]</obj_property>
+      <obj_property name="ObjectShortName">data_len_bytes_IN[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/day_done_OUT">
+      <obj_property name="ElementShortName">day_done_OUT</obj_property>
+      <obj_property name="ObjectShortName">day_done_OUT</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_addr_b_OUT">
+      <obj_property name="ElementShortName">bram_addr_b_OUT[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_b_OUT[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_write_data_b_OUT">
+      <obj_property name="ElementShortName">bram_write_data_b_OUT[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_write_data_b_OUT[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_read_data_b_IN">
+      <obj_property name="ElementShortName">bram_read_data_b_IN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_read_data_b_IN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/bram_port_b_write_enable_OUT">
+      <obj_property name="ElementShortName">bram_port_b_write_enable_OUT</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_write_enable_OUT</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/bram_port_b_enabled_IN">
+      <obj_property name="ElementShortName">bram_port_b_enabled_IN</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_enabled_IN</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_addr_b">
+      <obj_property name="ElementShortName">bram_addr_b[0:0][11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_b[0:0][11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_write_data_b">
+      <obj_property name="ElementShortName">bram_write_data_b[0:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_write_data_b[0:0][7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_port_b_enabled">
+      <obj_property name="ElementShortName">bram_port_b_enabled[0:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_enabled[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/bram_port_b_write_enable">
+      <obj_property name="ElementShortName">bram_port_b_write_enable[0:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_write_enable[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day_done">
+      <obj_property name="ElementShortName">day_done[0:0]</obj_property>
+      <obj_property name="ObjectShortName">day_done[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/day_mux_tb/uut/C_NUM_DAYS">
+      <obj_property name="ElementShortName">C_NUM_DAYS</obj_property>
+      <obj_property name="ObjectShortName">C_NUM_DAYS</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/day0_inst/reset">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/day0_inst/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day0_inst/data_len_bytes_IN">
+      <obj_property name="ElementShortName">data_len_bytes_IN[11:0]</obj_property>
+      <obj_property name="ObjectShortName">data_len_bytes_IN[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/day0_inst/day_done_OUT">
+      <obj_property name="ElementShortName">day_done_OUT</obj_property>
+      <obj_property name="ObjectShortName">day_done_OUT</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day0_inst/bram_addr_b_OUT">
+      <obj_property name="ElementShortName">bram_addr_b_OUT[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_b_OUT[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day0_inst/bram_write_data_b_OUT">
+      <obj_property name="ElementShortName">bram_write_data_b_OUT[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_write_data_b_OUT[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day0_inst/bram_read_data_b_IN">
+      <obj_property name="ElementShortName">bram_read_data_b_IN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_read_data_b_IN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/day0_inst/bram_port_b_write_enable_OUT">
+      <obj_property name="ElementShortName">bram_port_b_write_enable_OUT</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_write_enable_OUT</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/day_mux_tb/uut/day0_inst/bram_port_b_enabled_IN">
+      <obj_property name="ElementShortName">bram_port_b_enabled_IN</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_enabled_IN</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day_mux_tb/uut/day0_inst/accumulator">
+      <obj_property name="ElementShortName">accumulator[31:0]</obj_property>
+      <obj_property name="ObjectShortName">accumulator[31:0]</obj_property>
+   </wvobject>
+</wave_config>
