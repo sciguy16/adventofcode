@@ -171,9 +171,9 @@ begin
     --  data_a_out <= (others => '0');
     --end if;
     bram_write_enable_a_bit := bram_write_enable_a(0)
-        and bram_write_enable_a(1)
-        and bram_write_enable_a(2)
-        and bram_write_enable_a(3);
+      and bram_write_enable_a(1)
+      and bram_write_enable_a(2)
+      and bram_write_enable_a(3);
     assert (bram_write_enable_a = "0000"
       or bram_write_enable_a = "1111")
       report "BRAM attempting narrow write: " & to_string(bram_write_enable_a);
@@ -238,85 +238,91 @@ begin
   -- 512 deep at 32 bits wide
   -- 2048 deep at 8 bits wide
   blk_mem_inst : blk_mem_gen_0
-    PORT MAP (
-      clka => bram_clk,
-      rsta => bram_reset_a,
-      ena => bram_enable_a,
-      wea(0) => bram_write_enable_a(0)
-        and bram_write_enable_a(1)
-        and bram_write_enable_a(2)
-        and bram_write_enable_a(3),
-      addra => bram_addr_a(9 downto 0),
-      dina => bram_din_a,
-      douta => bram_dout_a,
+  PORT MAP (
+    clka => bram_clk,
+    rsta => bram_reset_a,
+    ena => bram_enable_a,
+    wea(0) => bram_write_enable_a(0)
+      and bram_write_enable_a(1)
+      and bram_write_enable_a(2)
+      and bram_write_enable_a(3),
+    addra => bram_addr_a(11 downto 2),
+    dina => bram_din_a,
+    douta => bram_dout_a,
 
-      clkb => clk,
-      enb => bram_port_b_enabled_out,
-      web(0) => bram_port_b_write_enable_in,
-      addrb => bram_addr_b_in,
-      dinb => bram_data_b_in,
-      doutb => bram_data_b_out
-    );
+    clkb => clk,
+    enb => bram_port_b_enabled_out,
+    web(0) => bram_port_b_write_enable_in,
+    addrb => bram_addr_b_in,
+    dinb => bram_data_b_in,
+    doutb => bram_data_b_out
+  );
 
   axi_bram_ctrl_inst : axi_bram_ctrl_0
-    PORT MAP (
-      s_axi_aclk => clk,
-      s_axi_aresetn => not reset,
+  PORT MAP (
+    s_axi_aclk => clk,
+    s_axi_aresetn => not reset,
 
-      -- Write controls
-      s_axi_awaddr(11 downto 2) => s_axi_write_word_offset_port_a_IN,
-      s_axi_awaddr(1 downto 0) => "00",
-      s_axi_awlen => s_axi_awlen_port_a_IN,
-      s_axi_awsize => c_AXI_BURST_SIZE_BYTES_4,
-      s_axi_awburst => c_AXI_BURST_TYPE_INCR,
-      s_axi_awvalid => s_axi_awvalid_port_a_IN,
-      s_axi_awready => s_axi_awready_port_a_OUT,
+    -- Write controls
+    s_axi_awaddr(11 downto 2) => s_axi_write_word_offset_port_a_IN,
+    s_axi_awaddr(1 downto 0) => "00",
+    s_axi_awlen => s_axi_awlen_port_a_IN,
+    s_axi_awsize => c_AXI_BURST_SIZE_BYTES_4,
+    s_axi_awburst => c_AXI_BURST_TYPE_INCR,
+    s_axi_awvalid => s_axi_awvalid_port_a_IN,
+    s_axi_awready => s_axi_awready_port_a_OUT,
 
-      -- lock, cache, prot unused
-      s_axi_awlock => '0',
-      s_axi_awcache => (others => '0'),
-      s_axi_awprot => (others => '0'),
+    -- lock, cache, prot unused
+    s_axi_awlock => '0',
+    s_axi_awcache => (others => '0'),
+    s_axi_awprot => (others => '0'),
 
-      -- Write data
-      s_axi_wdata => s_axi_wdata_port_a_IN,
-      s_axi_wstrb => "1111",
-      s_axi_wlast => s_axi_wlast_port_a_IN,
-      s_axi_wvalid => s_axi_wvalid_port_a_IN,
-      s_axi_wready => s_axi_wready_port_a_OUT,
+    -- Write data
+    s_axi_wdata(31 downto 24) => s_axi_wdata_port_a_IN(7 downto 0),
+    s_axi_wdata(23 downto 16) => s_axi_wdata_port_a_IN(15 downto 8),
+    s_axi_wdata(15 downto 8) => s_axi_wdata_port_a_IN(23 downto 16),
+    s_axi_wdata(7 downto 0) => s_axi_wdata_port_a_IN(31 downto 24),
+    s_axi_wstrb => "1111",
+    s_axi_wlast => s_axi_wlast_port_a_IN,
+    s_axi_wvalid => s_axi_wvalid_port_a_IN,
+    s_axi_wready => s_axi_wready_port_a_OUT,
 
-      -- Write response
-      s_axi_bresp => s_axi_bresp_port_a_OUT,
-      s_axi_bvalid => s_axi_bvalid_port_a_OUT,
-      s_axi_bready => s_axi_bready_port_a_IN,
+    -- Write response
+    s_axi_bresp => s_axi_bresp_port_a_OUT,
+    s_axi_bvalid => s_axi_bvalid_port_a_OUT,
+    s_axi_bready => s_axi_bready_port_a_IN,
 
-      -- Read controls
-      s_axi_araddr(11 downto 2) => s_axi_read_word_offset_port_a_IN,
-      s_axi_araddr(1 downto 0) => "00",
-      s_axi_arlen => s_axi_arlen_port_a_IN,
-      s_axi_arsize => c_AXI_BURST_SIZE_BYTES_4,
-      s_axi_arburst => c_AXI_BURST_TYPE_INCR,
-      s_axi_arvalid => s_axi_arvalid_port_a_IN,
-      s_axi_arready => s_axi_arready_port_a_OUT,
+    -- Read controls
+    s_axi_araddr(11 downto 2) => s_axi_read_word_offset_port_a_IN,
+    s_axi_araddr(1 downto 0) => "00",
+    s_axi_arlen => s_axi_arlen_port_a_IN,
+    s_axi_arsize => c_AXI_BURST_SIZE_BYTES_4,
+    s_axi_arburst => c_AXI_BURST_TYPE_INCR,
+    s_axi_arvalid => s_axi_arvalid_port_a_IN,
+    s_axi_arready => s_axi_arready_port_a_OUT,
 
-      -- lock, cache, prot unused
-      s_axi_arlock => '0',
-      s_axi_arcache => (others => '0'),
-      s_axi_arprot => (others => '0'),
+    -- lock, cache, prot unused
+    s_axi_arlock => '0',
+    s_axi_arcache => (others => '0'),
+    s_axi_arprot => (others => '0'),
 
-      -- Read data
-      s_axi_rdata => s_axi_rdata_port_a_OUT,
-      s_axi_rresp => s_axi_rresp_port_a_OUT,
-      s_axi_rlast => s_axi_rlast_port_a_OUT,
-      s_axi_rvalid => s_axi_rvalid_port_a_OUT,
-      s_axi_rready => s_axi_rready_port_a_IN,
+    -- Read data
+    s_axi_rdata(31 downto 24) => s_axi_rdata_port_a_OUT(7 downto 0),
+    s_axi_rdata(23 downto 16) => s_axi_rdata_port_a_OUT(15 downto 8),
+    s_axi_rdata(15 downto 8) => s_axi_rdata_port_a_OUT(23 downto 16),
+    s_axi_rdata(7 downto 0) => s_axi_rdata_port_a_OUT(31 downto 24),
+    s_axi_rresp => s_axi_rresp_port_a_OUT,
+    s_axi_rlast => s_axi_rlast_port_a_OUT,
+    s_axi_rvalid => s_axi_rvalid_port_a_OUT,
+    s_axi_rready => s_axi_rready_port_a_IN,
 
-      -- BRAM interface
-      bram_rst_a => bram_reset_a,
-      bram_clk_a => bram_clk,
-      bram_en_a => bram_enable_a,
-      bram_we_a => bram_write_enable_a,
-      bram_addr_a => bram_addr_a,
-      bram_wrdata_a => bram_din_a,
-      bram_rddata_a => bram_dout_a
-    );
+    -- BRAM interface
+    bram_rst_a => bram_reset_a,
+    bram_clk_a => bram_clk,
+    bram_en_a => bram_enable_a,
+    bram_we_a => bram_write_enable_a,
+    bram_addr_a => bram_addr_a,
+    bram_wrdata_a => bram_din_a,
+    bram_rddata_a => bram_dout_a
+  );
 end rtl;
