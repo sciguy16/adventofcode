@@ -21,6 +21,13 @@ end day0;
 
 architecture rtl of day0 is
   signal accumulator: unsigned(31 downto 0) := x"00000000";
+
+  type T_STATE is (
+    STATE_IDLE,
+    STATE_RUNNING
+  );
+  signal state: T_STATE := STATE_IDLE;
+
 begin
   day0_proc: process(clk)
   begin
