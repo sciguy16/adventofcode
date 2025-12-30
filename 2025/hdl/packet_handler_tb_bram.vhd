@@ -53,6 +53,13 @@ architecture rtl of packet_handler_tb_bram is
   signal bram_axi_rvalid_port_a : STD_LOGIC;
   signal bram_axi_rready_port_a : STD_LOGIC;
 
+    -- Port B controls --
+  signal bram_addr_b_in: std_logic_vector(11 downto 0) := x"000";
+  signal bram_data_b_in: std_logic_vector(7 downto 0) := x"00";
+  signal bram_data_b_out: std_logic_vector(7 downto 0);
+  signal bram_port_b_write_enable_in: std_logic := '0';
+  signal bram_port_b_enabled_out: std_logic;
+
   signal verbose: boolean := false;
 
   procedure wait_edge is
@@ -276,7 +283,7 @@ begin
     std.env.stop;
   end process;
 
-  blk_mem_wrapper_int: entity work.blk_mem_wrapper(rtl)
+  blk_mem_wrapper_inst: entity work.blk_mem_wrapper(rtl)
   port map(
     reset => reset,
     clk => clk,
@@ -311,15 +318,13 @@ begin
     s_axi_rresp_port_a => bram_axi_rresp_port_a,
     s_axi_rlast_port_a => bram_axi_rlast_port_a,
     s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
-    s_axi_rready_port_a => bram_axi_rready_port_a
+    s_axi_rready_port_a => bram_axi_rready_port_a,
 
     -- Port B controls --
-    --data_a_in         => bram_write_data_a,
-    --data_a_out        => bram_read_data_a,
-    --addr_a_in         => bram_addr_a,
-    --write_valid_a_in  => bram_write_valid_a,
-    --write_ready_a_out => bram_write_ready_a,
-    --read_valid_a_out  => bram_read_valid_a,
-    --read_ready_a_in   => bram_read_ready_a
+    bram_addr_b_in => bram_addr_b_in,
+    bram_data_b_in => bram_data_b_in,
+    bram_data_b_out => bram_data_b_out,
+    bram_port_b_write_enable_in => bram_port_b_write_enable_in,
+    bram_port_b_enabled_out => bram_port_b_enabled_out
   );
 end rtl;

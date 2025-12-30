@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="blk_mem_wrapper_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="aoc_top_pkg_hdr" />
+            <top_module name="axi_bram_ctrl_funcs" />
+            <top_module name="blk_mem_wrapper_tb" />
+            <top_module name="glbl" />
+            <top_module name="vcomponents" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,430.001 ns"></ZoomEndTime>
+      <Cursor1Time time="0.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="338"></NameColumnWidth>
+      <ValueColumnWidth column_width="139"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="62" />
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/reset">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_write_word_offset_port_a">
+      <obj_property name="ElementShortName">bram_axi_write_word_offset_port_a[9:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_write_word_offset_port_a[9:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_awlen_port_a">
+      <obj_property name="ElementShortName">bram_axi_awlen_port_a[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_awlen_port_a[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_awvalid_port_a">
+      <obj_property name="ElementShortName">bram_axi_awvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_awvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_awready_port_a">
+      <obj_property name="ElementShortName">bram_axi_awready_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_awready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_wdata_port_a">
+      <obj_property name="ElementShortName">bram_axi_wdata_port_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_wdata_port_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_wlast_port_a">
+      <obj_property name="ElementShortName">bram_axi_wlast_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_wlast_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_wvalid_port_a">
+      <obj_property name="ElementShortName">bram_axi_wvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_wvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_wready_port_a">
+      <obj_property name="ElementShortName">bram_axi_wready_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_wready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_bresp_port_a">
+      <obj_property name="ElementShortName">bram_axi_bresp_port_a[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_bresp_port_a[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_bvalid_port_a">
+      <obj_property name="ElementShortName">bram_axi_bvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_bvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_bready_port_a">
+      <obj_property name="ElementShortName">bram_axi_bready_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_bready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_read_word_offset_port_a">
+      <obj_property name="ElementShortName">bram_axi_read_word_offset_port_a[9:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_read_word_offset_port_a[9:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_arlen_port_a">
+      <obj_property name="ElementShortName">bram_axi_arlen_port_a[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_arlen_port_a[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_arvalid_port_a">
+      <obj_property name="ElementShortName">bram_axi_arvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_arvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_arready_port_a">
+      <obj_property name="ElementShortName">bram_axi_arready_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_arready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_rdata_port_a">
+      <obj_property name="ElementShortName">bram_axi_rdata_port_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_rdata_port_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_axi_rresp_port_a">
+      <obj_property name="ElementShortName">bram_axi_rresp_port_a[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_rresp_port_a[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_rlast_port_a">
+      <obj_property name="ElementShortName">bram_axi_rlast_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_rlast_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_rvalid_port_a">
+      <obj_property name="ElementShortName">bram_axi_rvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_rvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_axi_rready_port_a">
+      <obj_property name="ElementShortName">bram_axi_rready_port_a</obj_property>
+      <obj_property name="ObjectShortName">bram_axi_rready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_addr_b_in">
+      <obj_property name="ElementShortName">bram_addr_b_in[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_b_in[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_data_b_in">
+      <obj_property name="ElementShortName">bram_data_b_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_data_b_in[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/bram_data_b_out">
+      <obj_property name="ElementShortName">bram_data_b_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_data_b_out[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_port_b_write_enable_in">
+      <obj_property name="ElementShortName">bram_port_b_write_enable_in</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_write_enable_in</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/bram_port_b_enabled_out">
+      <obj_property name="ElementShortName">bram_port_b_enabled_out</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_enabled_out</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/blk_mem_wrapper_tb/c_HALF_PERIOD_25_MHz">
+      <obj_property name="ElementShortName">c_HALF_PERIOD_25_MHz</obj_property>
+      <obj_property name="ObjectShortName">c_HALF_PERIOD_25_MHz</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/reset">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_write_word_offset_port_a">
+      <obj_property name="ElementShortName">s_axi_write_word_offset_port_a[9:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_write_word_offset_port_a[9:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_awlen_port_a">
+      <obj_property name="ElementShortName">s_axi_awlen_port_a[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awlen_port_a[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_awvalid_port_a">
+      <obj_property name="ElementShortName">s_axi_awvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_awready_port_a">
+      <obj_property name="ElementShortName">s_axi_awready_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_awready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_wdata_port_a">
+      <obj_property name="ElementShortName">s_axi_wdata_port_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wdata_port_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_wlast_port_a">
+      <obj_property name="ElementShortName">s_axi_wlast_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wlast_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_wvalid_port_a">
+      <obj_property name="ElementShortName">s_axi_wvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_wready_port_a">
+      <obj_property name="ElementShortName">s_axi_wready_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_wready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_bresp_port_a">
+      <obj_property name="ElementShortName">s_axi_bresp_port_a[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bresp_port_a[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_bvalid_port_a">
+      <obj_property name="ElementShortName">s_axi_bvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_bready_port_a">
+      <obj_property name="ElementShortName">s_axi_bready_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_bready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_read_word_offset_port_a">
+      <obj_property name="ElementShortName">s_axi_read_word_offset_port_a[9:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_read_word_offset_port_a[9:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_arlen_port_a">
+      <obj_property name="ElementShortName">s_axi_arlen_port_a[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arlen_port_a[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_arvalid_port_a">
+      <obj_property name="ElementShortName">s_axi_arvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_arready_port_a">
+      <obj_property name="ElementShortName">s_axi_arready_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_arready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_rdata_port_a">
+      <obj_property name="ElementShortName">s_axi_rdata_port_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rdata_port_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/s_axi_rresp_port_a">
+      <obj_property name="ElementShortName">s_axi_rresp_port_a[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rresp_port_a[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_rlast_port_a">
+      <obj_property name="ElementShortName">s_axi_rlast_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rlast_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_rvalid_port_a">
+      <obj_property name="ElementShortName">s_axi_rvalid_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rvalid_port_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/s_axi_rready_port_a">
+      <obj_property name="ElementShortName">s_axi_rready_port_a</obj_property>
+      <obj_property name="ObjectShortName">s_axi_rready_port_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_addr_b_in">
+      <obj_property name="ElementShortName">bram_addr_b_in[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_b_in[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_data_b_in">
+      <obj_property name="ElementShortName">bram_data_b_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_data_b_in[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_data_b_out">
+      <obj_property name="ElementShortName">bram_data_b_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_data_b_out[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/bram_port_b_write_enable_in">
+      <obj_property name="ElementShortName">bram_port_b_write_enable_in</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_write_enable_in</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/bram_port_b_enabled_out">
+      <obj_property name="ElementShortName">bram_port_b_enabled_out</obj_property>
+      <obj_property name="ObjectShortName">bram_port_b_enabled_out</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/bram_enable_a">
+      <obj_property name="ElementShortName">bram_enable_a</obj_property>
+      <obj_property name="ObjectShortName">bram_enable_a</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/bram_reset_a">
+      <obj_property name="ElementShortName">bram_reset_a</obj_property>
+      <obj_property name="ObjectShortName">bram_reset_a</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_write_enable_a">
+      <obj_property name="ElementShortName">bram_write_enable_a[3:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_write_enable_a[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_addr_a">
+      <obj_property name="ElementShortName">bram_addr_a[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr_a[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_din_a">
+      <obj_property name="ElementShortName">bram_din_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_din_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/blk_mem_wrapper_tb/uut/bram_dout_a">
+      <obj_property name="ElementShortName">bram_dout_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_dout_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/blk_mem_wrapper_tb/uut/bram_clk">
+      <obj_property name="ElementShortName">bram_clk</obj_property>
+      <obj_property name="ObjectShortName">bram_clk</obj_property>
+   </wvobject>
+</wave_config>

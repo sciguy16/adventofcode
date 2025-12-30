@@ -47,17 +47,14 @@ entity blk_mem_wrapper is
     s_axi_rresp_port_a : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
     s_axi_rlast_port_a : OUT STD_LOGIC;
     s_axi_rvalid_port_a : OUT STD_LOGIC;
-    s_axi_rready_port_a : IN STD_LOGIC
+    s_axi_rready_port_a : IN STD_LOGIC;
 
     -- Port B controls --
-    -- TODO
-    --data_a_in: in std_logic_vector(31 downto 0);
-    --data_a_out: out std_logic_vector(31 downto 0);
-    --addr_a_in: in std_logic;
-    --write_valid_a_in: in std_logic;
-    --write_ready_a_out: out std_logic;
-    --read_valid_a_out: out std_logic;
-    --read_ready_a_in: in std_logic
+    bram_addr_b_in: in std_logic_vector(11 downto 0);
+    bram_data_b_in: in std_logic_vector(7 downto 0);
+    bram_data_b_out: out std_logic_vector(7 downto 0);
+    bram_port_b_write_enable_in: in std_logic;
+    bram_port_b_enabled_out: out std_logic
   );
 end blk_mem_wrapper;
 
@@ -68,19 +65,7 @@ architecture rtl of blk_mem_wrapper is
   signal bram_addr_a: std_logic_vector(11 downto 0);
   signal bram_din_a: std_logic_vector(31 downto 0);
   signal bram_dout_a: std_logic_vector(31 downto 0);
-  --signal inc_addr_a: boolean;
-
   signal bram_clk: std_logic;
-  signal bram_write_enable_b: std_logic := '0';
-  signal bram_enable_b: std_logic;
-  signal bram_addr_b: unsigned(11 downto 0) := (others => '0');
-  signal bram_din_b: std_logic_vector(7 downto 0) := (others => '0');
-  signal bram_dout_b: std_logic_vector(7 downto 0);
-
-  signal write_valid_b_in: std_logic := '0'; --TODO make port
-  signal addr_b_in: std_logic := '0'; --TODO make port
-  signal data_b_out: std_logic_vector(7 downto 0); --TODO make port
-  signal read_valid_b_out: std_logic; -- TODO make port
 
 
   COMPONENT blk_mem_gen_0
@@ -192,14 +177,23 @@ begin
     assert (bram_write_enable_a = "0000"
       or bram_write_enable_a = "1111")
       report "BRAM attempting narrow write: " & to_string(bram_write_enable_a);
-    read_valid_b_out <= not bram_write_enable_a_bit and not addr_b_in;
-    bram_enable_b <= not bram_write_enable_a_bit;
-    if read_valid_b_out then
-      data_b_out <= bram_dout_b;
-    else
-      data_b_out <= (others => '0');
-    end if;
+    --data_valid_b_out <= not bram_write_enable_a_bit and not addr_b_valid_in;
+    bram_port_b_enabled_out <= not bram_write_enable_a_bit;
+    --if data_valid_b_out then
+    --  data_b_out <= bram_dout_b;
+    --else
+    --  data_b_out <= (others => '0');
+    --end if;
   end process data_out_connect;
+
+  --port_b_addr_ctrl: process(clk) is
+  --begin
+  --  if rising_edge(clk) then
+  --    if addr_b_valid_in = '1' then
+  --      bram_addr_b <= unsigned(addr_b_in);
+  --    end if;
+  --  end if;
+  --end process port_b_addr_ctrl;
 
   --data_in_connect: process(all) is
   --begin
@@ -257,11 +251,11 @@ begin
       douta => bram_dout_a,
 
       clkb => clk,
-      enb => bram_enable_b,
-      web(0) => bram_write_enable_b,
-      addrb => std_logic_vector(bram_addr_b),
-      dinb => bram_din_b,
-      doutb => bram_dout_b
+      enb => bram_port_b_enabled_out,
+      web(0) => bram_port_b_write_enable_in,
+      addrb => bram_addr_b_in,
+      dinb => bram_data_b_in,
+      doutb => bram_data_b_out
     );
 
   axi_bram_ctrl_inst : axi_bram_ctrl_0

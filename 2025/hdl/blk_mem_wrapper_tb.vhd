@@ -42,6 +42,12 @@ architecture rtl of blk_mem_wrapper_tb is
   signal bram_axi_rvalid_port_a : STD_LOGIC;
   signal bram_axi_rready_port_a : STD_LOGIC;
 
+    -- Port B controls --
+  signal bram_addr_b_in: std_logic_vector(11 downto 0);
+  signal bram_data_b_in: std_logic_vector(7 downto 0);
+  signal bram_data_b_out: std_logic_vector(7 downto 0);
+  signal bram_port_b_write_enable_in: std_logic;
+  signal bram_port_b_enabled_out: std_logic;
 
   procedure wait_edge is
   begin
@@ -51,59 +57,61 @@ architecture rtl of blk_mem_wrapper_tb is
 
 begin
   uut : entity work.blk_mem_wrapper(rtl)
-    port map(
-      reset => reset,
-      clk   => clk,
+  port map(
+    reset => reset,
+    clk   => clk,
 
-      -- Port A controls --
+    -- Port A controls --
 
-      -- Write controls --
-      s_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
-      s_axi_awlen_port_a => bram_axi_awlen_port_a,
-      s_axi_awvalid_port_a => bram_axi_awvalid_port_a,
-      s_axi_awready_port_a => bram_axi_awready_port_a,
+    -- Write controls --
+    s_axi_write_word_offset_port_a => bram_axi_write_word_offset_port_a,
+    s_axi_awlen_port_a => bram_axi_awlen_port_a,
+    s_axi_awvalid_port_a => bram_axi_awvalid_port_a,
+    s_axi_awready_port_a => bram_axi_awready_port_a,
 
-      -- Write data --
-      s_axi_wdata_port_a => bram_axi_wdata_port_a,
-      s_axi_wlast_port_a => bram_axi_wlast_port_a,
-      s_axi_wvalid_port_a => bram_axi_wvalid_port_a,
-      s_axi_wready_port_a => bram_axi_wready_port_a,
+    -- Write data --
+    s_axi_wdata_port_a => bram_axi_wdata_port_a,
+    s_axi_wlast_port_a => bram_axi_wlast_port_a,
+    s_axi_wvalid_port_a => bram_axi_wvalid_port_a,
+    s_axi_wready_port_a => bram_axi_wready_port_a,
 
-      -- Write response --
-      s_axi_bresp_port_a => bram_axi_bresp_port_a,
-      s_axi_bvalid_port_a => bram_axi_bvalid_port_a,
-      s_axi_bready_port_a => bram_axi_bready_port_a,
+    -- Write response --
+    s_axi_bresp_port_a => bram_axi_bresp_port_a,
+    s_axi_bvalid_port_a => bram_axi_bvalid_port_a,
+    s_axi_bready_port_a => bram_axi_bready_port_a,
 
-      -- Read controls --
-      s_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
-      s_axi_arlen_port_a => bram_axi_arlen_port_a,
-      s_axi_arvalid_port_a => bram_axi_arvalid_port_a,
-      s_axi_arready_port_a => bram_axi_arready_port_a,
+    -- Read controls --
+    s_axi_read_word_offset_port_a => bram_axi_read_word_offset_port_a,
+    s_axi_arlen_port_a => bram_axi_arlen_port_a,
+    s_axi_arvalid_port_a => bram_axi_arvalid_port_a,
+    s_axi_arready_port_a => bram_axi_arready_port_a,
 
-      -- Read data --
-      s_axi_rdata_port_a => bram_axi_rdata_port_a,
-      s_axi_rresp_port_a => bram_axi_rresp_port_a,
-      s_axi_rlast_port_a => bram_axi_rlast_port_a,
-      s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
-      s_axi_rready_port_a => bram_axi_rready_port_a
+    -- Read data --
+    s_axi_rdata_port_a => bram_axi_rdata_port_a,
+    s_axi_rresp_port_a => bram_axi_rresp_port_a,
+    s_axi_rlast_port_a => bram_axi_rlast_port_a,
+    s_axi_rvalid_port_a => bram_axi_rvalid_port_a,
+    s_axi_rready_port_a => bram_axi_rready_port_a,
 
-      -- Port B controls --
-      --data_a_in         => bram_write_data_a,
-      --data_a_out        => bram_read_data_a,
-      --addr_a_in         => bram_addr_a,
-      --write_valid_a_in  => bram_write_valid_a,
-      --write_ready_a_out => bram_write_ready_a,
-      --read_valid_a_out  => bram_read_valid_a,
-      --read_ready_a_in   => bram_read_ready_a
-    );
+    -- Port B controls --
+    bram_addr_b_in => bram_addr_b_in,
+    bram_data_b_in => bram_data_b_in,
+    bram_data_b_out => bram_data_b_out,
+    bram_port_b_write_enable_in => bram_port_b_write_enable_in,
+    bram_port_b_enabled_out => bram_port_b_enabled_out
+  );
 
   clk <= not clk after c_HALF_PERIOD_25_MHz;
 
 
   stimulus : process
   begin
+    bram_addr_b_in <= x"000";
+    bram_data_b_in <= x"00";
+    bram_port_b_write_enable_in <= '0';
+    assert bram_data_b_out = x"00";
+    assert bram_port_b_enabled_out = '0';
 
-    wait for 40 ns;
     wait_edge;
     reset <= '0';
     bram_axi_rready_port_a <= '0';
@@ -218,8 +226,17 @@ begin
       wait_edge;
     end loop;
 
-    -- TODO test the byte interface
+    report "-- test the byte interface";
+    assert bram_port_b_enabled_out = '1' report "Port B is not enabled";
 
+    bram_addr_b_in <= x"000";
+    bram_data_b_in <= x"00";
+    assert bram_data_b_out = x"00";
+    --bram_port_b_write_enable_in <= '1';
+
+    for idx in 0 to 5 loop
+      wait_edge;
+    end loop;
     std.env.stop;
   end process;
 end rtl;
