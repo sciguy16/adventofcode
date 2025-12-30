@@ -48,7 +48,7 @@ impl SerialHandler {
         let mut buf = [0; 1024];
         let len = packet.serialise(&mut buf)?;
         let to_send = &buf[..len];
-        println!("Sending: {to_send:02x?}");
+        println!("Sending: {}", hex_string_as_words(to_send));
         self.port.write_all(to_send)?;
 
         let response = self.read_rx.recv_timeout(RECV_TIMEOUT)?;
@@ -116,8 +116,8 @@ impl SerialHandler {
         } else {
             Err(eyre!(
                 "Data readback mismatch!\nSent: {}\nRead: {}",
-                hex::encode(data),
-                hex::encode(read_back),
+                hex_string_as_words(&data),
+                hex_string_as_words(&read_back),
             ))
         }
     }
@@ -153,7 +153,7 @@ fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
                     if receive_buf.len() == usize::from(header.len) + 4 {
                         println!(
                             "Received packet: {}",
-                            hex::encode(&receive_buf),
+                            hex_string_as_words(&receive_buf),
                         );
                         match Types::deserialise(&receive_buf) {
                             Ok(parsed) => tx.send(parsed).unwrap(),
@@ -170,4 +170,12 @@ fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
             };
         }
     });
+}
+
+fn hex_string_as_words(data: &[u8]) -> String {
+    data.chunks(4).map(hex::encode).reduce(|mut acc, item| {
+        acc.push(' ');
+        acc.push_str(&item);
+        acc
+    }).unwrap()
 }

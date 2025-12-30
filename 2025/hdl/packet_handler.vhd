@@ -213,6 +213,10 @@ begin
       m_axi_wdata_port_a_OUT <= (others => '0');
       m_axi_wvalid_port_a_OUT <= '0';
       m_axi_wlast_port_a_OUT <= '0';
+      -- leave bready asserted until such time as we check the response.
+      -- Without it asserted there's a FIFO in the AXI IP that gets full
+      -- and blocks further transfers
+      m_axi_bready_port_a_OUT <= '1';
 
       case rx_state is
 
@@ -315,19 +319,14 @@ begin
           end if;
 
           if axi_str_rxd_tvalid_IN = '1' then
-            --if payload_counter = RX_PACKET_LENGTH_WORDS then
-            --  rx_state <= RX_STATE_WRITE_RAM_LAST_WORD;
-            --  m_axi_wlast_port_a_OUT <= '1';
-            --end if;
+            if payload_counter = RX_PACKET_LENGTH_WORDS - 1 then
+              m_axi_wlast_port_a_OUT <= '1';
+            end if;
             payload_counter        <= payload_counter + 1;
           end if;
 
-          if payload_counter = RX_PACKET_LENGTH_WORDS - 1 then
-            m_axi_wlast_port_a_OUT <= '1';
-            m_axi_wvalid_port_a_OUT <= '1';
-          elsif payload_counter = RX_PACKET_LENGTH_WORDS then
+          if payload_counter = RX_PACKET_LENGTH_WORDS then
             rx_state <= RX_STATE_SEND_REPLY;
-            m_axi_wlast_port_a_OUT <= '0';
             m_axi_wvalid_port_a_OUT <= '0';
           end if;
 

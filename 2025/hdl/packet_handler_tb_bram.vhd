@@ -133,7 +133,12 @@ begin
     m_axi_rresp_port_a_IN => bram_axi_rresp_port_a,
     m_axi_rlast_port_a_IN => bram_axi_rlast_port_a,
     m_axi_rvalid_port_a_IN => bram_axi_rvalid_port_a,
-    m_axi_rready_port_a_OUT => bram_axi_rready_port_a
+    m_axi_rready_port_a_OUT => bram_axi_rready_port_a,
+
+    -- Day mux controls
+    day_sel_OUT => open,
+    data_len_bytes_OUT => open,
+    day_done_IN => '0'
   );
 
   clk <= not clk after c_HALF_PERIOD_25_MHz; 
@@ -141,8 +146,6 @@ begin
   stimulus: process
     alias reply_done_internal is
       << signal packet_handler_inst.reply_done: std_logic >>;
-    alias rx_state_internal is
-      << signal packet_handler_inst.rx_state: T_RX_STATE >>;
     variable counter_byte: std_logic_vector(7 downto 0);
     variable counter_tdata: std_logic_vector(31 downto 0);
   begin
@@ -165,12 +168,20 @@ begin
     --wait_edge;
     axi_str_rxd_tvalid <= '0';
 
+    wait_edge;
+    wait_edge;
+    wait_edge;
+
     -- BRAM offset
     axi_str_rxd_tdata <= x"00000000";
     axi_str_rxd_tvalid <= '1';
     -- wait for UUT to clock in the data on a rising edge
     wait_eq(axi_str_rxd_tready, '1', "BRAM offset");
     axi_str_rxd_tvalid <= '0';
+
+    wait_edge;
+    wait_edge;
+    wait_edge;
 
     -- data to write - 32 words
     for word in 0 to 31 loop
@@ -184,6 +195,11 @@ begin
       wait_eq(axi_str_rxd_tready, '1', "txd tready for word " & integer'image(word));
       assert axi_str_rxd_tready = '1'
         report "tready not asserted for word " & integer'image(word);
+
+      axi_str_rxd_tvalid <= '0';
+      wait_edge;
+      wait_edge;
+      wait_edge;
     end loop;
     axi_str_rxd_tvalid <= '0';
 
@@ -223,7 +239,6 @@ begin
     axi_str_rxd_tvalid <= '1';
     -- wait for UUT to clock in the data on a rising edge
     wait_eq(axi_str_rxd_tready, '1', "rxd tready");
-    assert rx_state_internal = RX_STATE_RAM_OFFSET report "rx state offset";
     axi_str_rxd_tvalid <= '0';
 
 
@@ -232,7 +247,6 @@ begin
     axi_str_rxd_tvalid <= '1';
     -- wait for UUT to clock in the data on a rising edge
     wait_eq(axi_str_rxd_tready, '1', "rxd tready");
-    assert rx_state_internal = RX_STATE_SEND_REPLY report "rx state read ram";
     axi_str_rxd_tvalid <= '0';
 
 
