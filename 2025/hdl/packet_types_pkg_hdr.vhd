@@ -27,4 +27,6 @@ PACKAGE packet_types_pkg_hdr is
     constant C_DESTINATION_top_TYPE_write_ram_ack: unsigned(7 downto 0) := x"03";
     constant C_DESTINATION_top_TYPE_read_ram: unsigned(7 downto 0) := x"04";
     constant C_DESTINATION_top_TYPE_read_ram_ack: unsigned(7 downto 0) := x"05";
+    constant C_DESTINATION_top_TYPE_run_day: unsigned(7 downto 0) := x"06";
+    constant C_DESTINATION_top_TYPE_run_day_ack: unsigned(7 downto 0) := x"07";
 END PACKAGE packet_types_pkg_hdr;

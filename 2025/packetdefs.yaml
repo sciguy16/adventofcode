@@ -45,3 +45,21 @@ destinations:
       width_bytes: 4
     - name: data
       width_bytes: 128
+  - id: 6
+    name: run_day
+    payload:
+    - name: day
+      width_bytes: 1
+    - name: data_len_bytes
+      width_bytes: 2
+    - name: padding
+      width_bytes: 1
+  - id: 7
+    name: run_day_ack
+    payload:
+    - name: day
+      width_bytes: 1
+    - name: ok
+      width_bytes: 1
+    - name: padding
+      width_bytes: 2
