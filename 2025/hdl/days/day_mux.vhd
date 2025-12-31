@@ -15,12 +15,12 @@ library ieee;
 
 entity DAY_MUX is
   port (
-    RESET                        : in    std_logic;
-    CLK                          : in    std_logic;
+    RESET : in    std_logic;
+    CLK   : in    std_logic;
 
-    DAY_SEL_IN                   : in    unsigned(7 downto 0);
-    DATA_LEN_BYTES_IN            : in    unsigned(11 downto 0);
-    DAY_DONE_OUT                 : out   std_logic;
+    DAY_SEL_IN        : in    unsigned(7 downto 0);
+    DATA_LEN_BYTES_IN : in    unsigned(11 downto 0);
+    DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
     BRAM_ADDR_B_OUT              : out   std_logic_vector(11 downto 0);
@@ -36,12 +36,12 @@ architecture RTL of DAY_MUX is
   type t_bram_addr_arr is
     array (0 to C_NUM_DAYS - 1) of std_logic_vector(11 downto 0);
 
-  signal bram_addr_b              : t_bram_addr_arr;
+  signal bram_addr_b : t_bram_addr_arr;
 
   type t_bram_data_arr is
     array (0 to C_NUM_DAYS - 1) of std_logic_vector(7 downto 0);
 
-  signal bram_write_data_b        : t_bram_data_arr;
+  signal bram_write_data_b : t_bram_data_arr;
 
   signal bram_port_b_enabled      : std_logic_vector(0 to C_NUM_DAYS - 1);
   signal bram_port_b_write_enable : std_logic_vector(0 to C_NUM_DAYS - 1);
@@ -59,7 +59,11 @@ begin
         -- day zero
         BRAM_ADDR_B_OUT              <= bram_addr_b(0);
         BRAM_WRITE_DATA_B_OUT        <= bram_write_data_b(0);
-        bram_port_b_enabled          <= (0 => BRAM_PORT_B_ENABLED_IN, others => '0');
+        bram_port_b_enabled          <=
+        (
+          0      => BRAM_PORT_B_ENABLED_IN,
+          others => '0'
+        );
         BRAM_PORT_B_WRITE_ENABLE_OUT <= bram_port_b_write_enable(0);
         DAY_DONE_OUT                 <= day_done(0);
 

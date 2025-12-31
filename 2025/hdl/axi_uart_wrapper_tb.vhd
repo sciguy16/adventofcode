@@ -2,28 +2,18 @@ library ieee;
   use ieee.std_logic_1164.all;
   use work.aoc_top_pkg_hdr.all;
 
--- package axi_uart_wrapper_tb_pkg is
---  constant c_CYCLES_PER_BIT: integer:= 234; -- 27,000,000 (27Mhz) / 115200 Baud rate;
--- end package;
--- package body axi_uart_wrapper_tb_pkg is
--- end package body;
-
--- library IEEE;
--- use IEEE.STD_LOGIC_1164.ALL;
--- library work;
--- use work.axi_uart_wrapper_tb_pkg.ALL;
-
 entity AXI_UART_WRAPPER_TB is
 end entity AXI_UART_WRAPPER_TB;
 
 architecture RTL of AXI_UART_WRAPPER_TB is
 
-  constant c_cycles_per_bit : integer := 434; -- 50,000,000 (50 Mhz) / 115200 Baud rate;
+  -- 50,000,000 (50 Mhz) / 115200 Baud rate;
+  constant c_cycles_per_bit : integer := 434;
 
-  signal clk                : std_logic := '0';
-  signal axi_clk            : std_logic := '0';
-  signal reset              : std_logic := '0';
-  signal uart_loopback      : std_logic;
+  signal clk           : std_logic := '0';
+  signal axi_clk       : std_logic := '0';
+  signal reset         : std_logic := '0';
+  signal uart_loopback : std_logic;
 
   signal axi_str_txd_tvalid : std_logic;
   signal axi_str_txd_tready : std_logic;

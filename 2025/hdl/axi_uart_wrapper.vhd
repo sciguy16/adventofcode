@@ -18,12 +18,12 @@ library ieee;
 
 entity AXI_UART_WRAPPER is
   port (
-    RESET                  : in    std_logic;
-    CLK                    : in    std_logic;
-    AXI_CLK                : in    std_logic;
-    AXI_NRST               : in    std_logic;
-    RX_IN                  : in    std_logic;
-    TX_OUT                 : out   std_logic;
+    RESET    : in    std_logic;
+    CLK      : in    std_logic;
+    AXI_CLK  : in    std_logic;
+    AXI_NRST : in    std_logic;
+    RX_IN    : in    std_logic;
+    TX_OUT   : out   std_logic;
 
     AXI_STR_RXD_TVALID_OUT : out   std_logic;
     AXI_STR_RXD_TREADY_IN  : in    std_logic;
@@ -37,49 +37,49 @@ end entity AXI_UART_WRAPPER;
 
 architecture RTL of AXI_UART_WRAPPER is
 
-  signal init_complete                  : std_logic := '0';
+  signal init_complete : std_logic := '0';
 
-  signal interrupt                      : std_logic;
+  signal interrupt : std_logic;
 
   -- uart IP
-  signal s_axi_awaddr                   : std_logic_vector(3 downto 0)  := (others => '0');
-  signal s_axi_awvalid                  : std_logic                     := '0';
-  signal s_axi_awready                  : std_logic;
-  signal s_axi_wdata                    : std_logic_vector(31 downto 0) := (others => '0');
-  signal s_axi_wvalid                   : std_logic                     := '0';
-  signal s_axi_wready                   : std_logic;
-  signal s_axi_bresp                    : std_logic_vector(1 downto 0);
-  signal s_axi_bvalid                   : std_logic;
-  signal s_axi_bready                   : std_logic                     := '0';
-  signal s_axi_araddr                   : std_logic_vector(3 downto 0)  := (others => '0');
-  signal s_axi_arvalid                  : std_logic                     := '0';
-  signal s_axi_arready                  : std_logic;
-  signal s_axi_rdata                    : std_logic_vector(31 downto 0);
-  signal s_axi_rresp                    : std_logic_vector(1 downto 0);
-  signal s_axi_rvalid                   : std_logic;
-  signal s_axi_rready                   : std_logic                     := '0';
+  signal s_axi_awaddr  : std_logic_vector(3 downto 0)  := (others => '0');
+  signal s_axi_awvalid : std_logic                     := '0';
+  signal s_axi_awready : std_logic;
+  signal s_axi_wdata   : std_logic_vector(31 downto 0) := (others => '0');
+  signal s_axi_wvalid  : std_logic                     := '0';
+  signal s_axi_wready  : std_logic;
+  signal s_axi_bresp   : std_logic_vector(1 downto 0);
+  signal s_axi_bvalid  : std_logic;
+  signal s_axi_bready  : std_logic                     := '0';
+  signal s_axi_araddr  : std_logic_vector(3 downto 0)  := (others => '0');
+  signal s_axi_arvalid : std_logic                     := '0';
+  signal s_axi_arready : std_logic;
+  signal s_axi_rdata   : std_logic_vector(31 downto 0);
+  signal s_axi_rresp   : std_logic_vector(1 downto 0);
+  signal s_axi_rvalid  : std_logic;
+  signal s_axi_rready  : std_logic                     := '0';
 
   -- from tx fifo to 32 to 8 converter
-  signal axi_conv_tx_tvalid             : std_logic;
-  signal axi_conv_tx_tready             : std_logic;
-  signal axi_conv_tx_tdata              : std_logic_vector(31 downto 0);
+  signal axi_conv_tx_tvalid : std_logic;
+  signal axi_conv_tx_tready : std_logic;
+  signal axi_conv_tx_tdata  : std_logic_vector(31 downto 0);
 
   -- from 8 to 32 converter to rx fifo
-  signal axi_conv_rx_tvalid             : std_logic;
-  signal axi_conv_rx_tready             : std_logic;
-  signal axi_conv_rx_tdata              : std_logic_vector(31 downto 0);
+  signal axi_conv_rx_tvalid : std_logic;
+  signal axi_conv_rx_tready : std_logic;
+  signal axi_conv_rx_tdata  : std_logic_vector(31 downto 0);
 
   -- from tx 32-8 converter to uart transmitter
-  signal conv_uart_tx_tvalid            : std_logic;
-  signal conv_uart_tx_tready            : std_logic;
-  signal conv_uart_tx_tdata             : std_logic_vector(7 downto 0);
+  signal conv_uart_tx_tvalid : std_logic;
+  signal conv_uart_tx_tready : std_logic;
+  signal conv_uart_tx_tdata  : std_logic_vector(7 downto 0);
 
   -- from uart receiver to rx 8-32 converter
-  signal uart_conv_rx_tvalid            : std_logic;
-  signal uart_conv_rx_tready            : std_logic;
-  signal uart_conv_rx_tdata             : std_logic_vector(7 downto 0);
+  signal uart_conv_rx_tvalid : std_logic;
+  signal uart_conv_rx_tready : std_logic;
+  signal uart_conv_rx_tdata  : std_logic_vector(7 downto 0);
 
-  signal rx_rresp_reg                   : std_logic_vector(1 downto 0);
+  signal rx_rresp_reg : std_logic_vector(1 downto 0);
 
   -- endian swapping
   signal axi_str_rxd_tdata_out_internal : std_logic_vector(31 downto 0);
@@ -94,7 +94,7 @@ architecture RTL of AXI_UART_WRAPPER is
     TX_STATE_WAIT_RESPONSE
   );
 
-  signal tx_state                       : t_tx_state := TX_STATE_INIT_INTERRUPT;
+  signal tx_state : t_tx_state := TX_STATE_INIT_INTERRUPT;
 
   type t_rx_state is (
     RX_STATE_WAIT_INIT,
@@ -105,7 +105,7 @@ architecture RTL of AXI_UART_WRAPPER is
     RX_STATE_WAIT_CONV
   );
 
-  signal rx_state                       : t_rx_state := RX_STATE_WAIT_INIT;
+  signal rx_state : t_rx_state := RX_STATE_WAIT_INIT;
 
   component AXI_UARTLITE_0 is
     port (
@@ -120,15 +120,15 @@ architecture RTL of AXI_UART_WRAPPER is
       S_AXI_AWREADY : out   std_logic;
 
       -- write data channel
-      S_AXI_WDATA   : in    std_logic_vector(31 downto 0);
-      S_AXI_WSTRB   : in    std_logic_vector(3 downto 0);
-      S_AXI_WVALID  : in    std_logic;
-      S_AXI_WREADY  : out   std_logic;
+      S_AXI_WDATA  : in    std_logic_vector(31 downto 0);
+      S_AXI_WSTRB  : in    std_logic_vector(3 downto 0);
+      S_AXI_WVALID : in    std_logic;
+      S_AXI_WREADY : out   std_logic;
 
       -- write response channel
-      S_AXI_BRESP   : out   std_logic_vector(1 downto 0);
-      S_AXI_BVALID  : out   std_logic;
-      S_AXI_BREADY  : in    std_logic;
+      S_AXI_BRESP  : out   std_logic_vector(1 downto 0);
+      S_AXI_BVALID : out   std_logic;
+      S_AXI_BREADY : in    std_logic;
 
       -- read address channel
       S_AXI_ARADDR  : in    std_logic_vector(3 downto 0);
@@ -136,14 +136,14 @@ architecture RTL of AXI_UART_WRAPPER is
       S_AXI_ARREADY : out   std_logic;
 
       -- read data channel
-      S_AXI_RDATA   : out   std_logic_vector(31 downto 0);
-      S_AXI_RRESP   : out   std_logic_vector(1 downto 0);
-      S_AXI_RVALID  : out   std_logic;
-      S_AXI_RREADY  : in    std_logic;
+      S_AXI_RDATA  : out   std_logic_vector(31 downto 0);
+      S_AXI_RRESP  : out   std_logic_vector(1 downto 0);
+      S_AXI_RVALID : out   std_logic;
+      S_AXI_RREADY : in    std_logic;
 
       -- external signals
-      RX            : in    std_logic;
-      TX            : out   std_logic
+      RX : in    std_logic;
+      TX : out   std_logic
     );
   end component AXI_UARTLITE_0;
 
@@ -291,16 +291,17 @@ begin
     );
 
   -- endianness swapping
-  AXI_STR_RXD_TDATA_OUT         <= axi_str_rxd_tdata_out_internal(7 downto 0)
-                                   & axi_str_rxd_tdata_out_internal(15 downto 8)
-                                   & axi_str_rxd_tdata_out_internal(23 downto 16)
-                                   & axi_str_rxd_tdata_out_internal(31 downto 24);
+  AXI_STR_RXD_TDATA_OUT <= axi_str_rxd_tdata_out_internal(7 downto 0)
+                           & axi_str_rxd_tdata_out_internal(15 downto 8)
+                           & axi_str_rxd_tdata_out_internal(23 downto 16)
+                           & axi_str_rxd_tdata_out_internal(31 downto 24);
+
   axi_str_txd_tdata_in_internal <= AXI_STR_TXD_TDATA_IN(7 downto 0)
                                    & AXI_STR_TXD_TDATA_IN(15 downto 8)
                                    & AXI_STR_TXD_TDATA_IN(23 downto 16)
                                    & AXI_STR_TXD_TDATA_IN(31 downto 24);
 
-  process (AXI_CLK, AXI_NRST) is
+  UART_TX_PROC : process (AXI_CLK) is
   begin
 
     if rising_edge(AXI_CLK) then
@@ -326,8 +327,8 @@ begin
 
         when TX_STATE_INIT_INTERRUPT =>
 
-          s_axi_awaddr  <= x"C";                                    -- control register
-          s_axi_wdata   <= x"0000000" & "1000";                     -- enable interrupt
+          s_axi_awaddr  <= x"C";                -- control register
+          s_axi_wdata   <= x"0000000" & "1000"; -- enable interrupt
           s_axi_awvalid <= '1';
           s_axi_wvalid  <= '1';
           if (s_axi_wready = '1' and s_axi_awready = '1') then
@@ -355,7 +356,7 @@ begin
 
         when TX_STATE_WRITE_DATA =>
 
-          s_axi_awaddr  <= x"4";                                    -- TX FIFO
+          s_axi_awaddr  <= x"4"; -- TX FIFO
           s_axi_awvalid <= '1';
           s_axi_wvalid  <= '1';
           tx_state      <= TX_STATE_WAIT_READY;
@@ -390,9 +391,9 @@ begin
       end if;
     end if;
 
-  end process;
+  end process UART_TX_PROC;
 
-  process (AXI_CLK, AXI_NRST) is
+  UART_RX_PROC : process (AXI_CLK) is
   begin
 
     if (rising_edge(AXI_CLK)) then
@@ -473,6 +474,6 @@ begin
       end if;
     end if;
 
-  end process;
+  end process UART_RX_PROC;
 
 end architecture RTL;

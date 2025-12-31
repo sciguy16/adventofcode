@@ -7,8 +7,8 @@ end entity PACKET_HANDLER_TB;
 
 architecture RTL of PACKET_HANDLER_TB is
 
-  signal clk                : std_logic := '0';
-  signal reset              : std_logic := '0';
+  signal clk   : std_logic := '0';
+  signal reset : std_logic := '0';
 
   signal axi_str_rxd_tvalid : std_logic                     := '0';
   signal axi_str_rxd_tready : std_logic;

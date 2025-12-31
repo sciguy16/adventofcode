@@ -4,11 +4,11 @@ library ieee;
 
 entity DAY0 is
   port (
-    RESET                        : in    std_logic;
-    CLK                          : in    std_logic;
+    RESET : in    std_logic;
+    CLK   : in    std_logic;
 
-    DATA_LEN_BYTES_IN            : in    unsigned(11 downto 0);
-    DAY_DONE_OUT                 : out   std_logic;
+    DATA_LEN_BYTES_IN : in    unsigned(11 downto 0);
+    DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
     BRAM_ADDR_B_OUT              : out   std_logic_vector(11 downto 0);
@@ -21,14 +21,14 @@ end entity DAY0;
 
 architecture RTL of DAY0 is
 
-  signal accumulator : unsigned(31 downto 0) := x"00000000";
+  signal accumulator : unsigned(31 downto 0);
 
   type t_state is (
     STATE_IDLE,
     STATE_RUNNING
   );
 
-  signal state       : t_state := STATE_IDLE;
+  signal state : t_state := STATE_IDLE;
 
 begin
 
@@ -47,6 +47,7 @@ begin
         BRAM_ADDR_B_OUT              <= x"000";
         BRAM_WRITE_DATA_B_OUT        <= x"00";
         BRAM_PORT_B_WRITE_ENABLE_OUT <= '0';
+        accumulator                  <= x"00000000";
       end if;
     end if;
 

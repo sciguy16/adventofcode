@@ -3,8 +3,8 @@ library ieee;
 
 entity RESET_EXPANDER is
   port (
-    RESET_IN        : in    std_logic;
-    CLK             : in    std_logic;
+    RESET_IN : in    std_logic;
+    CLK      : in    std_logic;
 
     RESET_CLK_25MHZ : in    std_logic;
     RESET_OUT_25MHZ : out   std_logic;
@@ -31,7 +31,7 @@ architecture RTL of RESET_EXPANDER is
 
 begin
 
-  process (CLK) is
+  RESET_EXPANDER_PROC : process (CLK) is
   begin
 
     if (rising_edge(CLK)) then
@@ -48,9 +48,9 @@ begin
       end if;
     end if;
 
-  end process;
+  end process RESET_EXPANDER_PROC;
 
-  process (RESET_CLK_25MHZ) is
+  OUTPUT_PIPE_25MHZ : process (RESET_CLK_25MHZ) is
   begin
 
     if rising_edge(RESET_CLK_25MHZ) then
@@ -58,9 +58,9 @@ begin
       RESET_OUT_25MHZ <= rst_pipe_25mhz;
     end if;
 
-  end process;
+  end process OUTPUT_PIPE_25MHZ;
 
-  process (RESET_CLK_50MHZ) is
+  OUTPUT_PIPE_50MHZ : process (RESET_CLK_50MHZ) is
   begin
 
     if rising_edge(RESET_CLK_50MHZ) then
@@ -69,6 +69,6 @@ begin
       RESET_OUT_50MHZ <= rst_pipe_50mhz(rst_pipe_50mhz'high);
     end if;
 
-  end process;
+  end process OUTPUT_PIPE_50MHZ;
 
 end architecture RTL;

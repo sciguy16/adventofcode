@@ -7,10 +7,11 @@ end entity DAY0_TB;
 
 architecture RTL of DAY0_TB is
 
-  constant c_half_period_25_mhz       : time := 20 ns; -- 25 MHz clock, 40 ns period
+  -- 25 MHz clock, 40 ns period
+  constant c_half_period_25_mhz : time := 20 ns;
 
-  signal clk                          : std_logic := '1';
-  signal reset                        : std_logic := '1';
+  signal clk   : std_logic := '1';
+  signal reset : std_logic := '1';
 
   signal data_len_bytes_in            : unsigned(11 downto 0)        := x"000";
   signal day_done_out                 : std_logic;

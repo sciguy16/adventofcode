@@ -22,7 +22,8 @@ package aoc_top_pkg_hdr is
 
   -- AXI read/write responses:
   --  OKAY (0b00):
-  --    Normal access success. Indicates that a normal access has been successful
+  --    Normal access success. Indicates that a normal access has been
+  --    successful
   --  EXOKAY (0b01):
   --    Exclusive access okay.
   --  SLVERR (0b10):

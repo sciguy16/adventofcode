@@ -4,6 +4,8 @@ library ieee;
 
 package packet_handler_pkg is
 
+  subtype word is std_logic_vector(31 downto 0);
+
   -- Biggest packet is a 128-byte BRAM write. Consists of:
   -- * 4 byte offset
   -- * 128 bytes data
@@ -12,12 +14,14 @@ package packet_handler_pkg is
 
   -- BRAM is 1024 32-bit words deep, and packet payload is fixed at 128 bytes.
   -- 128 bytes is 32 words, so upper bound is 1024 - 32 = 0x400 - 0x20 = 0x3e0
-  constant c_max_ram_offset       : std_logic_vector(31 downto 0) := x"0000_03E0";
-  constant c_bram_offset_okay     : std_logic_vector(31 downto 0) := x"0100_0000";
-  constant c_bram_offset_not_okay : std_logic_vector(31 downto 0) := x"0000_0000";
+  constant c_max_ram_offset    : word := x"0000_03E0";
+  constant c_bram_off_okay     : word := x"0100_0000";
+  constant c_bram_off_not_okay : word := x"0000_0000";
   -- 128 bytes = 32 words
   constant c_bram_read_len_words      : unsigned(7 downto 0) := x"20";
   constant c_bram_max_write_len_words : unsigned(7 downto 0) := x"20";
+
+  constant c_bram_arlen : unsigned(7 downto 0) := c_BRAM_READ_LEN_WORDS - 1;
 
 end package packet_handler_pkg;
 
@@ -35,77 +39,77 @@ library ieee;
 
 entity PACKET_HANDLER is
   port (
-    RESET                              : in    std_logic;
-    CLK                                : in    std_logic;
+    RESET : in    std_logic;
+    CLK   : in    std_logic;
 
     -- Request packet data in
-    AXI_STR_RXD_TVALID_IN              : in    std_logic;
-    AXI_STR_RXD_TREADY_OUT             : out   std_logic;
-    AXI_STR_RXD_TDATA_IN               : in    std_logic_vector(31 downto 0);
+    AXI_STR_RXD_TVALID_IN  : in    std_logic;
+    AXI_STR_RXD_TREADY_OUT : out   std_logic;
+    AXI_STR_RXD_TDATA_IN   : in    word;
 
     -- Response packet data out
-    AXI_STR_TXD_TVALID_OUT             : out   std_logic;
-    AXI_STR_TXD_TREADY_IN              : in    std_logic;
-    AXI_STR_TXD_TDATA_OUT              : out   std_logic_vector(31 downto 0);
+    AXI_STR_TXD_TVALID_OUT : out   std_logic;
+    AXI_STR_TXD_TREADY_IN  : in    std_logic;
+    AXI_STR_TXD_TDATA_OUT  : out   word;
 
     -- BRAM Port A controls --
 
     -- Write controls --
     -- Start address of write transaction, in bytes?
-    M_AXI_WRITE_WORD_OFFSET_PORT_A_OUT : out   std_logic_vector(9 downto 0);
+    M_AXI_WRITE_WORD_OFFSET_OUT : out   std_logic_vector(9 downto 0);
     -- Burst length of write transaction, in words/data beats
-    M_AXI_AWLEN_PORT_A_OUT             : out   std_logic_vector(7 downto 0);
-    M_AXI_AWVALID_PORT_A_OUT           : out   std_logic;
-    M_AXI_AWREADY_PORT_A_IN            : in    std_logic;
+    M_AXI_AWLEN_OUT             : out   std_logic_vector(7 downto 0);
+    M_AXI_AWVALID_OUT           : out   std_logic;
+    M_AXI_AWREADY_IN            : in    std_logic;
 
     -- Write data --
-    M_AXI_WDATA_PORT_A_OUT             : out   std_logic_vector(31 downto 0);
-    M_AXI_WLAST_PORT_A_OUT             : out   std_logic;
-    M_AXI_WVALID_PORT_A_OUT            : out   std_logic;
-    M_AXI_WREADY_PORT_A_IN             : in    std_logic;
+    M_AXI_WDATA_OUT  : out   word;
+    M_AXI_WLAST_OUT  : out   std_logic;
+    M_AXI_WVALID_OUT : out   std_logic;
+    M_AXI_WREADY_IN  : in    std_logic;
 
     -- Write response --
-    M_AXI_BRESP_PORT_A_IN              : in    std_logic_vector(1 downto 0);
-    M_AXI_BVALID_PORT_A_IN             : in    std_logic;
-    M_AXI_BREADY_PORT_A_OUT            : out   std_logic;
+    M_AXI_BRESP_IN   : in    std_logic_vector(1 downto 0);
+    M_AXI_BVALID_IN  : in    std_logic;
+    M_AXI_BREADY_OUT : out   std_logic;
 
     -- Read controls --
-    M_AXI_READ_WORD_OFFSET_PORT_A_OUT  : out   std_logic_vector(9 downto 0);
-    M_AXI_ARLEN_PORT_A_OUT             : out   std_logic_vector(7 downto 0);
-    M_AXI_ARVALID_PORT_A_OUT           : out   std_logic;
-    M_AXI_ARREADY_PORT_A_IN            : in    std_logic;
+    M_AXI_READ_WORD_OFFSET_OUT : out   std_logic_vector(9 downto 0);
+    M_AXI_ARLEN_OUT            : out   std_logic_vector(7 downto 0);
+    M_AXI_ARVALID_OUT          : out   std_logic;
+    M_AXI_ARREADY_IN           : in    std_logic;
 
     -- Read data --
-    M_AXI_RDATA_PORT_A_IN              : in    std_logic_vector(31 downto 0);
-    M_AXI_RRESP_PORT_A_IN              : in    std_logic_vector(1 downto 0);
-    M_AXI_RLAST_PORT_A_IN              : in    std_logic;
-    M_AXI_RVALID_PORT_A_IN             : in    std_logic;
-    M_AXI_RREADY_PORT_A_OUT            : out   std_logic;
+    M_AXI_RDATA_IN   : in    word;
+    M_AXI_RRESP_IN   : in    std_logic_vector(1 downto 0);
+    M_AXI_RLAST_IN   : in    std_logic;
+    M_AXI_RVALID_IN  : in    std_logic;
+    M_AXI_RREADY_OUT : out   std_logic;
 
     -- Day mux controls
-    DAY_SEL_OUT                        : out   unsigned(7 downto 0);
-    DATA_LEN_BYTES_OUT                 : out   unsigned(11 downto 0);
-    DAY_DONE_IN                        : in    std_logic
+    DAY_SEL_OUT        : out   unsigned(7 downto 0);
+    DATA_LEN_BYTES_OUT : out   unsigned(11 downto 0);
+    DAY_DONE_IN        : in    std_logic
   );
 end entity PACKET_HANDLER;
 
 architecture RTL of PACKET_HANDLER is
 
-  signal packet_type            : unsigned(7 downto 0)          := (others => '0');
-  signal rx_packet_length_bytes : unsigned(15 downto 0)         := (others => '0');
-  signal rx_packet_length_words : unsigned(15 downto 0)         := (others => '0');
-  signal rx_packet_length_okay  : boolean;
-  signal ping_payload           : std_logic_vector(31 downto 0) := (others => '0');
-  signal ram_offset             : std_logic_vector(31 downto 0) := (others => '0');
-  signal payload_counter        : unsigned(15 downto 0)         := (others => '0');
-  signal reply_payload_counter  : unsigned(7 downto 0)          := (others => '0');
-  signal reply_done             : std_logic;
-  signal reply_header           : std_logic_vector(31 downto 0) := (others => '0');
-  signal bram_offset_okay       : boolean;
+  signal packet_type           : unsigned(7 downto 0)  := (others => '0');
+  signal rx_packet_len_bytes   : unsigned(15 downto 0) := (others => '0');
+  signal rx_packet_len_words   : unsigned(15 downto 0) := (others => '0');
+  signal rx_packet_len_okay    : boolean;
+  signal ping_payload          : word                  := (others => '0');
+  signal ram_offset            : word                  := (others => '0');
+  signal payload_counter       : unsigned(15 downto 0) := (others => '0');
+  signal reply_payload_counter : unsigned(7 downto 0)  := (others => '0');
+  signal reply_done            : std_logic;
+  signal reply_header          : word                  := (others => '0');
+  signal bram_offset_okay      : boolean;
 
-  signal day_sel                : unsigned(7 downto 0)  := (others => '0');
-  signal data_len_bytes         : unsigned(15 downto 0) := (others => '0');
-  signal run_day_ok             : boolean;
+  signal day_sel        : unsigned(7 downto 0)  := (others => '0');
+  signal data_len_bytes : unsigned(15 downto 0) := (others => '0');
+  signal run_day_ok     : boolean;
 
   type t_rx_state is (
     RX_STATE_IDLE,
@@ -117,31 +121,31 @@ architecture RTL of PACKET_HANDLER is
     RX_STATE_SEND_REPLY
   );
 
-  signal rx_state               : t_rx_state := RX_STATE_IDLE;
+  signal rx_state : t_rx_state := RX_STATE_IDLE;
 
   type t_reply_state is (
-    REPLY_STATE_IDLE,
-    REPLY_STATE_SEND_PONG_PAYLOAD,
-    REPLY_STATE_SEND_BRAM_OFFSET,
-    REPLY_STATE_SEND_BRAM_OKAY,
-    REPLY_STATE_SETUP_BRAM_READ,
-    REPLY_STATE_SEND_BRAM_DATA,
-    REPLY_STATE_RUN_DAY,
-    REPLY_STATE_WAIT_DONE,
-    REPLY_STATE_WAIT_IDLE
+    REPLY_ST_IDLE,
+    REPLY_ST_SEND_PONG_PAYLOAD,
+    REPLY_ST_SEND_BRAM_OFFSET,
+    REPLY_ST_SEND_BRAM_OKAY,
+    REPLY_ST_SETUP_BRAM_READ,
+    REPLY_ST_SEND_BRAM_DATA,
+    REPLY_ST_RUN_DAY,
+    REPLY_ST_WAIT_DONE,
+    REPLY_ST_WAIT_IDLE
   );
 
-  signal reply_state            : t_reply_state := REPLY_STATE_IDLE;
+  signal reply_state : t_reply_state := REPLY_ST_IDLE;
 
   attribute mark_debug : string;
-  attribute mark_debug of rx_state               : signal is "TRUE";
-  attribute mark_debug of PACKET_TYPE            : signal is "TRUE";
-  attribute mark_debug of RX_PACKET_LENGTH_WORDS : signal is "TRUE";
-  attribute mark_debug of RAM_OFFSET             : signal is "TRUE";
-  attribute mark_debug of payload_counter        : signal is "TRUE";
-  attribute mark_debug of reply_payload_counter  : signal is "TRUE";
-  attribute mark_debug of reply_done             : signal is "TRUE";
-  attribute mark_debug of reply_state            : signal is "TRUE";
+  attribute mark_debug of rx_state              : signal is "TRUE";
+  attribute mark_debug of PACKET_TYPE           : signal is "TRUE";
+  attribute mark_debug of RX_PACKET_LEN_WORDS   : signal is "TRUE";
+  attribute mark_debug of RAM_OFFSET            : signal is "TRUE";
+  attribute mark_debug of payload_counter       : signal is "TRUE";
+  attribute mark_debug of reply_payload_counter : signal is "TRUE";
+  attribute mark_debug of reply_done            : signal is "TRUE";
+  attribute mark_debug of reply_state           : signal is "TRUE";
 
   function bool_to_std_logic (
     input: boolean
@@ -223,9 +227,9 @@ begin
 
   begin
 
-    length_ok             := rx_packet_length_bytes <= c_MAX_PACKET_LENGTH_BYTES;
-    is_multiple_of_four   := rx_packet_length_bytes(1 downto 0) = "00";
-    rx_packet_length_okay <= length_ok and is_multiple_of_four;
+    length_ok           := rx_packet_len_bytes <= c_MAX_PACKET_LENGTH_BYTES;
+    is_multiple_of_four := rx_packet_len_bytes(1 downto 0) = "00";
+    rx_packet_len_okay  <= length_ok and is_multiple_of_four;
 
   end process SET_RX_PACKET_LENGTH_OKAY;
 
@@ -236,25 +240,26 @@ begin
 
   end process SET_RUN_DAY_OK;
 
-  process (CLK) is
+  RX_PROC : process (CLK) is
 
     variable v_packet_type   : unsigned(7 downto 0);
-    variable v_ram_offset    : std_logic_vector(31 downto 0);
+    variable v_ram_offset    : word;
     variable v_pkt_len_bytes : unsigned(15 downto 0);
-    variable v_current_word  : std_logic_vector(31 downto 0);
+    variable v_current_word  : word;
+    variable v_awlen_tmp     : unsigned(7 downto 0);
 
   begin
 
     if rising_edge(CLK) then
       -- defaults
-      AXI_STR_RXD_TREADY_OUT  <= '0';
-      M_AXI_WDATA_PORT_A_OUT  <= (others => '0');
-      M_AXI_WVALID_PORT_A_OUT <= '0';
-      M_AXI_WLAST_PORT_A_OUT  <= '0';
+      AXI_STR_RXD_TREADY_OUT <= '0';
+      M_AXI_WDATA_OUT        <= (others => '0');
+      M_AXI_WVALID_OUT       <= '0';
+      M_AXI_WLAST_OUT        <= '0';
       -- leave bready asserted until such time as we check the response.
       -- Without it asserted there's a FIFO in the AXI IP that gets full
       -- and blocks further transfers
-      M_AXI_BREADY_PORT_A_OUT <= '1';
+      M_AXI_BREADY_OUT <= '1';
 
       case rx_state is
 
@@ -262,12 +267,12 @@ begin
 
           AXI_STR_RXD_TREADY_OUT <= '1';
           if (AXI_STR_RXD_TVALID_IN = '1') then
-            v_packet_type          := unsigned(AXI_STR_RXD_TDATA_IN(23 downto 16));
-            packet_type            <= v_packet_type;
-            v_pkt_len_bytes        := unsigned(AXI_STR_RXD_TDATA_IN(15 downto 0));
-            rx_packet_length_bytes <= v_pkt_len_bytes;
-            rx_packet_length_words <= "00" & v_pkt_len_bytes(15 downto 2);
-            payload_counter        <= x"0000";
+            v_packet_type       := unsigned(AXI_STR_RXD_TDATA_IN(23 downto 16));
+            packet_type         <= v_packet_type;
+            v_pkt_len_bytes     := unsigned(AXI_STR_RXD_TDATA_IN(15 downto 0));
+            rx_packet_len_bytes <= v_pkt_len_bytes;
+            rx_packet_len_words <= "00" & v_pkt_len_bytes(15 downto 2);
+            payload_counter     <= x"0000";
             with v_packet_type select rx_state <=
               RX_STATE_PAYLOAD_1 when C_DESTINATION_top_TYPE_ping,
               RX_STATE_RAM_OFFSET when C_DESTINATION_top_TYPE_write_ram,
@@ -301,7 +306,7 @@ begin
             end case;
 
             payload_counter <= payload_counter + 1;
-            if (payload_counter = rx_packet_length_words - 1) then
+            if (payload_counter = rx_packet_len_words - 1) then
               rx_state <= RX_STATE_SEND_REPLY;
             else
               rx_state <= RX_STATE_PAYLOAD_1;
@@ -320,20 +325,21 @@ begin
             -- If it's a write transaction then set up the BRAM AXI write
             -- interface (but only if the write request is valid)
             if (packet_type = C_DESTINATION_top_TYPE_write_ram
-                and rx_packet_length_okay) then
-              M_AXI_WRITE_WORD_OFFSET_PORT_A_OUT <= v_ram_offset(9 downto 0);
+                and rx_packet_len_okay) then
+              M_AXI_WRITE_WORD_OFFSET_OUT <= v_ram_offset(9 downto 0);
               -- TODO validate that the word count fits into 8 bits
-              -- RX_PACKET_LENGTH_WORDS is the number of words in the packet
+              -- RX_PACKET_LEN_WORDS is the number of words in the packet
               -- first word is offset
               -- AWLEN is 1 less than the burst length (AWLEN=0 => burst 1)
-              -- so subtract 2 from RX_PACKET_LENGTH_WORDS
-              M_AXI_AWLEN_PORT_A_OUT   <= std_logic_vector(rx_packet_length_words(7 downto 0) - 2);
-              M_AXI_AWVALID_PORT_A_OUT <= '1';
+              -- so subtract 2 from RX_PACKET_LEN_WORDS
+              v_awlen_tmp       := rx_packet_len_words(7 downto 0) - 2;
+              M_AXI_AWLEN_OUT   <= std_logic_vector(v_awlen_tmp);
+              M_AXI_AWVALID_OUT <= '1';
 
               -- If the BRAM AXI interface immediately accepts the write
               -- request then go straight to the data phase, otherwise
               -- go to the state which waits for AWREADY to be asserted
-              if (M_AXI_AWREADY_PORT_A_IN = '1') then
+              if (M_AXI_AWREADY_IN = '1') then
                 rx_state <= RX_STATE_WRITE_RAM;
               else
                 rx_state <= RX_STATE_WRITE_REQ_WAIT_AWREADY;
@@ -348,48 +354,48 @@ begin
 
         when RX_STATE_WRITE_REQ_WAIT_AWREADY =>
 
-          if (M_AXI_AWREADY_PORT_A_IN = '1') then
-            rx_state                 <= RX_STATE_WRITE_RAM;
-            M_AXI_AWVALID_PORT_A_OUT <= '0';
+          if (M_AXI_AWREADY_IN = '1') then
+            rx_state          <= RX_STATE_WRITE_RAM;
+            M_AXI_AWVALID_OUT <= '0';
           else
             rx_state <= RX_STATE_WRITE_REQ_WAIT_AWREADY;
           end if;
 
         when RX_STATE_WRITE_RAM =>
 
-          M_AXI_AWVALID_PORT_A_OUT <= '0';
+          M_AXI_AWVALID_OUT <= '0';
           -- forward data words to BRAM axi interface
           rx_state <= RX_STATE_WRITE_RAM; -- default stay in this state
 
           -- only forward data from valid incoming packets, otherwise
           -- clock the words through but ignore them
-          if (rx_packet_length_okay) then
+          if (rx_packet_len_okay) then
             -- TODO it's possible this wants a skid buffer
-            M_AXI_WDATA_PORT_A_OUT  <= AXI_STR_RXD_TDATA_IN;
-            M_AXI_WVALID_PORT_A_OUT <= AXI_STR_RXD_TVALID_IN;
-            AXI_STR_RXD_TREADY_OUT  <= M_AXI_WREADY_PORT_A_IN;
+            M_AXI_WDATA_OUT        <= AXI_STR_RXD_TDATA_IN;
+            M_AXI_WVALID_OUT       <= AXI_STR_RXD_TVALID_IN;
+            AXI_STR_RXD_TREADY_OUT <= M_AXI_WREADY_IN;
           else
             AXI_STR_RXD_TREADY_OUT <= '1';
           end if;
 
           if (AXI_STR_RXD_TVALID_IN = '1') then
-            if (payload_counter = rx_packet_length_words - 1) then
-              M_AXI_WLAST_PORT_A_OUT <= '1';
+            if (payload_counter = rx_packet_len_words - 1) then
+              M_AXI_WLAST_OUT <= '1';
             end if;
             payload_counter <= payload_counter + 1;
           end if;
 
-          if (payload_counter = rx_packet_length_words) then
-            rx_state                <= RX_STATE_SEND_REPLY;
-            M_AXI_WVALID_PORT_A_OUT <= '0';
+          if (payload_counter = rx_packet_len_words) then
+            rx_state         <= RX_STATE_SEND_REPLY;
+            M_AXI_WVALID_OUT <= '0';
           end if;
 
         when RX_STATE_WRITE_RAM_LAST_WORD =>
 
-          M_AXI_WLAST_PORT_A_OUT <= '1';
+          M_AXI_WLAST_OUT <= '1';
           if (AXI_STR_RXD_TVALID_IN = '1') then
-            rx_state               <= RX_STATE_SEND_REPLY;
-            M_AXI_WLAST_PORT_A_OUT <= '0';
+            rx_state        <= RX_STATE_SEND_REPLY;
+            M_AXI_WLAST_OUT <= '0';
           end if;
         -- TODO check BRESP
 
@@ -404,19 +410,19 @@ begin
       end case;
 
       if (RESET = '1') then
-        rx_state                           <= RX_STATE_IDLE;
-        packet_type                        <= (others => '0');
-        AXI_STR_RXD_TREADY_OUT             <= '0';
-        M_AXI_AWVALID_PORT_A_OUT           <= '0';
-        M_AXI_BREADY_PORT_A_OUT            <= '0';
-        M_AXI_WRITE_WORD_OFFSET_PORT_A_OUT <= 10x"000";
-        M_AXI_AWLEN_PORT_A_OUT             <= x"00";
-        DAY_SEL_OUT                        <= x"00";
-        DATA_LEN_BYTES_OUT                 <= x"000";
+        rx_state                    <= RX_STATE_IDLE;
+        packet_type                 <= (others => '0');
+        AXI_STR_RXD_TREADY_OUT      <= '0';
+        M_AXI_AWVALID_OUT           <= '0';
+        M_AXI_BREADY_OUT            <= '0';
+        M_AXI_WRITE_WORD_OFFSET_OUT <= 10x"000";
+        M_AXI_AWLEN_OUT             <= x"00";
+        DAY_SEL_OUT                 <= x"00";
+        DATA_LEN_BYTES_OUT          <= x"000";
       end if;
     end if;
 
-  end process;
+  end process RX_PROC;
 
   REPLY_CTRL : process (CLK) is
 
@@ -428,83 +434,83 @@ begin
 
     if rising_edge(CLK) then
       -- defaults
-      reply_done               <= '0';
-      AXI_STR_TXD_TVALID_OUT   <= '0';
-      M_AXI_RREADY_PORT_A_OUT  <= '0';
-      M_AXI_ARVALID_PORT_A_OUT <= '0';
+      reply_done             <= '0';
+      AXI_STR_TXD_TVALID_OUT <= '0';
+      M_AXI_RREADY_OUT       <= '0';
+      M_AXI_ARVALID_OUT      <= '0';
 
       case reply_state is
 
-        when REPLY_STATE_IDLE =>
+        when REPLY_ST_IDLE =>
 
           if (rx_state = RX_STATE_SEND_REPLY) then
             AXI_STR_TXD_TDATA_OUT  <= reply_header;
             AXI_STR_TXD_TVALID_OUT <= '1';
 
             with packet_type select reply_state <=
-              REPLY_STATE_SEND_PONG_PAYLOAD when C_DESTINATION_top_TYPE_ping,
-              REPLY_STATE_SEND_BRAM_OFFSET when C_DESTINATION_top_TYPE_write_ram,
-              REPLY_STATE_SEND_BRAM_OFFSET when C_DESTINATION_top_TYPE_read_ram,
-              REPLY_STATE_RUN_DAY when C_DESTINATION_top_TYPE_run_day,
-              REPLY_STATE_IDLE when others;
+              REPLY_ST_SEND_PONG_PAYLOAD when C_DESTINATION_top_TYPE_ping,
+              REPLY_ST_SEND_BRAM_OFFSET when C_DESTINATION_top_TYPE_write_ram,
+              REPLY_ST_SEND_BRAM_OFFSET when C_DESTINATION_top_TYPE_read_ram,
+              REPLY_ST_RUN_DAY when C_DESTINATION_top_TYPE_run_day,
+              REPLY_ST_IDLE when others;
           end if;
 
-        when REPLY_STATE_SEND_PONG_PAYLOAD =>
+        when REPLY_ST_SEND_PONG_PAYLOAD =>
 
           if (AXI_STR_TXD_TREADY_IN) then
             AXI_STR_TXD_TVALID_OUT <= '1';
-            reply_state            <= REPLY_STATE_WAIT_DONE;
+            reply_state            <= REPLY_ST_WAIT_DONE;
             AXI_STR_TXD_TDATA_OUT  <= ping_payload;
           end if;
 
-        when REPLY_STATE_SEND_BRAM_OFFSET =>
+        when REPLY_ST_SEND_BRAM_OFFSET =>
 
           AXI_STR_TXD_TVALID_OUT <= '1';
           if (AXI_STR_TXD_TREADY_IN) then
-            reply_state           <= REPLY_STATE_SEND_BRAM_OKAY;
+            reply_state           <= REPLY_ST_SEND_BRAM_OKAY;
             AXI_STR_TXD_TDATA_OUT <= ram_offset;
           end if;
 
-        when REPLY_STATE_SEND_BRAM_OKAY =>
+        when REPLY_ST_SEND_BRAM_OKAY =>
 
           AXI_STR_TXD_TVALID_OUT <= '1';
           if (AXI_STR_TXD_TREADY_IN) then
             AXI_STR_TXD_TVALID_OUT <= '1';
-            AXI_STR_TXD_TDATA_OUT  <= c_BRAM_OFFSET_OKAY when bram_offset_okay else
-                                      c_BRAM_OFFSET_NOT_OKAY;
+            AXI_STR_TXD_TDATA_OUT  <= c_BRAM_OFF_OKAY when bram_offset_okay else
+                                      c_BRAM_OFF_NOT_OKAY;
 
             with packet_type select reply_state <=
-              REPLY_STATE_SETUP_BRAM_READ when C_DESTINATION_top_TYPE_read_ram,
-              REPLY_STATE_WAIT_DONE when others;
+              REPLY_ST_SETUP_BRAM_READ when C_DESTINATION_top_TYPE_read_ram,
+              REPLY_ST_WAIT_DONE when others;
           end if;
 
-        when REPLY_STATE_SETUP_BRAM_READ =>
+        when REPLY_ST_SETUP_BRAM_READ =>
 
-          reply_state <= REPLY_STATE_SETUP_BRAM_READ;
+          reply_state <= REPLY_ST_SETUP_BRAM_READ;
           -- set up the read request
           -- TODO validate that the ram offset fits into 12 bits
-          M_AXI_READ_WORD_OFFSET_PORT_A_OUT <= ram_offset(9 downto 0);
+          M_AXI_READ_WORD_OFFSET_OUT <= ram_offset(9 downto 0);
           -- ARLEN is one less than burst length (ARLEN=0 => burst 1)
-          M_AXI_ARLEN_PORT_A_OUT   <= std_logic_vector(c_BRAM_READ_LEN_WORDS - 1);
-          M_AXI_ARVALID_PORT_A_OUT <= '1';
+          M_AXI_ARLEN_OUT   <= std_logic_vector(c_bram_arlen);
+          M_AXI_ARVALID_OUT <= '1';
 
-          if (M_AXI_ARREADY_PORT_A_IN = '1') then
-            reply_state <= REPLY_STATE_SEND_BRAM_DATA;
+          if (M_AXI_ARREADY_IN = '1') then
+            reply_state <= REPLY_ST_SEND_BRAM_DATA;
           end if;
 
-        when REPLY_STATE_SEND_BRAM_DATA =>
+        when REPLY_ST_SEND_BRAM_DATA =>
 
-          reply_state <= REPLY_STATE_SEND_BRAM_DATA; -- default
+          reply_state <= REPLY_ST_SEND_BRAM_DATA; -- default
 
-          AXI_STR_TXD_TDATA_OUT   <= M_AXI_RDATA_PORT_A_IN;
-          AXI_STR_TXD_TVALID_OUT  <= M_AXI_RVALID_PORT_A_IN;
-          M_AXI_RREADY_PORT_A_OUT <= AXI_STR_TXD_TREADY_IN;
+          AXI_STR_TXD_TDATA_OUT  <= M_AXI_RDATA_IN;
+          AXI_STR_TXD_TVALID_OUT <= M_AXI_RVALID_IN;
+          M_AXI_RREADY_OUT       <= AXI_STR_TXD_TREADY_IN;
 
-          if (M_AXI_RLAST_PORT_A_IN = '1') then
-            reply_state <= REPLY_STATE_WAIT_DONE;
+          if (M_AXI_RLAST_IN = '1') then
+            reply_state <= REPLY_ST_WAIT_DONE;
           end if;
 
-        when REPLY_STATE_RUN_DAY =>
+        when REPLY_ST_RUN_DAY =>
 
           -- if request is bad then send ACK immediately, otherwise
           -- wait for the day mux to report DONE
@@ -514,34 +520,34 @@ begin
                                       & bool_to_std_logic(run_day_ok)
                                       & x"0000";
             AXI_STR_TXD_TVALID_OUT <= '1';
-            reply_state            <= REPLY_STATE_WAIT_DONE;
+            reply_state            <= REPLY_ST_WAIT_DONE;
           else
-            reply_state <= REPLY_STATE_RUN_DAY;
+            reply_state <= REPLY_ST_RUN_DAY;
           end if;
 
-        when REPLY_STATE_WAIT_DONE =>
+        when REPLY_ST_WAIT_DONE =>
 
           if (AXI_STR_TXD_TREADY_IN) then
             AXI_STR_TXD_TVALID_OUT <= '0';
             reply_done             <= '1';
-            reply_state            <= REPLY_STATE_WAIT_IDLE;
+            reply_state            <= REPLY_ST_WAIT_IDLE;
           end if;
 
-        when REPLY_STATE_WAIT_IDLE =>
+        when REPLY_ST_WAIT_IDLE =>
 
           if (rx_state = RX_STATE_IDLE) then
-            reply_state <= REPLY_STATE_IDLE;
+            reply_state <= REPLY_ST_IDLE;
           end if;
 
       end case;
 
       if (RESET = '1') then
-        reply_state                       <= REPLY_STATE_IDLE;
-        reply_done                        <= '0';
-        M_AXI_ARVALID_PORT_A_OUT          <= '0';
-        M_AXI_ARLEN_PORT_A_OUT            <= std_logic_vector(c_BRAM_READ_LEN_WORDS - 1);
-        M_AXI_READ_WORD_OFFSET_PORT_A_OUT <= 10x"000";
-        AXI_STR_TXD_TDATA_OUT             <= (others => '0');
+        reply_state                <= REPLY_ST_IDLE;
+        reply_done                 <= '0';
+        M_AXI_ARVALID_OUT          <= '0';
+        M_AXI_ARLEN_OUT            <= std_logic_vector(c_BRAM_ARLEN);
+        M_AXI_READ_WORD_OFFSET_OUT <= 10x"000";
+        AXI_STR_TXD_TDATA_OUT      <= (others => '0');
       end if;
     end if;
 

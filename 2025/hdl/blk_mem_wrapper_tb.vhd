@@ -8,51 +8,49 @@ end entity BLK_MEM_WRAPPER_TB;
 
 architecture RTL of BLK_MEM_WRAPPER_TB is
 
-  constant c_half_period_25_mhz               : time := 20 ns; -- 25 MHz clock, 40 ns period
+  constant c_half_period_25_mhz : time := 20 ns; -- 25 MHz clock, 40 ns period
 
-  signal clk                                  : std_logic := '1';
-  signal reset                                : std_logic := '1';
+  signal clk   : std_logic := '1';
+  signal reset : std_logic := '1';
 
   -- Write controls --
-  signal bram_axi_write_word_offset_port_a_in : std_logic_vector(9 downto 0)
-                                                                             := 10x"000";
-  signal bram_axi_awlen_port_a_in             : std_logic_vector(7 downto 0) := x"00";
-  signal bram_axi_awvalid_port_a_in           : std_logic                    := '0';
-  signal bram_axi_awready_port_a_out          : std_logic;
+  signal bram_axi_write_word_off_a   : std_logic_vector(9 downto 0) := 10x"000";
+  signal bram_axi_awlen_port_a_in    : std_logic_vector(7 downto 0) := x"00";
+  signal bram_axi_awvalid_port_a_in  : std_logic                    := '0';
+  signal bram_axi_awready_port_a_out : std_logic;
 
   -- Write data --
-  signal bram_axi_wdata_port_a_in             : std_logic_vector(31 downto 0);
-  signal bram_axi_wlast_port_a_in             : std_logic := '0';
-  signal bram_axi_wvalid_port_a_in            : std_logic := '0';
-  signal bram_axi_wready_port_a_out           : std_logic;
+  signal bram_axi_wdata_port_a_in   : std_logic_vector(31 downto 0);
+  signal bram_axi_wlast_port_a_in   : std_logic := '0';
+  signal bram_axi_wvalid_port_a_in  : std_logic := '0';
+  signal bram_axi_wready_port_a_out : std_logic;
 
   -- Write response --
-  signal bram_axi_bresp_port_a_out            : std_logic_vector(1 downto 0);
-  signal bram_axi_bvalid_port_a_out           : std_logic;
-  signal bram_axi_bready_port_a_in            : std_logic := '0';
+  signal bram_axi_bresp_port_a_out  : std_logic_vector(1 downto 0);
+  signal bram_axi_bvalid_port_a_out : std_logic;
+  signal bram_axi_bready_port_a_in  : std_logic := '0';
 
   -- Read controls --
-  signal bram_axi_read_word_offset_port_a_in  : std_logic_vector(9 downto 0)
-                                                                             := 10x"000";
-  signal bram_axi_arlen_port_a_in             : std_logic_vector(7 downto 0) := x"00";
-  signal bram_axi_arvalid_port_a_in           : std_logic                    := '0';
-  signal bram_axi_arready_port_a_out          : std_logic;
+  signal bram_axi_read_word_offset_a : std_logic_vector(9 downto 0) := 10x"000";
+  signal bram_axi_arlen_port_a_in    : std_logic_vector(7 downto 0) := x"00";
+  signal bram_axi_arvalid_port_a_in  : std_logic                    := '0';
+  signal bram_axi_arready_port_a_out : std_logic;
 
   -- Read data --
-  signal bram_axi_rdata_port_a_out            : std_logic_vector(31 downto 0);
-  signal bram_axi_rresp_port_a_out            : std_logic_vector(1 downto 0);
-  signal bram_axi_rlast_port_a_out            : std_logic;
-  signal bram_axi_rvalid_port_a_out           : std_logic;
-  signal bram_axi_rready_port_a_in            : std_logic := '0';
+  signal bram_axi_rdata_port_a_out  : std_logic_vector(31 downto 0);
+  signal bram_axi_rresp_port_a_out  : std_logic_vector(1 downto 0);
+  signal bram_axi_rlast_port_a_out  : std_logic;
+  signal bram_axi_rvalid_port_a_out : std_logic;
+  signal bram_axi_rready_port_a_in  : std_logic := '0';
 
   -- Port B controls --
-  signal bram_addr_b_in                       : std_logic_vector(11 downto 0);
-  signal bram_data_b_in                       : std_logic_vector(7 downto 0);
-  signal bram_data_b_out                      : std_logic_vector(7 downto 0);
-  signal bram_port_b_write_enable_in          : std_logic;
-  signal bram_port_b_enabled_out              : std_logic;
+  signal bram_addr_b_in              : std_logic_vector(11 downto 0);
+  signal bram_data_b_in              : std_logic_vector(7 downto 0);
+  signal bram_data_b_out             : std_logic_vector(7 downto 0);
+  signal bram_port_b_write_enable_in : std_logic;
+  signal bram_port_b_enabled_out     : std_logic;
 
-  signal verbose                              : boolean := false;
+  signal verbose : boolean := false;
 
   procedure wait_edge is
   begin
@@ -104,7 +102,7 @@ begin
       -- Port A controls --
 
       -- Write controls --
-      S_AXI_WRITE_WORD_OFFSET_PORT_A_IN => bram_axi_write_word_offset_port_a_in,
+      S_AXI_WRITE_WORD_OFFSET_PORT_A_IN => bram_axi_write_word_off_a,
       S_AXI_AWLEN_PORT_A_IN             => bram_axi_awlen_port_a_in,
       S_AXI_AWVALID_PORT_A_IN           => bram_axi_awvalid_port_a_in,
       S_AXI_AWREADY_PORT_A_OUT          => bram_axi_awready_port_a_out,
@@ -121,7 +119,7 @@ begin
       S_AXI_BREADY_PORT_A_IN  => bram_axi_bready_port_a_in,
 
       -- Read controls --
-      S_AXI_READ_WORD_OFFSET_PORT_A_IN => bram_axi_read_word_offset_port_a_in,
+      S_AXI_READ_WORD_OFFSET_PORT_A_IN => bram_axi_read_word_offset_a,
       S_AXI_ARLEN_PORT_A_IN            => bram_axi_arlen_port_a_in,
       S_AXI_ARVALID_PORT_A_IN          => bram_axi_arvalid_port_a_in,
       S_AXI_ARREADY_PORT_A_OUT         => bram_axi_arready_port_a_out,
@@ -164,9 +162,9 @@ begin
     wait_edge;
 
     -- Write four words over the AXI interface
-    bram_axi_write_word_offset_port_a_in <= 10x"0000";
-    bram_axi_awlen_port_a_in             <= x"04";
-    bram_axi_awvalid_port_a_in           <= '1';
+    bram_axi_write_word_off_a  <= 10x"0000";
+    bram_axi_awlen_port_a_in   <= x"04";
+    bram_axi_awvalid_port_a_in <= '1';
 
     bram_axi_wdata_port_a_in  <= x"00112233";
     bram_axi_wlast_port_a_in  <= '0';
@@ -178,7 +176,8 @@ begin
     bram_axi_awvalid_port_a_in <= '0';
 
     wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for " & to_hex_string(bram_axi_wdata_port_a_in)
+            "bram_axi_wready_port_a_OUT for "
+            & to_hex_string(bram_axi_wdata_port_a_in)
           );
     assert bram_axi_wready_port_a_out = '1'
       report "WREADY";
@@ -186,7 +185,8 @@ begin
     bram_axi_wdata_port_a_in <= x"44556677";
     -- wait_edge;
     wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for " & to_hex_string(bram_axi_wdata_port_a_in)
+            "bram_axi_wready_port_a_OUT for "
+            & to_hex_string(bram_axi_wdata_port_a_in)
           );
     assert bram_axi_wready_port_a_out = '1'
       report "WREADY";
@@ -194,7 +194,8 @@ begin
     bram_axi_wdata_port_a_in <= x"8899AABB";
     -- wait_edge;
     wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for " & to_hex_string(bram_axi_wdata_port_a_in)
+            "bram_axi_wready_port_a_OUT for "
+            & to_hex_string(bram_axi_wdata_port_a_in)
           );
     assert bram_axi_wready_port_a_out = '1'
       report "WREADY";
@@ -203,7 +204,8 @@ begin
     bram_axi_wlast_port_a_in <= '1';
     -- wait_edge;
     wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for " & to_hex_string(bram_axi_wdata_port_a_in)
+            "bram_axi_wready_port_a_OUT for "
+            & to_hex_string(bram_axi_wdata_port_a_in)
           );
     assert bram_axi_wready_port_a_out = '1'
       report "WREADY";
@@ -222,9 +224,9 @@ begin
     wait_edge;
 
     -- Read the four words back
-    bram_axi_read_word_offset_port_a_in <= 10x"0000";
-    bram_axi_arlen_port_a_in            <= x"04";
-    bram_axi_arvalid_port_a_in          <= '1';
+    bram_axi_read_word_offset_a <= 10x"0000";
+    bram_axi_arlen_port_a_in    <= x"04";
+    bram_axi_arvalid_port_a_in  <= '1';
     -- wait_edge;
     wait_eq(bram_axi_arready_port_a_out, '1', "bram_axi_arready_port_a_OUT");
     bram_axi_arvalid_port_a_in <= '0';
@@ -289,7 +291,8 @@ begin
 
     for nibble in 0 to 15 loop
 
-      nibble_slv     := std_logic_vector(to_unsigned(nibble, nibble_slv'length));
+      nibble_slv := std_logic_vector(to_unsigned(nibble, nibble_slv'length));
+
       wait_edge;
       assert bram_data_b_out = nibble_slv & nibble_slv
         report "data B out: "

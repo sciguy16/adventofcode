@@ -9,63 +9,64 @@ end entity PACKET_HANDLER_TB_DAY_MUX;
 
 architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
 
-  constant c_half_period_25_mhz            : time := 20 ns; -- 25 MHz clock, 40 ns period
-  constant c_timeout                       : time := 8 * c_half_period_25_mhz;
+  -- 25 MHz clock, 40 ns period
+  constant c_half_period_25_mhz : time := 20 ns;
+  constant c_timeout            : time := 8 * c_half_period_25_mhz;
 
-  signal clk                               : std_logic := '0';
-  signal reset                             : std_logic := '0';
+  signal clk   : std_logic := '0';
+  signal reset : std_logic := '0';
 
-  signal axi_str_rxd_tvalid                : std_logic                     := '0';
-  signal axi_str_rxd_tready                : std_logic;
-  signal axi_str_rxd_tdata                 : std_logic_vector(31 downto 0) := x"00000000";
+  signal axi_str_rxd_tvalid : std_logic                     := '0';
+  signal axi_str_rxd_tready : std_logic;
+  signal axi_str_rxd_tdata  : std_logic_vector(31 downto 0) := x"00000000";
 
-  signal axi_str_txd_tvalid                : std_logic;
-  signal axi_str_txd_tready                : std_logic := '0';
-  signal axi_str_txd_tdata                 : std_logic_vector(31 downto 0);
+  signal axi_str_txd_tvalid : std_logic;
+  signal axi_str_txd_tready : std_logic := '0';
+  signal axi_str_txd_tdata  : std_logic_vector(31 downto 0);
 
   -- Write controls --
-  signal bram_axi_write_word_offset_port_a : std_logic_vector(9 downto 0);
-  signal bram_axi_awlen_port_a             : std_logic_vector(7 downto 0);
-  signal bram_axi_awvalid_port_a           : std_logic;
-  signal bram_axi_awready_port_a           : std_logic;
+  signal bram_write_word_off_a : std_logic_vector(9 downto 0);
+  signal bram_awlen_a          : std_logic_vector(7 downto 0);
+  signal bram_awvalid_a        : std_logic;
+  signal bram_awready_a        : std_logic;
 
   -- Write data --
-  signal bram_axi_wdata_port_a             : std_logic_vector(31 downto 0);
-  signal bram_axi_wlast_port_a             : std_logic;
-  signal bram_axi_wvalid_port_a            : std_logic;
-  signal bram_axi_wready_port_a            : std_logic;
+  signal bram_wdata_a  : std_logic_vector(31 downto 0);
+  signal bram_wlast_a  : std_logic;
+  signal bram_wvalid_a : std_logic;
+  signal bram_wready_a : std_logic;
 
   -- Write response --
-  signal bram_axi_bresp_port_a             : std_logic_vector(1 downto 0);
-  signal bram_axi_bvalid_port_a            : std_logic;
-  signal bram_axi_bready_port_a            : std_logic;
+  signal bram_bresp_a  : std_logic_vector(1 downto 0);
+  signal bram_bvalid_a : std_logic;
+  signal bram_bready_a : std_logic;
 
   -- Read controls --
-  signal bram_axi_read_word_offset_port_a  : std_logic_vector(9 downto 0);
-  signal bram_axi_arlen_port_a             : std_logic_vector(7 downto 0);
-  signal bram_axi_arvalid_port_a           : std_logic;
-  signal bram_axi_arready_port_a           : std_logic;
+  signal bram_read_word_off_a : std_logic_vector(9 downto 0);
+  signal bram_arlen_a         : std_logic_vector(7 downto 0);
+  signal bram_arvalid_a       : std_logic;
+  signal bram_arready_a       : std_logic;
 
   -- Read data --
-  signal bram_axi_rdata_port_a             : std_logic_vector(31 downto 0);
-  signal bram_axi_rresp_port_a             : std_logic_vector(1 downto 0);
-  signal bram_axi_rlast_port_a             : std_logic;
-  signal bram_axi_rvalid_port_a            : std_logic;
-  signal bram_axi_rready_port_a            : std_logic;
+  signal bram_rdata_a  : std_logic_vector(31 downto 0);
+  signal bram_rresp_a  : std_logic_vector(1 downto 0);
+  signal bram_rlast_a  : std_logic;
+  signal bram_rvalid_a : std_logic;
+  signal bram_rready_a : std_logic;
 
   -- Port B controls --
-  signal bram_addr_b                       : std_logic_vector(11 downto 0) := x"000";
-  signal bram_write_data_b                 : std_logic_vector(7 downto 0)  := x"00";
-  signal bram_read_data_b                  : std_logic_vector(7 downto 0);
-  signal bram_port_b_write_enable          : std_logic                     := '0';
-  signal bram_port_b_enabled               : std_logic;
+  signal bram_addr_b          : std_logic_vector(11 downto 0) := x"000";
+  signal bram_write_data_b    : std_logic_vector(7 downto 0)  := x"00";
+  signal bram_read_data_b     : std_logic_vector(7 downto 0);
+  signal bram_port_b_write_en : std_logic                     := '0';
+  signal bram_port_b_enabled  : std_logic;
 
   -- Day mux controls
-  signal day_sel                           : unsigned(7 downto 0);
-  signal data_len_bytes                    : unsigned(11 downto 0);
-  signal day_done                          : std_logic;
+  signal day_sel        : unsigned(7 downto 0);
+  signal data_len_bytes : unsigned(11 downto 0);
+  signal day_done       : std_logic;
 
-  signal verbose                           : boolean := false;
+  signal verbose : boolean := false;
 
   procedure wait_edge is
   begin
@@ -81,7 +82,7 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
     message      : in string
   ) is
 
-    variable clock_count : integer := 0;
+    variable clock_count : integer;
 
   begin
 
@@ -91,6 +92,8 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
     end if;
 
     wait_edge;
+
+    clock_count := 0;
 
     while value /= expected loop
 
@@ -125,34 +128,34 @@ begin
       -- BRAM Port A controls --
 
       -- Write controls --
-      M_AXI_WRITE_WORD_OFFSET_PORT_A_OUT => bram_axi_write_word_offset_port_a,
-      M_AXI_AWLEN_PORT_A_OUT             => bram_axi_awlen_port_a,
-      M_AXI_AWVALID_PORT_A_OUT           => bram_axi_awvalid_port_a,
-      M_AXI_AWREADY_PORT_A_IN            => bram_axi_awready_port_a,
+      M_AXI_WRITE_WORD_OFFSET_OUT => bram_write_word_off_a,
+      M_AXI_AWLEN_OUT             => bram_awlen_a,
+      M_AXI_AWVALID_OUT           => bram_awvalid_a,
+      M_AXI_AWREADY_IN            => bram_awready_a,
 
       -- Write data --
-      M_AXI_WDATA_PORT_A_OUT  => bram_axi_wdata_port_a,
-      M_AXI_WLAST_PORT_A_OUT  => bram_axi_wlast_port_a,
-      M_AXI_WVALID_PORT_A_OUT => bram_axi_wvalid_port_a,
-      M_AXI_WREADY_PORT_A_IN  => bram_axi_wready_port_a,
+      M_AXI_WDATA_OUT  => bram_wdata_a,
+      M_AXI_WLAST_OUT  => bram_wlast_a,
+      M_AXI_WVALID_OUT => bram_wvalid_a,
+      M_AXI_WREADY_IN  => bram_wready_a,
 
       -- Write response --
-      M_AXI_BRESP_PORT_A_IN   => bram_axi_bresp_port_a,
-      M_AXI_BVALID_PORT_A_IN  => bram_axi_bvalid_port_a,
-      M_AXI_BREADY_PORT_A_OUT => bram_axi_bready_port_a,
+      M_AXI_BRESP_IN   => bram_bresp_a,
+      M_AXI_BVALID_IN  => bram_bvalid_a,
+      M_AXI_BREADY_OUT => bram_bready_a,
 
       -- Read controls --
-      M_AXI_READ_WORD_OFFSET_PORT_A_OUT => bram_axi_read_word_offset_port_a,
-      M_AXI_ARLEN_PORT_A_OUT            => bram_axi_arlen_port_a,
-      M_AXI_ARVALID_PORT_A_OUT          => bram_axi_arvalid_port_a,
-      M_AXI_ARREADY_PORT_A_IN           => bram_axi_arready_port_a,
+      M_AXI_READ_WORD_OFFSET_OUT => bram_read_word_off_a,
+      M_AXI_ARLEN_OUT            => bram_arlen_a,
+      M_AXI_ARVALID_OUT          => bram_arvalid_a,
+      M_AXI_ARREADY_IN           => bram_arready_a,
 
       -- Read data --
-      M_AXI_RDATA_PORT_A_IN   => bram_axi_rdata_port_a,
-      M_AXI_RRESP_PORT_A_IN   => bram_axi_rresp_port_a,
-      M_AXI_RLAST_PORT_A_IN   => bram_axi_rlast_port_a,
-      M_AXI_RVALID_PORT_A_IN  => bram_axi_rvalid_port_a,
-      M_AXI_RREADY_PORT_A_OUT => bram_axi_rready_port_a,
+      M_AXI_RDATA_IN   => bram_rdata_a,
+      M_AXI_RRESP_IN   => bram_rresp_a,
+      M_AXI_RLAST_IN   => bram_rlast_a,
+      M_AXI_RVALID_IN  => bram_rvalid_a,
+      M_AXI_RREADY_OUT => bram_rready_a,
 
       -- Day mux controls
       DAY_SEL_OUT        => day_sel,
@@ -177,7 +180,8 @@ begin
 
     -- packet header
     wait_edge;
-    axi_str_rxd_tdata  <= x"00060004";                     -- RUN DAY, LENGTH 4
+    -- RUN DAY, LENGTH 4
+    axi_str_rxd_tdata  <= x"00060004";
     axi_str_rxd_tvalid <= '1';
     -- wait for UUT to clock in the data on a rising edge
     wait_eq(axi_str_rxd_tready, '1', "packet header");
@@ -185,7 +189,8 @@ begin
     axi_str_rxd_tvalid <= '0';
 
     -- control
-    axi_str_rxd_tdata  <= x"00" & x"00" & x"0000";         -- day, data len, padding
+    -- day, data len, padding
+    axi_str_rxd_tdata  <= x"00" & x"00" & x"0000";
     axi_str_rxd_tvalid <= '1';
     -- wait for UUT to clock in the data on a rising edge
     wait_eq(axi_str_rxd_tready, '1', "BRAM offset");
@@ -227,44 +232,44 @@ begin
       -- Port A controls --
 
       -- Write controls --
-      S_AXI_WRITE_WORD_OFFSET_PORT_A_IN => bram_axi_write_word_offset_port_a,
-      S_AXI_AWLEN_PORT_A_IN             => bram_axi_awlen_port_a,
-      S_AXI_AWVALID_PORT_A_IN           => bram_axi_awvalid_port_a,
-      S_AXI_AWREADY_PORT_A_OUT          => bram_axi_awready_port_a,
+      S_AXI_WRITE_WORD_OFFSET_PORT_A_IN => bram_write_word_off_a,
+      S_AXI_AWLEN_PORT_A_IN             => bram_awlen_a,
+      S_AXI_AWVALID_PORT_A_IN           => bram_awvalid_a,
+      S_AXI_AWREADY_PORT_A_OUT          => bram_awready_a,
 
       -- Write data --
-      S_AXI_WDATA_PORT_A_IN   => bram_axi_wdata_port_a,
-      S_AXI_WLAST_PORT_A_IN   => bram_axi_wlast_port_a,
-      S_AXI_WVALID_PORT_A_IN  => bram_axi_wvalid_port_a,
-      S_AXI_WREADY_PORT_A_OUT => bram_axi_wready_port_a,
+      S_AXI_WDATA_PORT_A_IN   => bram_wdata_a,
+      S_AXI_WLAST_PORT_A_IN   => bram_wlast_a,
+      S_AXI_WVALID_PORT_A_IN  => bram_wvalid_a,
+      S_AXI_WREADY_PORT_A_OUT => bram_wready_a,
 
       -- Write response --
-      S_AXI_BRESP_PORT_A_OUT  => bram_axi_bresp_port_a,
-      S_AXI_BVALID_PORT_A_OUT => bram_axi_bvalid_port_a,
-      S_AXI_BREADY_PORT_A_IN  => bram_axi_bready_port_a,
+      S_AXI_BRESP_PORT_A_OUT  => bram_bresp_a,
+      S_AXI_BVALID_PORT_A_OUT => bram_bvalid_a,
+      S_AXI_BREADY_PORT_A_IN  => bram_bready_a,
 
       -- Read controls --
-      S_AXI_READ_WORD_OFFSET_PORT_A_IN => bram_axi_read_word_offset_port_a,
-      S_AXI_ARLEN_PORT_A_IN            => bram_axi_arlen_port_a,
-      S_AXI_ARVALID_PORT_A_IN          => bram_axi_arvalid_port_a,
-      S_AXI_ARREADY_PORT_A_OUT         => bram_axi_arready_port_a,
+      S_AXI_READ_WORD_OFFSET_PORT_A_IN => bram_read_word_off_a,
+      S_AXI_ARLEN_PORT_A_IN            => bram_arlen_a,
+      S_AXI_ARVALID_PORT_A_IN          => bram_arvalid_a,
+      S_AXI_ARREADY_PORT_A_OUT         => bram_arready_a,
 
       -- Read data --
-      S_AXI_RDATA_PORT_A_OUT  => bram_axi_rdata_port_a,
-      S_AXI_RRESP_PORT_A_OUT  => bram_axi_rresp_port_a,
-      S_AXI_RLAST_PORT_A_OUT  => bram_axi_rlast_port_a,
-      S_AXI_RVALID_PORT_A_OUT => bram_axi_rvalid_port_a,
-      S_AXI_RREADY_PORT_A_IN  => bram_axi_rready_port_a,
+      S_AXI_RDATA_PORT_A_OUT  => bram_rdata_a,
+      S_AXI_RRESP_PORT_A_OUT  => bram_rresp_a,
+      S_AXI_RLAST_PORT_A_OUT  => bram_rlast_a,
+      S_AXI_RVALID_PORT_A_OUT => bram_rvalid_a,
+      S_AXI_RREADY_PORT_A_IN  => bram_rready_a,
 
       -- Port B controls --
       BRAM_ADDR_B_IN              => bram_addr_b,
       BRAM_DATA_B_IN              => bram_write_data_b,
       BRAM_DATA_B_OUT             => bram_read_data_b,
-      BRAM_PORT_B_WRITE_ENABLE_IN => bram_port_b_write_enable,
+      BRAM_PORT_B_WRITE_ENABLE_IN => bram_port_b_write_en,
       BRAM_PORT_B_ENABLED_OUT     => bram_port_b_enabled
     );
 
-  DAY_MUX_INST : entity work.day_mux
+  DAY_MUX_INST : entity work.day_mux(rtl)
     port map (
       RESET => reset,
       CLK   => clk,
@@ -277,7 +282,7 @@ begin
       BRAM_ADDR_B_OUT              => bram_addr_b,
       BRAM_WRITE_DATA_B_OUT        => bram_write_data_b,
       BRAM_READ_DATA_B_IN          => bram_read_data_b,
-      BRAM_PORT_B_WRITE_ENABLE_OUT => bram_port_b_write_enable,
+      BRAM_PORT_B_WRITE_ENABLE_OUT => bram_port_b_write_en,
       BRAM_PORT_B_ENABLED_IN       => bram_port_b_enabled
     );
 

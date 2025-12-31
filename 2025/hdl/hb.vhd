@@ -18,7 +18,7 @@ architecture RTL of HB is
 
 begin
 
-  process (CLK) is
+  HB_PROC : process (CLK) is
   begin
 
     if (rising_edge(CLK)) then
@@ -39,6 +39,6 @@ begin
       end if;
     end if;
 
-  end process;
+  end process HB_PROC;
 
 end architecture RTL;

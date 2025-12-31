@@ -18,31 +18,31 @@ entity AOC_TOP is
     RESET_IN     : in    std_logic;
     CLK_12MHZ_IN : in    std_logic;
 
-    HB_LED       : out   std_logic;
-    LED0_B       : out   std_logic;
-    LED0_G       : out   std_logic;
-    LED0_R       : out   std_logic;
+    HB_LED : out   std_logic;
+    LED0_B : out   std_logic;
+    LED0_G : out   std_logic;
+    LED0_R : out   std_logic;
 
-    UART_RX      : in    std_logic;
-    UART_TX      : out   std_logic
+    UART_RX : in    std_logic;
+    UART_TX : out   std_logic
   );
 end entity AOC_TOP;
 
 architecture RTL of AOC_TOP is
 
-  signal clk_25mhz                         : std_logic;
-  signal clk_50mhz                         : std_logic;
-  signal reset_in_reg                      : std_logic := '0';
-  signal reset                             : std_logic;
-  signal reset_50mhz                       : std_logic;
+  signal clk_25mhz    : std_logic;
+  signal clk_50mhz    : std_logic;
+  signal reset_in_reg : std_logic := '0';
+  signal reset        : std_logic;
+  signal reset_50mhz  : std_logic;
 
-  signal axi_uart_rxd_tvalid               : std_logic;
-  signal axi_uart_rxd_tready               : std_logic;
-  signal axi_uart_rxd_tdata                : std_logic_vector(31 downto 0);
+  signal axi_uart_rxd_tvalid : std_logic;
+  signal axi_uart_rxd_tready : std_logic;
+  signal axi_uart_rxd_tdata  : std_logic_vector(31 downto 0);
 
-  signal axi_uart_txd_tvalid               : std_logic;
-  signal axi_uart_txd_tready               : std_logic;
-  signal axi_uart_txd_tdata                : std_logic_vector(31 downto 0);
+  signal axi_uart_txd_tvalid : std_logic;
+  signal axi_uart_txd_tready : std_logic;
+  signal axi_uart_txd_tdata  : std_logic_vector(31 downto 0);
 
   -- Write controls --
   signal bram_axi_write_word_offset_port_a : std_logic_vector(9 downto 0);
@@ -51,40 +51,40 @@ architecture RTL of AOC_TOP is
   signal bram_axi_awready_port_a           : std_logic;
 
   -- Write data --
-  signal bram_axi_wdata_port_a             : std_logic_vector(31 downto 0);
-  signal bram_axi_wlast_port_a             : std_logic;
-  signal bram_axi_wvalid_port_a            : std_logic;
-  signal bram_axi_wready_port_a            : std_logic;
+  signal bram_axi_wdata_port_a  : std_logic_vector(31 downto 0);
+  signal bram_axi_wlast_port_a  : std_logic;
+  signal bram_axi_wvalid_port_a : std_logic;
+  signal bram_axi_wready_port_a : std_logic;
 
   -- Write response --
-  signal bram_axi_bresp_port_a             : std_logic_vector(1 downto 0);
-  signal bram_axi_bvalid_port_a            : std_logic;
-  signal bram_axi_bready_port_a            : std_logic;
+  signal bram_axi_bresp_port_a  : std_logic_vector(1 downto 0);
+  signal bram_axi_bvalid_port_a : std_logic;
+  signal bram_axi_bready_port_a : std_logic;
 
   -- Read controls --
-  signal bram_axi_read_word_offset_port_a  : std_logic_vector(9 downto 0);
-  signal bram_axi_arlen_port_a             : std_logic_vector(7 downto 0);
-  signal bram_axi_arvalid_port_a           : std_logic;
-  signal bram_axi_arready_port_a           : std_logic;
+  signal bram_axi_read_word_offset_port_a : std_logic_vector(9 downto 0);
+  signal bram_axi_arlen_port_a            : std_logic_vector(7 downto 0);
+  signal bram_axi_arvalid_port_a          : std_logic;
+  signal bram_axi_arready_port_a          : std_logic;
 
   -- Read data --
-  signal bram_axi_rdata_port_a             : std_logic_vector(31 downto 0);
-  signal bram_axi_rresp_port_a             : std_logic_vector(1 downto 0);
-  signal bram_axi_rlast_port_a             : std_logic;
-  signal bram_axi_rvalid_port_a            : std_logic;
-  signal bram_axi_rready_port_a            : std_logic;
+  signal bram_axi_rdata_port_a  : std_logic_vector(31 downto 0);
+  signal bram_axi_rresp_port_a  : std_logic_vector(1 downto 0);
+  signal bram_axi_rlast_port_a  : std_logic;
+  signal bram_axi_rvalid_port_a : std_logic;
+  signal bram_axi_rready_port_a : std_logic;
 
   -- Port B controls --
-  signal bram_addr_b                       : std_logic_vector(11 downto 0);
-  signal bram_write_data_b                 : std_logic_vector(7 downto 0);
-  signal bram_read_data_b                  : std_logic_vector(7 downto 0);
-  signal bram_port_b_write_enable          : std_logic;
-  signal bram_port_b_enabled               : std_logic;
+  signal bram_addr_b              : std_logic_vector(11 downto 0);
+  signal bram_write_data_b        : std_logic_vector(7 downto 0);
+  signal bram_read_data_b         : std_logic_vector(7 downto 0);
+  signal bram_port_b_write_enable : std_logic;
+  signal bram_port_b_enabled      : std_logic;
 
   -- Day mux controls
-  signal day_sel                           : unsigned(7 downto 0);
-  signal data_len_bytes                    : unsigned(11 downto 0);
-  signal day_done                          : std_logic;
+  signal day_sel        : unsigned(7 downto 0);
+  signal data_len_bytes : unsigned(11 downto 0);
+  signal day_done       : std_logic;
 
   attribute mark_debug : string;
   attribute mark_debug of bram_axi_arlen_port_a : signal is "TRUE";
@@ -107,14 +107,14 @@ begin
   LED0_G <= '1';
   LED0_B <= '1';
 
-  process (clk_25mhz) is
+  RESET_REG_PROC : process (clk_25mhz) is
   begin
 
     if rising_edge(clk_25mhz) then
       reset_in_reg <= RESET_IN;
     end if;
 
-  end process;
+  end process RESET_REG_PROC;
 
   RESET_EXPANDER_INST : entity work.reset_expander(rtl)
     port map (
@@ -180,34 +180,34 @@ begin
       -- BRAM Port A controls --
 
       -- Write controls --
-      M_AXI_WRITE_WORD_OFFSET_PORT_A_OUT => bram_axi_write_word_offset_port_a,
-      M_AXI_AWLEN_PORT_A_OUT             => bram_axi_awlen_port_a,
-      M_AXI_AWVALID_PORT_A_OUT           => bram_axi_awvalid_port_a,
-      M_AXI_AWREADY_PORT_A_IN            => bram_axi_awready_port_a,
+      M_AXI_WRITE_WORD_OFFSET_OUT => bram_axi_write_word_offset_port_a,
+      M_AXI_AWLEN_OUT             => bram_axi_awlen_port_a,
+      M_AXI_AWVALID_OUT           => bram_axi_awvalid_port_a,
+      M_AXI_AWREADY_IN            => bram_axi_awready_port_a,
 
       -- Write data --
-      M_AXI_WDATA_PORT_A_OUT  => bram_axi_wdata_port_a,
-      M_AXI_WLAST_PORT_A_OUT  => bram_axi_wlast_port_a,
-      M_AXI_WVALID_PORT_A_OUT => bram_axi_wvalid_port_a,
-      M_AXI_WREADY_PORT_A_IN  => bram_axi_wready_port_a,
+      M_AXI_WDATA_OUT  => bram_axi_wdata_port_a,
+      M_AXI_WLAST_OUT  => bram_axi_wlast_port_a,
+      M_AXI_WVALID_OUT => bram_axi_wvalid_port_a,
+      M_AXI_WREADY_IN  => bram_axi_wready_port_a,
 
       -- Write response --
-      M_AXI_BRESP_PORT_A_IN   => bram_axi_bresp_port_a,
-      M_AXI_BVALID_PORT_A_IN  => bram_axi_bvalid_port_a,
-      M_AXI_BREADY_PORT_A_OUT => bram_axi_bready_port_a,
+      M_AXI_BRESP_IN   => bram_axi_bresp_port_a,
+      M_AXI_BVALID_IN  => bram_axi_bvalid_port_a,
+      M_AXI_BREADY_OUT => bram_axi_bready_port_a,
 
       -- Read controls --
-      M_AXI_READ_WORD_OFFSET_PORT_A_OUT => bram_axi_read_word_offset_port_a,
-      M_AXI_ARLEN_PORT_A_OUT            => bram_axi_arlen_port_a,
-      M_AXI_ARVALID_PORT_A_OUT          => bram_axi_arvalid_port_a,
-      M_AXI_ARREADY_PORT_A_IN           => bram_axi_arready_port_a,
+      M_AXI_READ_WORD_OFFSET_OUT => bram_axi_read_word_offset_port_a,
+      M_AXI_ARLEN_OUT            => bram_axi_arlen_port_a,
+      M_AXI_ARVALID_OUT          => bram_axi_arvalid_port_a,
+      M_AXI_ARREADY_IN           => bram_axi_arready_port_a,
 
       -- Read data --
-      M_AXI_RDATA_PORT_A_IN   => bram_axi_rdata_port_a,
-      M_AXI_RRESP_PORT_A_IN   => bram_axi_rresp_port_a,
-      M_AXI_RLAST_PORT_A_IN   => bram_axi_rlast_port_a,
-      M_AXI_RVALID_PORT_A_IN  => bram_axi_rvalid_port_a,
-      M_AXI_RREADY_PORT_A_OUT => bram_axi_rready_port_a,
+      M_AXI_RDATA_IN   => bram_axi_rdata_port_a,
+      M_AXI_RRESP_IN   => bram_axi_rresp_port_a,
+      M_AXI_RLAST_IN   => bram_axi_rlast_port_a,
+      M_AXI_RVALID_IN  => bram_axi_rvalid_port_a,
+      M_AXI_RREADY_OUT => bram_axi_rready_port_a,
 
       -- Day mux controls
       DAY_SEL_OUT        => day_sel,
@@ -260,7 +260,7 @@ begin
       BRAM_PORT_B_ENABLED_OUT     => bram_port_b_enabled
     );
 
-  DAY_MUX_INST : entity work.day_mux
+  DAY_MUX_INST : entity work.day_mux(rtl)
     port map (
       RESET => reset,
       CLK   => clk_25mhz,

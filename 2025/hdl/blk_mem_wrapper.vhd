@@ -11,8 +11,8 @@ library ieee;
 
 entity BLK_MEM_WRAPPER is
   port (
-    RESET                             : in    std_logic;
-    CLK                               : in    std_logic;
+    RESET : in    std_logic;
+    CLK   : in    std_logic;
 
     -- Port A controls --
 
@@ -25,35 +25,35 @@ entity BLK_MEM_WRAPPER is
     S_AXI_AWREADY_PORT_A_OUT          : out   std_logic;
 
     -- Write data --
-    S_AXI_WDATA_PORT_A_IN             : in    std_logic_vector(31 downto 0);
-    S_AXI_WLAST_PORT_A_IN             : in    std_logic;
-    S_AXI_WVALID_PORT_A_IN            : in    std_logic;
-    S_AXI_WREADY_PORT_A_OUT           : out   std_logic;
+    S_AXI_WDATA_PORT_A_IN   : in    std_logic_vector(31 downto 0);
+    S_AXI_WLAST_PORT_A_IN   : in    std_logic;
+    S_AXI_WVALID_PORT_A_IN  : in    std_logic;
+    S_AXI_WREADY_PORT_A_OUT : out   std_logic;
 
     -- Write response --
-    S_AXI_BRESP_PORT_A_OUT            : out   std_logic_vector(1 downto 0);
-    S_AXI_BVALID_PORT_A_OUT           : out   std_logic;
-    S_AXI_BREADY_PORT_A_IN            : in    std_logic;
+    S_AXI_BRESP_PORT_A_OUT  : out   std_logic_vector(1 downto 0);
+    S_AXI_BVALID_PORT_A_OUT : out   std_logic;
+    S_AXI_BREADY_PORT_A_IN  : in    std_logic;
 
     -- Read controls --
-    S_AXI_READ_WORD_OFFSET_PORT_A_IN  : in    std_logic_vector(9 downto 0);
-    S_AXI_ARLEN_PORT_A_IN             : in    std_logic_vector(7 downto 0);
-    S_AXI_ARVALID_PORT_A_IN           : in    std_logic;
-    S_AXI_ARREADY_PORT_A_OUT          : out   std_logic;
+    S_AXI_READ_WORD_OFFSET_PORT_A_IN : in    std_logic_vector(9 downto 0);
+    S_AXI_ARLEN_PORT_A_IN            : in    std_logic_vector(7 downto 0);
+    S_AXI_ARVALID_PORT_A_IN          : in    std_logic;
+    S_AXI_ARREADY_PORT_A_OUT         : out   std_logic;
 
     -- Read data --
-    S_AXI_RDATA_PORT_A_OUT            : out   std_logic_vector(31 downto 0);
-    S_AXI_RRESP_PORT_A_OUT            : out   std_logic_vector(1 downto 0);
-    S_AXI_RLAST_PORT_A_OUT            : out   std_logic;
-    S_AXI_RVALID_PORT_A_OUT           : out   std_logic;
-    S_AXI_RREADY_PORT_A_IN            : in    std_logic;
+    S_AXI_RDATA_PORT_A_OUT  : out   std_logic_vector(31 downto 0);
+    S_AXI_RRESP_PORT_A_OUT  : out   std_logic_vector(1 downto 0);
+    S_AXI_RLAST_PORT_A_OUT  : out   std_logic;
+    S_AXI_RVALID_PORT_A_OUT : out   std_logic;
+    S_AXI_RREADY_PORT_A_IN  : in    std_logic;
 
     -- Port B controls --
-    BRAM_ADDR_B_IN                    : in    std_logic_vector(11 downto 0);
-    BRAM_DATA_B_IN                    : in    std_logic_vector(7 downto 0);
-    BRAM_DATA_B_OUT                   : out   std_logic_vector(7 downto 0);
-    BRAM_PORT_B_WRITE_ENABLE_IN       : in    std_logic;
-    BRAM_PORT_B_ENABLED_OUT           : out   std_logic
+    BRAM_ADDR_B_IN              : in    std_logic_vector(11 downto 0);
+    BRAM_DATA_B_IN              : in    std_logic_vector(7 downto 0);
+    BRAM_DATA_B_OUT             : out   std_logic_vector(7 downto 0);
+    BRAM_PORT_B_WRITE_ENABLE_IN : in    std_logic;
+    BRAM_PORT_B_ENABLED_OUT     : out   std_logic
   );
 end entity BLK_MEM_WRAPPER;
 

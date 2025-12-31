@@ -7,10 +7,11 @@ end entity DAY_MUX_TB;
 
 architecture RTL of DAY_MUX_TB is
 
-  constant c_half_period_25_mhz       : time := 20 ns; -- 25 MHz clock, 40 ns period
+  -- 25 MHz clock, 40 ns period
+  constant c_half_period_25_mhz : time := 20 ns;
 
-  signal clk                          : std_logic := '1';
-  signal reset                        : std_logic := '1';
+  signal clk   : std_logic := '1';
+  signal reset : std_logic := '1';
 
   signal day_sel_in                   : unsigned(7 downto 0)         := x"FF";
   signal data_len_bytes_in            : unsigned(11 downto 0)        := x"000";
