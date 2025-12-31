@@ -1,4 +1,4 @@
-.PHONY: vhdl-autogen fmt vsg test save load .FORCE
+.PHONY: vhdl-autogen fmt vsg test lint save load .FORCE
 
 PACKETS_PKG_FILE := hdl/packet_types_pkg_hdr.vhd
 PACKETDEFS_YAML := packetdefs.yaml
@@ -27,7 +27,14 @@ test: .FORCE
 		-mode batch \
 		-script scripts/run_testbenches.tcl \
 		$(VIVADO_PROJ) \
-		| ./scripts/colouriser.sh
+	| ./scripts/colouriser.sh
+
+lint: .FORCE
+	$(VIVADO) \
+		-mode batch \
+		-script scripts/lint.tcl \
+		$(VIVADO_PROJ) \
+	| ./scripts/colouriser.sh
 
 save: $(PROJ_INIT_TCL)
 $(PROJ_INIT_TCL): $(VIVADO_PROJ)

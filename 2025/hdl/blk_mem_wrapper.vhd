@@ -69,20 +69,22 @@ architecture RTL of BLK_MEM_WRAPPER is
 
   component BLK_MEM_GEN_0 is
     port (
-      CLKA  : in    std_logic;
-      RSTA  : in    std_logic;
-      ENA   : in    std_logic;
-      WEA   : in    std_logic_vector(0 downto 0);
-      ADDRA : in    std_logic_vector(9 downto 0);
-      DINA  : in    std_logic_vector(31 downto 0);
-      DOUTA : out   std_logic_vector(31 downto 0);
+      CLKA      : in    std_logic;
+      RSTA      : in    std_logic;
+      RSTA_BUSY : out   std_logic;
+      ENA       : in    std_logic;
+      WEA       : in    std_logic_vector(0 downto 0);
+      ADDRA     : in    std_logic_vector(9 downto 0);
+      DINA      : in    std_logic_vector(31 downto 0);
+      DOUTA     : out   std_logic_vector(31 downto 0);
 
-      CLKB  : in    std_logic;
-      ENB   : in    std_logic;
-      WEB   : in    std_logic_vector(0 downto 0);
-      ADDRB : in    std_logic_vector(11 downto 0);
-      DINB  : in    std_logic_vector(7 downto 0);
-      DOUTB : out   std_logic_vector(7 downto 0)
+      CLKB      : in    std_logic;
+      RSTB_BUSY : out   std_logic;
+      ENB       : in    std_logic;
+      WEB       : in    std_logic_vector(0 downto 0);
+      ADDRB     : in    std_logic_vector(11 downto 0);
+      DINB      : in    std_logic_vector(7 downto 0);
+      DOUTB     : out   std_logic_vector(7 downto 0)
     );
   end component BLK_MEM_GEN_0;
 
@@ -243,23 +245,25 @@ begin
   -- 2048 deep at 8 bits wide
   BLK_MEM_INST : BLK_MEM_GEN_0
     port map (
-      CLKA   => bram_clk,
-      RSTA   => bram_reset_a,
-      ENA    => bram_enable_a,
-      WEA(0) => bram_write_enable_a(0)
-      and bram_write_enable_a(1)
-      and bram_write_enable_a(2)
-      and bram_write_enable_a(3),
-      ADDRA  => bram_addr_a(11 downto 2),
-      DINA   => bram_din_a,
-      DOUTA  => bram_dout_a,
+      CLKA      => bram_clk,
+      RSTA      => bram_reset_a,
+      RSTA_BUSY => open,
+      ENA       => bram_enable_a,
+      WEA(0)    => bram_write_enable_a(0)
+        and bram_write_enable_a(1)
+        and bram_write_enable_a(2)
+        and bram_write_enable_a(3),
+      ADDRA     => bram_addr_a(11 downto 2),
+      DINA      => bram_din_a,
+      DOUTA     => bram_dout_a,
 
-      CLKB   => CLK,
-      ENB    => BRAM_PORT_B_ENABLED_OUT,
-      WEB(0) => BRAM_PORT_B_WRITE_ENABLE_IN,
-      ADDRB  => BRAM_ADDR_B_IN,
-      DINB   => BRAM_DATA_B_IN,
-      DOUTB  => BRAM_DATA_B_OUT
+      CLKB      => CLK,
+      RSTB_BUSY => open,
+      ENB       => BRAM_PORT_B_ENABLED_OUT,
+      WEB(0)    => BRAM_PORT_B_WRITE_ENABLE_IN,
+      ADDRB     => BRAM_ADDR_B_IN,
+      DINB      => BRAM_DATA_B_IN,
+      DOUTB     => BRAM_DATA_B_OUT
     );
 
   AXI_BRAM_CTRL_INST : AXI_BRAM_CTRL_0
