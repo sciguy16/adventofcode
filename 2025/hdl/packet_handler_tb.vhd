@@ -33,14 +33,42 @@ begin
       AXI_STR_TXD_TREADY_IN  => axi_str_txd_tready,
       AXI_STR_TXD_TDATA_OUT  => axi_str_txd_tdata,
 
-      BRAM_WRITE_DATA_A_OUT  => open,
-      BRAM_READ_DATA_A_IN    => (others => '0'),
-      BRAM_ADDR_A_OUT        => open,
-      BRAM_WRITE_VALID_A_OUT => open,
-      BRAM_WRITE_READY_A_IN  => '0',
-      BRAM_READ_REQ_A_OUT    => open,
-      BRAM_READ_VALID_A_IN   => '0',
-      BRAM_READ_READY_A_OUT  => open
+      -- BRAM Port A controls --
+
+      -- Write controls --
+      M_AXI_WRITE_WORD_OFFSET_OUT => open,
+      M_AXI_AWLEN_OUT             => open,
+      M_AXI_AWVALID_OUT           => open,
+      M_AXI_AWREADY_IN            => '0',
+
+      -- Write data --
+      M_AXI_WDATA_OUT  => open,
+      M_AXI_WLAST_OUT  => open,
+      M_AXI_WVALID_OUT => open,
+      M_AXI_WREADY_IN  => '0',
+
+      -- Write response --
+      M_AXI_BRESP_IN   => (others => '0'),
+      M_AXI_BVALID_IN  => '0',
+      M_AXI_BREADY_OUT => open,
+
+      -- Read controls --
+      M_AXI_READ_WORD_OFFSET_OUT => open,
+      M_AXI_ARLEN_OUT            => open,
+      M_AXI_ARVALID_OUT          => open,
+      M_AXI_ARREADY_IN           => '0',
+
+      -- Read data --
+      M_AXI_RDATA_IN   => (others => '0'),
+      M_AXI_RRESP_IN   => (others => '0'),
+      M_AXI_RLAST_IN   => '0',
+      M_AXI_RVALID_IN  => '0',
+      M_AXI_RREADY_OUT => open,
+
+      -- Day mux controls
+      DAY_SEL_OUT        => open,
+      DATA_LEN_BYTES_OUT => open,
+      DAY_DONE_IN        => '0'
 
     );
 

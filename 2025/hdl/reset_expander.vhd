@@ -18,12 +18,13 @@ architecture RTL of RESET_EXPANDER is
 
   attribute async_reg        : string;
 
-  constant c_counter_max  : natural                          := 31;
-  signal   counter        : natural range 0 to c_counter_max := 0;
-  signal   reset_in_reg   : std_logic                        := '0';
-  signal   reset_latch    : std_logic                        := '0';
-  signal   rst_pipe_25mhz : std_logic                        := '0';
-  signal   rst_pipe_50mhz : std_logic_vector(2 downto 0)     := (others => '0');
+  constant c_counter_max : natural                          := 31;
+  signal   counter       : natural range 0 to c_counter_max := 0;
+
+  signal reset_in_reg   : std_logic                    := '0';
+  signal reset_latch    : std_logic                    := '0';
+  signal rst_pipe_25mhz : std_logic                    := '0';
+  signal rst_pipe_50mhz : std_logic_vector(2 downto 0) := (others => '0');
 
   -- mark pipeline register inputs as asynchronous
   attribute async_reg of rst_pipe_25MHz : signal is "TRUE";

@@ -47,8 +47,7 @@ begin
     alias uut_reset_in_reg   is << signal uut.reset_in_reg : std_logic >>;
     alias uut_reset_latch    is << signal uut.reset_latch : std_logic >>;
     alias uut_counter        is << signal uut.counter : natural >>;
-    alias uut_rst_pipe_25mhz is
-        << signal uut.rst_pipe_25MHz : std_logic_vector(0 downto 0) >>;
+    alias uut_rst_pipe_25mhz is << signal uut.rst_pipe_25MHz : std_logic >>;
     alias uut_rst_pipe_50mhz is
         << signal uut.rst_pipe_50MHz : std_logic_vector(2 downto 0) >>;
 
@@ -73,7 +72,7 @@ begin
       report "uut_reset_in_reg";
     assert uut_reset_latch = '1'
       report "uut_reset_latch";
-    assert uut_rst_pipe_25mhz = "0"
+    assert uut_rst_pipe_25mhz = '0'
       report "rst pipe 25MHz is clear";
     assert uut_rst_pipe_50mhz = "000"
       report "rst pipe 50MHz is clear";
@@ -85,7 +84,7 @@ begin
     wait for c_quarter_period_50_mhz; -- t=155 ns
     assert clocks = "00"
       report "both clocks are low";
-    assert uut_rst_pipe_25mhz = "0"
+    assert uut_rst_pipe_25mhz = '0'
       report "rst pipe 25MHz is clear";
     assert uut_rst_pipe_50mhz = "001"
       report "rst pipe 50MHz clocked in 1";
@@ -93,7 +92,7 @@ begin
     wait for c_half_period_50_mhz; -- t=165 ns
     assert clocks = "11"
       report "both clocks have just had a rising edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz clocked in 1";
     assert uut_rst_pipe_50mhz = "011"
       report "rst pipe 50MHz clocked in 2";
@@ -101,7 +100,7 @@ begin
     wait for c_half_period_50_mhz; -- t=175 ns
     assert clocks = "10"
       report "50 MHz falling edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "011"
       report "rst pipe 50MHz unchanged";
@@ -109,7 +108,7 @@ begin
     wait for c_half_period_50_mhz; -- t=185 ns
     assert clocks = "01"
       report "25 MHz falling edge, 50 MHz rising edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz clocked in 1";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz clocked in 3";
@@ -117,7 +116,7 @@ begin
     wait for c_half_period_50_mhz; -- t=195 ns
     assert clocks = "00"
       report "50 MHz falling edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz unchanged";
@@ -127,7 +126,7 @@ begin
     wait for c_half_period_50_mhz; -- t=205 ns
     assert clocks = "11"
       report "both clocks have just had a rising edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz clocked in 2";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz clocked in 4";
@@ -136,7 +135,7 @@ begin
 
     wait until falling_edge(clk_25mhz);
     wait until falling_edge(clk_25mhz);
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz unchanged";
@@ -144,7 +143,7 @@ begin
       report "Reset out should still be asserted";
     wait until falling_edge(clk_25mhz);
     wait until falling_edge(clk_25mhz);
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz unchanged";
@@ -159,7 +158,7 @@ begin
       report "both clocks have just had a rising edge";
     assert uut_counter = 32
       report "counter one more than max";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz unchanged";
@@ -167,7 +166,7 @@ begin
     wait for c_half_period_50_mhz; -- t=1415 ns
     assert clocks = "10"
       report "50 MHz falling edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "111"
       report "rst pipe 50MHz unchanged";
@@ -175,7 +174,7 @@ begin
     wait for c_half_period_50_mhz; -- t=1425 ns
     assert clocks = "01"
       report "25 MHz falling edge, 50 MHz rising edge";
-    assert uut_rst_pipe_25mhz = "1"
+    assert uut_rst_pipe_25mhz = '1'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "110"
       report "rst pipe 50MHz clocked out 1";
@@ -186,7 +185,7 @@ begin
     wait for c_half_period_50_mhz; -- t=1445 ns
     assert clocks = "11"
       report "25 MHz rising edge, 50 MHz rising edge";
-    assert uut_rst_pipe_25mhz = "0"
+    assert uut_rst_pipe_25mhz = '0'
       report "rst pipe 25MHz clocked out 1";
     assert uut_rst_pipe_50mhz = "100"
       report "rst pipe 50MHz clocked out 2";
@@ -197,7 +196,7 @@ begin
     wait for c_half_period_50_mhz; -- t=1465 ns
     assert clocks = "01"
       report "25 MHz falling edge, 50 MHz rising edge";
-    assert uut_rst_pipe_25mhz = "0"
+    assert uut_rst_pipe_25mhz = '0'
       report "rst pipe 25MHz unchanged";
     assert uut_rst_pipe_50mhz = "000"
       report "rst pipe 50MHz clocked out 3";
@@ -210,7 +209,7 @@ begin
     wait for c_half_period_50_mhz; -- t=1485 ns
     assert clocks = "11"
       report "25 MHz rising edge, 50 MHz rising edge";
-    assert uut_rst_pipe_25mhz = "0"
+    assert uut_rst_pipe_25mhz = '0'
       report "rst pipe 25MHz clocked out 2";
     assert uut_rst_pipe_50mhz = "000"
       report "rst pipe 50MHz clocked out 4";

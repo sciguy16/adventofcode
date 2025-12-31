@@ -114,10 +114,10 @@ begin
       -- BRAM Port A controls --
 
       -- Write controls --
-      M_AXI_WRITE_WORD_OFFSET_PORT_A_OUT => bram_write_word_off_a,
-      M_AXI_AWLEN_OUT                    => bram_awlen_a,
-      M_AXI_AWVALID_OUT                  => bram_awvalid_a,
-      M_AXI_AWREADY_IN                   => bram_awready_a,
+      M_AXI_WRITE_WORD_OFFSET_OUT => bram_write_word_off_a,
+      M_AXI_AWLEN_OUT             => bram_awlen_a,
+      M_AXI_AWVALID_OUT           => bram_awvalid_a,
+      M_AXI_AWREADY_IN            => bram_awready_a,
 
       -- Write data --
       M_AXI_WDATA_OUT  => bram_wdata_a,

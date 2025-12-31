@@ -10,6 +10,9 @@ VSG_ARGS += --fix
 PROJ_INIT_TCL := init_project.tcl
 VIVADO_PROJ := vivado/aoc-2025.xpr
 
+VIVADO := /opt/xilinx/2025.2/Vivado/bin/vivado
+export LIBRARY_PATH := /usr/lib/x86_64-linux-gnu:$(LIBRARY_PATH)
+
 vhdl-autogen: $(PACKETS_PKG_FILE)
 $(PACKETS_PKG_FILE): $(PACKETDEFS_YAML) $(shell find crates/types -type f)
 	cargo r -p types -- $(PACKETS_PKG_FILE)
@@ -20,6 +23,11 @@ vsg: .FORCE
 
 test: .FORCE
 	echo "TODO run testbenches"
+	$(VIVADO) \
+		-mode batch \
+		-script scripts/run_testbenches.tcl \
+		$(VIVADO_PROJ) \
+		| ./scripts/colouriser.sh
 
 save: $(PROJ_INIT_TCL)
 $(PROJ_INIT_TCL): $(VIVADO_PROJ)
