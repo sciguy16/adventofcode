@@ -22,19 +22,16 @@ vsg: .FORCE
 	vsg $(VSG_ARGS)
 
 test: .FORCE
-	echo "TODO run testbenches"
-	$(VIVADO) \
-		-mode batch \
-		-script scripts/run_testbenches.tcl \
-		$(VIVADO_PROJ) \
-	| ./scripts/colouriser.sh
+	$(MAKE) run-tcl-script SCRIPT=scripts/run_testbenches.tcl
 
 lint: .FORCE
-	$(VIVADO) \
-		-mode batch \
-		-script scripts/lint.tcl \
-		$(VIVADO_PROJ) \
-	| ./scripts/colouriser.sh
+	$(MAKE) run-tcl-script SCRIPT=scripts/lint.tcl
+
+synth: .FORCE
+	$(MAKE) run-tcl-script SCRIPT=scripts/synth.tcl
+
+bitstream: .FORCE
+	$(MAKE) run-tcl-script SCRIPT=scripts/bitstream.tcl
 
 save: $(PROJ_INIT_TCL)
 $(PROJ_INIT_TCL): $(VIVADO_PROJ)
@@ -49,5 +46,13 @@ clean:
 
 clean-hw:
 	rm -rfv vivado/aoc-2025.hw/hw_1
+
+run-tcl-script:
+	echo "Running $(SCRIPT)"
+	$(VIVADO) \
+		-mode batch \
+		-script $(SCRIPT) \
+		$(VIVADO_PROJ) \
+	| ./scripts/colouriser.sh
 
 .FORCE:

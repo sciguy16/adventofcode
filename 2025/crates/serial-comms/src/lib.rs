@@ -1,6 +1,7 @@
 use color_eyre::{Result, eyre::eyre};
 use mio_serial::{SerialPort, SerialPortType, UsbPortInfo};
-use std::{sync::mpsc, time::Duration};
+use rand::Rng;
+use std::{fmt::Write, sync::mpsc, time::Duration};
 use types::{Header, SerDe, codegen::top::Types};
 
 const BAUD: u32 = 115200;
@@ -127,7 +128,8 @@ impl SerialHandler {
     pub fn self_test(&mut self) -> Result<()> {
         self.ping_pong()?;
 
-        let data = rand::random();
+        let mut rng = rand::rng();
+        let data = rng.random();
         self.write_ram(0x00, data)?;
         let read_back = self.read_ram(0x00)?;
         if data != read_back {
@@ -138,7 +140,40 @@ impl SerialHandler {
             ));
         }
 
-        self.run_day(0, 0)
+        let mut test_data = [0_u16; 10];
+        rng.fill(&mut test_data);
+        let sum = test_data.iter().copied().map(u32::from).sum::<u32>();
+        println!("Test data: {test_data:?}, sum={sum}");
+
+        let mut to_send = String::new();
+        for line in test_data {
+            let _ = writeln!(&mut to_send, "{line}");
+        }
+
+        let to_send = to_send.as_bytes();
+        let (chunks, rest) = to_send.as_chunks::<128>();
+        let rest = (!rest.is_empty()).then(|| {
+            let mut out = [0; 128];
+            out[..rest.len()].copy_from_slice(rest);
+            out
+        });
+        for (idx, chunk) in chunks.iter().chain(rest.iter()).enumerate() {
+            let offset = u32::try_from(idx).unwrap() * 32;
+            self.write_ram(offset, *chunk)?;
+        }
+        for (idx, chunk) in chunks.iter().chain(rest.iter()).enumerate() {
+            let offset = u32::try_from(idx).unwrap() * 32;
+            let read_back = self.read_ram(offset)?;
+            if *chunk != read_back {
+                return Err(eyre!(
+                    "Data readback mismatch!\nSent: {}\nRead: {}",
+                    hex_string_as_words(chunk),
+                    hex_string_as_words(&read_back),
+                ));
+            }
+        }
+
+        self.run_day(0, to_send.len().try_into().unwrap())
     }
 }
 

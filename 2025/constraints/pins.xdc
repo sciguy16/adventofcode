@@ -4,22 +4,22 @@
 ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
 
 # 12 MHz System Clock
-set_property -dict {PACKAGE_PIN M9 IOSTANDARD LVCMOS33} [get_ports clk_12MHz_in]
+set_property -dict {PACKAGE_PIN M9 IOSTANDARD LVCMOS33} [get_ports CLK_12MHZ_IN]
 #create_clock -period 83.330 -name sys_clk_pin -waveform {0.000 41.660} -add [get_ports clk_12MHz_in]
 #set_clock_groups -asynchronous -group {sys_clk_pin}
 
 # Push Buttons
-set_property -dict {PACKAGE_PIN D2 IOSTANDARD LVCMOS33} [get_ports reset_in]
+set_property -dict {PACKAGE_PIN D2 IOSTANDARD LVCMOS33} [get_ports RESET_IN]
 #set_property -dict { PACKAGE_PIN D1    IOSTANDARD LVCMOS33 } [get_ports { btn[1] }]; #IO_L6N_T0_VREF_34 Sch=btn[1]
 
 # RGB LEDs
-set_property -dict {PACKAGE_PIN F1 IOSTANDARD LVCMOS33} [get_ports led0_b]
-set_property -dict {PACKAGE_PIN D3 IOSTANDARD LVCMOS33} [get_ports led0_g]
-set_property -dict {PACKAGE_PIN F2 IOSTANDARD LVCMOS33} [get_ports led0_r]
+set_property -dict {PACKAGE_PIN F1 IOSTANDARD LVCMOS33} [get_ports LED0_B]
+set_property -dict {PACKAGE_PIN D3 IOSTANDARD LVCMOS33} [get_ports LED0_G]
+set_property -dict {PACKAGE_PIN F2 IOSTANDARD LVCMOS33} [get_ports LED0_R]
 
 # 4 LEDs
-set_property -dict {PACKAGE_PIN E2 IOSTANDARD LVCMOS33} [get_ports hb_led]
-set_property DRIVE 12 [get_ports hb_led]
+set_property -dict {PACKAGE_PIN E2 IOSTANDARD LVCMOS33} [get_ports HB_LED]
+set_property DRIVE 12 [get_ports HB_LED]
 #set_property -dict { PACKAGE_PIN K1    IOSTANDARD LVCMOS33 } [get_ports { led[1] }]; #IO_L16P_T2_34 Sch=led[2]
 #set_property -dict { PACKAGE_PIN J1    IOSTANDARD LVCMOS33 } [get_ports { led[2] }]; #IO_L16N_T2_34 Sch=led[3]
 #set_property -dict { PACKAGE_PIN E1    IOSTANDARD LVCMOS33 } [get_ports { led[3] }]; #IO_L8N_T1_34 Sch=led[4]
@@ -36,8 +36,8 @@ set_property DRIVE 12 [get_ports hb_led]
 
 ## USB UART
 ## Note: Port names are from the perspective of the FPGA.
-set_property -dict {PACKAGE_PIN L12 IOSTANDARD LVCMOS33} [get_ports uart_tx]
-set_property -dict {PACKAGE_PIN K15 IOSTANDARD LVCMOS33} [get_ports uart_rx]
+set_property -dict {PACKAGE_PIN L12 IOSTANDARD LVCMOS33} [get_ports UART_TX]
+set_property -dict {PACKAGE_PIN K15 IOSTANDARD LVCMOS33} [get_ports UART_RX]
 
 ## Analog Inputs on PIO Pins 32 and 33
 #set_property -dict { PACKAGE_PIN A13   IOSTANDARD LVDS     } [get_ports { vaux5_p }]; #IO_L12P_T1_MRCC_AD5P_15 Sch=ain_p[32]
