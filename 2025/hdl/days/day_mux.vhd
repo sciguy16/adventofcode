@@ -88,11 +88,11 @@ begin
       DAY_DONE_OUT      => day_done(0),
 
       -- Port B controls --
-      BRAM_ADDR_B_OUT              => bram_addr_b(0),
-      BRAM_WRITE_DATA_B_OUT        => bram_write_data_b(0),
-      BRAM_READ_DATA_B_IN          => BRAM_READ_DATA_B_IN,
-      BRAM_PORT_B_WRITE_ENABLE_OUT => bram_port_b_write_enable(0),
-      BRAM_PORT_B_ENABLED_IN       => bram_port_b_enabled(0)
+      BRAM_ADDR_B_OUT       => bram_addr_b(0),
+      BRAM_WRITE_DATA_B_OUT => bram_write_data_b(0),
+      BRAM_READ_DATA_B_IN   => BRAM_READ_DATA_B_IN,
+      BRAM_WRITE_ENABLE_OUT => bram_port_b_write_enable(0),
+      BRAM_ENABLED_IN       => bram_port_b_enabled(0)
     );
 
 end architecture RTL;
