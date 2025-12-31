@@ -1,42 +1,46 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
 
-entity tb_clk is
+entity TB_CLK is
   generic (
-    CLK_CYCLE_TIME  : time     := 1 ns;
-    CLK_HIGH_TIME   : time     := 500 ps;
-    DATA_SETUP_TIME : time     := 400 ps;
-    DATA_HOLD_TIME  : time     := 400 ps
+    CLK_CYCLE_TIME  : time := 1 ns;
+    CLK_HIGH_TIME   : time := 500 ps;
+    DATA_SETUP_TIME : time := 400 ps;
+    DATA_HOLD_TIME  : time := 400 ps
   );
   port (
-  	clk: OUT std_logic;
-  	data_setup_event: OUT std_logic;
-   	clk_rise_event: OUT std_logic;
-   	clk_fall_event: OUT std_logic;
-   	data_hold_event: OUT std_logic
+    CLK              : out   std_logic;
+    DATA_SETUP_EVENT : out   std_logic;
+    CLK_RISE_EVENT   : out   std_logic;
+    CLK_FALL_EVENT   : out   std_logic;
+    DATA_HOLD_EVENT  : out   std_logic
   );
-end entity;
+end entity TB_CLK;
 
-architecture rtl of tb_clk is
+architecture RTL of TB_CLK is
 
 begin
-	clk <= '0';
-	data_setup_event <= '0';
-	clk_rise_event <= '0';
-	clk_fall_event <= '0';
-	data_hold_event <= '0';
 
-	-- generate events for data setup, clock rise, data hold and clock fall times:
-    data_setup_event <= transport not data_setup_event after CLK_CYCLE_TIME;
-    clk_rise_event   <= transport     data_setup_event after DATA_SETUP_TIME;
-    clk_fall_event   <= transport     clk_rise_event   after CLK_HIGH_TIME;
-    data_hold_event  <= transport     clk_rise_event   after DATA_HOLD_TIME;
+  CLK              <= '0';
+  DATA_SETUP_EVENT <= '0';
+  CLK_RISE_EVENT   <= '0';
+  CLK_FALL_EVENT   <= '0';
+  DATA_HOLD_EVENT  <= '0';
 
-    clk_gen_p: process is
-    begin
-      wait on clk_rise_event;
-      clk <= '1';
-      wait on clk_fall_event;
-      clk <= '0';
-    end process;
-end rtl;
+  -- generate events for data setup, clock rise, data hold and clock fall times:
+  DATA_SETUP_EVENT <= transport not DATA_SETUP_EVENT after CLK_CYCLE_TIME;
+  CLK_RISE_EVENT   <= transport     DATA_SETUP_EVENT after DATA_SETUP_TIME;
+  CLK_FALL_EVENT   <= transport     CLK_RISE_EVENT   after CLK_HIGH_TIME;
+  DATA_HOLD_EVENT  <= transport     CLK_RISE_EVENT   after DATA_HOLD_TIME;
+
+  CLK_GEN_P : process is
+  begin
+
+    wait on CLK_RISE_EVENT;
+    CLK <= '1';
+    wait on CLK_FALL_EVENT;
+    CLK <= '0';
+
+  end process CLK_GEN_P;
+
+end architecture RTL;

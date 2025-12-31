@@ -1,175 +1,189 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
+  use ieee.numeric_std.all;
+  use work.packet_types_pkg_hdr.all;
 
-use work.packet_types_pkg_hdr.ALL;
-
---TODO read full packet into BRAM and then pass it to handler to process,
+-- TODO read full packet into BRAM and then pass it to handler to process,
 -- otherwise every process will have to implement the same receive logic.
 -- Similarly, set up an output BRAM for reply packets. This way the packet
 -- router can do the CRC checks on inbound packets and append the CRC to
 -- outbound packets.
 
-entity packet_router is
-    port(
-        reset: in std_logic;
-        clk: in std_logic;
+entity PACKET_ROUTER is
+  port (
+    RESET                    : in    std_logic;
+    CLK                      : in    std_logic;
 
-        axi_str_rxd_tvalid_IN : IN STD_LOGIC;
-        axi_str_rxd_tready_OUT : OUT STD_LOGIC;
-        axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    AXI_STR_RXD_TVALID_IN    : in    std_logic;
+    AXI_STR_RXD_TREADY_OUT   : out   std_logic;
+    AXI_STR_RXD_TDATA_IN     : in    std_logic_vector(31 downto 0);
 
-        axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
-        axi_str_txd_tready_IN : IN STD_LOGIC;
-        axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        axi_str_txd_prog_full_IN: IN STD_LOGIC
+    AXI_STR_TXD_TVALID_OUT   : out   std_logic;
+    AXI_STR_TXD_TREADY_IN    : in    std_logic;
+    AXI_STR_TXD_TDATA_OUT    : out   std_logic_vector(31 downto 0);
+    AXI_STR_TXD_PROG_FULL_IN : in    std_logic
+  );
+end entity PACKET_ROUTER;
+
+architecture RTL of PACKET_ROUTER is
+
+  component PACKET_HANDLER_INTERNAL is
+    port (
+      RESET                    : in    std_logic;
+      CLK                      : in    std_logic;
+
+      AXI_STR_RXD_TVALID_IN    : in    std_logic;
+      AXI_STR_RXD_TREADY_OUT   : out   std_logic;
+      AXI_STR_RXD_TDATA_IN     : in    std_logic_vector(31 downto 0);
+
+      AXI_STR_TXD_TVALID_OUT   : out   std_logic;
+      AXI_STR_TXD_TREADY_IN    : in    std_logic;
+      AXI_STR_TXD_TDATA_OUT    : out   std_logic_vector(31 downto 0);
+      AXI_STR_TXD_PROG_FULL_IN : in    std_logic;
+
+      DONE_OUT                 : out   std_logic
     );
-end packet_router;
+  end component PACKET_HANDLER_INTERNAL;
 
-architecture rtl of packet_router is
-    component packet_handler_internal is
-        port(
-            reset: in std_logic;
-            clk: in std_logic;
+  component AXIS_REGISTER_SLICE_0 is
+    port (
+      ACLK          : in    std_logic;
+      ARESETN       : in    std_logic;
+      S_AXIS_TVALID : in    std_logic;
+      S_AXIS_TREADY : out   std_logic;
+      S_AXIS_TDATA  : in    std_logic_vector(31 downto 0);
+      M_AXIS_TVALID : out   std_logic;
+      M_AXIS_TREADY : in    std_logic;
+      M_AXIS_TDATA  : out   std_logic_vector(31 downto 0)
+    );
+  end component AXIS_REGISTER_SLICE_0;
 
-            axi_str_rxd_tvalid_IN : IN STD_LOGIC;
-            axi_str_rxd_tready_OUT : OUT STD_LOGIC;
-            axi_str_rxd_tdata_IN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+  type t_std_logic_array is array (0 to C_NUM_DESTINATIONS - 1) of std_logic;
 
-            axi_str_txd_tvalid_OUT : OUT STD_LOGIC;
-            axi_str_txd_tready_IN : IN STD_LOGIC;
-            axi_str_txd_tdata_OUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-            axi_str_txd_prog_full_IN: IN STD_LOGIC;
-
-            done_OUT : OUT STD_LOGIC
-        );
-    end component;
-
-    COMPONENT axis_register_slice_0
-      PORT (
-        aclk : IN STD_LOGIC;
-        aresetn : IN STD_LOGIC;
-        s_axis_tvalid : IN STD_LOGIC;
-        s_axis_tready : OUT STD_LOGIC;
-        s_axis_tdata : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        m_axis_tvalid : OUT STD_LOGIC;
-        m_axis_tready : IN STD_LOGIC;
-        m_axis_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0) 
-      );
-    END COMPONENT;
-
-    type t_std_logic_array is array (0 to C_NUM_DESTINATIONS-1) of std_logic;
-    type t_std_logic_vector_array is array (0 to C_NUM_DESTINATIONS-1)
+  type t_std_logic_vector_array is array (0 to C_NUM_DESTINATIONS - 1)
         of std_logic_vector(31 downto 0);
 
-    signal PACKET_HEADER: T_PACKET_HEADER := C_PACKET_HEADER_INIT;
-    signal MUX_SEL: unsigned(7 downto 0) := (others => '0');
-    signal MUX_ENABLE: std_logic := '0';
-    signal DOWNSTREAM_DONE: std_logic := '0';
-    signal DOWNSTREAM_DONE_ARR: t_std_logic_array;
+  signal packet_header             : t_packet_header      := C_PACKET_HEADER_INIT;
+  signal mux_sel                   : unsigned(7 downto 0) := (others => '0');
+  signal mux_enable                : std_logic            := '0';
+  signal downstream_done           : std_logic            := '0';
+  signal downstream_done_arr       : t_std_logic_array;
 
+  signal downstream_rxd_tvalid     : t_std_logic_array;
+  signal downstream_rxd_tvalid_reg : t_std_logic_array;
+  signal downstream_rxd_tready     : t_std_logic_array;
+  signal downstream_rxd_tready_reg : t_std_logic_array;
+  signal downstream_rxd_tdata      : t_std_logic_vector_array;
+  signal downstream_rxd_tdata_reg  : t_std_logic_vector_array;
 
-    signal DOWNSTREAM_RXD_TVALID: t_std_logic_array;
-    signal DOWNSTREAM_RXD_TVALID_REG: t_std_logic_array;
-    signal DOWNSTREAM_RXD_TREADY: t_std_logic_array;
-    signal DOWNSTREAM_RXD_TREADY_REG: t_std_logic_array;
-    signal DOWNSTREAM_RXD_TDATA: t_std_logic_vector_array;
-    signal DOWNSTREAM_RXD_TDATA_REG: t_std_logic_vector_array;
+  signal downstream_txd_tvalid     : t_std_logic_array;
+  signal downstream_txd_tready     : t_std_logic_array;
+  signal downstream_txd_tdata      : t_std_logic_vector_array;
+  signal downstream_txd_prog_full  : t_std_logic_array;
 
-    signal DOWNSTREAM_TXD_TVALID: t_std_logic_array;
-    signal DOWNSTREAM_TXD_TREADY: t_std_logic_array;
-    signal DOWNSTREAM_TXD_TDATA: t_std_logic_vector_array;
-    signal DOWNSTREAM_TXD_PROG_FULL: t_std_logic_array;
+  type t_rx_state is (
+    RX_STATE_IDLE,
+    RX_STATE_WAIT_DOWNSTREAM_DONE
+  );
 
+  signal rx_state                  : t_rx_state := RX_STATE_IDLE;
 
-    type t_rx_state is (
-        RX_STATE_IDLE,
-        RX_STATE_WAIT_DOWNSTREAM_DONE
-    );
-    signal rx_state: t_rx_state := RX_STATE_IDLE;
 begin
-    process(clk, reset) is
-    begin
-        if (rising_edge(clk)) then
-            case(rx_state) is
-                when RX_STATE_IDLE =>
-                    if (
-                        axi_str_rxd_tvalid_IN = '1'
-                        AND unsigned(axi_str_rxd_tdata_IN(31 downto 24))
-                            < C_NUM_DESTINATIONS)
-                    then
-                        MUX_SEL <= unsigned(axi_str_rxd_tdata_IN(31 downto 24));
-                        MUX_ENABLE <= '1';
-                        rx_state <= RX_STATE_WAIT_DOWNSTREAM_DONE;
-                    end if;
-                when RX_STATE_WAIT_DOWNSTREAM_DONE =>
-                    if (DOWNSTREAM_DONE = '1') then
-                        MUX_ENABLE <= '0';
-                        rx_state <= RX_STATE_IDLE;
-                    end if;
-            end case;
 
-            if (reset = '1') then
-                rx_state <= RX_STATE_IDLE;
-                MUX_ENABLE <= '0';
-                MUX_SEL <= (others => '0');
-            end if;
-        end if;
-    end process;
+  process (CLK, RESET) is
+  begin
 
-    process(all) is
-            variable sel: integer := to_integer(MUX_SEL);
-    begin
-        if (MUX_ENABLE = '1' AND reset = '0') then
-            DOWNSTREAM_RXD_TVALID(sel) <= axi_str_rxd_tvalid_IN;
-            axi_str_rxd_tready_OUT <= DOWNSTREAM_RXD_TREADY(sel);
-            DOWNSTREAM_RXD_TDATA(sel) <= axi_str_rxd_tdata_IN;
+    if (rising_edge(CLK)) then
 
-            axi_str_txd_tvalid_OUT <= DOWNSTREAM_TXD_TVALID(sel);
-            DOWNSTREAM_TXD_TREADY(sel) <= axi_str_txd_tready_IN;
-            axi_str_txd_tdata_OUT <= DOWNSTREAM_TXD_TDATA(sel);
+      case (rx_state) is
 
-            DOWNSTREAM_DONE <= DOWNSTREAM_DONE_ARR(sel);
-        else
-            DOWNSTREAM_RXD_TVALID <= (others => '0');
-            axi_str_rxd_tready_OUT <= '0';
-            DOWNSTREAM_RXD_TDATA <= (others => (others => '0'));
+        when RX_STATE_IDLE =>
 
-            axi_str_txd_tvalid_OUT <= '0';
-            DOWNSTREAM_TXD_TREADY <= (others => '0');
-            axi_str_txd_tdata_OUT <= (others => '0');
-            DOWNSTREAM_TXD_PROG_FULL <= (others => '0');
+          if (
+              AXI_STR_RXD_TVALID_IN = '1'
+              and unsigned(AXI_STR_RXD_TDATA_IN(31 downto 24))
+              < C_NUM_DESTINATIONS) then
+            mux_sel    <= unsigned(AXI_STR_RXD_TDATA_IN(31 downto 24));
+            mux_enable <= '1';
+            rx_state   <= RX_STATE_WAIT_DOWNSTREAM_DONE;
+          end if;
 
-            DOWNSTREAM_DONE <= '0';
-        end if;
-    end process;
+        when RX_STATE_WAIT_DOWNSTREAM_DONE =>
 
-    packet_handler_internal_inst_reg : axis_register_slice_0
-      PORT MAP (
-        aclk => clk,
-        aresetn => not reset,
-        s_axis_tvalid => DOWNSTREAM_RXD_TVALID(C_DESTINATION_TOP),
-        s_axis_tready => DOWNSTREAM_RXD_TREADY(C_DESTINATION_TOP),
-        s_axis_tdata => DOWNSTREAM_RXD_TDATA(C_DESTINATION_TOP),
-        m_axis_tvalid => DOWNSTREAM_RXD_TVALID_REG(C_DESTINATION_TOP),
-        m_axis_tready => DOWNSTREAM_RXD_TREADY_REG(C_DESTINATION_TOP),
-        m_axis_tdata => DOWNSTREAM_RXD_TDATA_REG(C_DESTINATION_TOP)
-      );
+          if (downstream_done = '1') then
+            mux_enable <= '0';
+            rx_state   <= RX_STATE_IDLE;
+          end if;
 
-    packet_handler_internal_inst: packet_handler_internal
+      end case;
+
+      if (RESET = '1') then
+        rx_state   <= RX_STATE_IDLE;
+        mux_enable <= '0';
+        mux_sel    <= (others => '0');
+      end if;
+    end if;
+
+  end process;
+
+  process (all) is
+
+    variable sel : integer := to_integer(mux_sel);
+
+  begin
+
+    if (mux_enable = '1' and RESET = '0') then
+      downstream_rxd_tvalid(sel) <= AXI_STR_RXD_TVALID_IN;
+      AXI_STR_RXD_TREADY_OUT     <= downstream_rxd_tready(sel);
+      downstream_rxd_tdata(sel)  <= AXI_STR_RXD_TDATA_IN;
+
+      AXI_STR_TXD_TVALID_OUT     <= downstream_txd_tvalid(sel);
+      downstream_txd_tready(sel) <= AXI_STR_TXD_TREADY_IN;
+      AXI_STR_TXD_TDATA_OUT      <= downstream_txd_tdata(sel);
+
+      downstream_done <= downstream_done_arr(sel);
+    else
+      downstream_rxd_tvalid  <= (others => '0');
+      AXI_STR_RXD_TREADY_OUT <= '0';
+      downstream_rxd_tdata   <= (others => (others => '0'));
+
+      AXI_STR_TXD_TVALID_OUT   <= '0';
+      downstream_txd_tready    <= (others => '0');
+      AXI_STR_TXD_TDATA_OUT    <= (others => '0');
+      downstream_txd_prog_full <= (others => '0');
+
+      downstream_done <= '0';
+    end if;
+
+  end process;
+
+  PACKET_HANDLER_INTERNAL_INST_REG : AXIS_REGISTER_SLICE_0
     port map (
-        reset => reset,
-        clk => clk,
-
-        axi_str_rxd_tvalid_IN => DOWNSTREAM_RXD_TVALID_REG(C_DESTINATION_TOP),
-        axi_str_rxd_tready_OUT => DOWNSTREAM_RXD_TREADY_REG(C_DESTINATION_TOP),
-        axi_str_rxd_tdata_IN => DOWNSTREAM_RXD_TDATA_REG(C_DESTINATION_TOP),
-
-        axi_str_txd_tvalid_OUT => DOWNSTREAM_TXD_TVALID(C_DESTINATION_TOP),
-        axi_str_txd_tready_IN => DOWNSTREAM_TXD_TREADY(C_DESTINATION_TOP),
-        axi_str_txd_tdata_OUT => DOWNSTREAM_TXD_TDATA(C_DESTINATION_TOP),
-        axi_str_txd_prog_full_IN => DOWNSTREAM_TXD_PROG_FULL(C_DESTINATION_TOP),
-
-        done_OUT => DOWNSTREAM_DONE_ARR(C_DESTINATION_TOP)
+      ACLK          => CLK,
+      ARESETN       => not RESET,
+      S_AXIS_TVALID => downstream_rxd_tvalid(C_DESTINATION_TOP),
+      S_AXIS_TREADY => downstream_rxd_tready(C_DESTINATION_TOP),
+      S_AXIS_TDATA  => downstream_rxd_tdata(C_DESTINATION_TOP),
+      M_AXIS_TVALID => downstream_rxd_tvalid_reg(C_DESTINATION_TOP),
+      M_AXIS_TREADY => downstream_rxd_tready_reg(C_DESTINATION_TOP),
+      M_AXIS_TDATA  => downstream_rxd_tdata_reg(C_DESTINATION_TOP)
     );
-end rtl;
+
+  PACKET_HANDLER_INTERNAL_INST : PACKET_HANDLER_INTERNAL
+    port map (
+      RESET => RESET,
+      CLK   => CLK,
+
+      AXI_STR_RXD_TVALID_IN  => downstream_rxd_tvalid_reg(C_DESTINATION_TOP),
+      AXI_STR_RXD_TREADY_OUT => downstream_rxd_tready_reg(C_DESTINATION_TOP),
+      AXI_STR_RXD_TDATA_IN   => downstream_rxd_tdata_reg(C_DESTINATION_TOP),
+
+      AXI_STR_TXD_TVALID_OUT   => downstream_txd_tvalid(C_DESTINATION_TOP),
+      AXI_STR_TXD_TREADY_IN    => downstream_txd_tready(C_DESTINATION_TOP),
+      AXI_STR_TXD_TDATA_OUT    => downstream_txd_tdata(C_DESTINATION_TOP),
+      AXI_STR_TXD_PROG_FULL_IN => downstream_txd_prog_full(C_DESTINATION_TOP),
+
+      DONE_OUT => downstream_done_arr(C_DESTINATION_TOP)
+    );
+
+end architecture RTL;

@@ -1,65 +1,74 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
 
-entity reset_expander is
-    port(
-        reset_in: in std_logic;
-        clk: in std_logic;
+entity RESET_EXPANDER is
+  port (
+    RESET_IN        : in    std_logic;
+    CLK             : in    std_logic;
 
-        reset_clk_25MHz: in std_logic;
-        reset_out_25MHz: out std_logic;
+    RESET_CLK_25MHZ : in    std_logic;
+    RESET_OUT_25MHZ : out   std_logic;
 
-        reset_clk_50MHz: in std_logic;
-        reset_out_50MHz: out std_logic
-    );
-end reset_expander;
+    RESET_CLK_50MHZ : in    std_logic;
+    RESET_OUT_50MHZ : out   std_logic
+  );
+end entity RESET_EXPANDER;
 
-architecture rtl of reset_expander is
-    attribute ASYNC_REG        : string;
+architecture RTL of RESET_EXPANDER is
 
-    constant C_COUNTER_MAX: natural := 31;
-    signal counter: natural range 0 to C_COUNTER_MAX := 0;
-    signal reset_in_reg: std_logic := '0';
-    signal reset_latch: std_logic := '0';
-    signal rst_pipe_25MHz: std_logic := '0';
-    signal rst_pipe_50MHz: std_logic_vector(2 downto 0) := (others => '0');
+  attribute async_reg        : string;
 
-    -- mark pipeline register inputs as asynchronous
-    attribute ASYNC_REG of rst_pipe_25MHz  : signal is "TRUE";
-    attribute ASYNC_REG of rst_pipe_50MHz  : signal is "TRUE";
+  constant c_counter_max  : natural                          := 31;
+  signal   counter        : natural range 0 to c_counter_max := 0;
+  signal   reset_in_reg   : std_logic                        := '0';
+  signal   reset_latch    : std_logic                        := '0';
+  signal   rst_pipe_25mhz : std_logic                        := '0';
+  signal   rst_pipe_50mhz : std_logic_vector(2 downto 0)     := (others => '0');
+
+  -- mark pipeline register inputs as asynchronous
+  attribute async_reg of rst_pipe_25MHz : signal is "TRUE";
+  attribute async_reg of rst_pipe_50MHz : signal is "TRUE";
+
 begin
-    process(clk) is
-    begin
-        if(rising_edge(clk)) then
-            reset_in_reg <= reset_in;
-            if (reset_in_reg = '1') then
-                counter <= 0;
-                reset_latch <= '1';
-            elsif reset_latch = '1' then
-                counter <= counter + 1;
-            end if;
 
-            if (counter = C_COUNTER_MAX) then
-                reset_latch <= '0';
-            end if;
-        end if;
-    end process;
+  process (CLK) is
+  begin
 
-    process(reset_clk_25MHz) is
-    begin
-        if rising_edge(reset_clk_25MHz) then
-            rst_pipe_25MHz <= reset_latch;
-            reset_out_25MHz <= rst_pipe_25MHz;
-        end if;
-    end process;
+    if (rising_edge(CLK)) then
+      reset_in_reg <= RESET_IN;
+      if (reset_in_reg = '1') then
+        counter     <= 0;
+        reset_latch <= '1';
+      elsif (reset_latch = '1') then
+        counter <= counter + 1;
+      end if;
 
-    process(reset_clk_50MHz) is
-    begin
-        if rising_edge(reset_clk_50MHz) then
-            rst_pipe_50MHz <=
-                rst_pipe_50MHz(rst_pipe_50MHz'high-1 downto 0)
-                & reset_latch;
-            reset_out_50MHz <= rst_pipe_50MHz(rst_pipe_50MHz'high);
-        end if;
-    end process;
-end rtl;
+      if (counter = c_counter_max) then
+        reset_latch <= '0';
+      end if;
+    end if;
+
+  end process;
+
+  process (RESET_CLK_25MHZ) is
+  begin
+
+    if rising_edge(RESET_CLK_25MHZ) then
+      rst_pipe_25mhz  <= reset_latch;
+      RESET_OUT_25MHZ <= rst_pipe_25mhz;
+    end if;
+
+  end process;
+
+  process (RESET_CLK_50MHZ) is
+  begin
+
+    if rising_edge(RESET_CLK_50MHZ) then
+      rst_pipe_50mhz  <= rst_pipe_50mhz(rst_pipe_50mhz'high - 1 downto 0)
+                         & reset_latch;
+      RESET_OUT_50MHZ <= rst_pipe_50mhz(rst_pipe_50mhz'high);
+    end if;
+
+  end process;
+
+end architecture RTL;

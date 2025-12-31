@@ -1,81 +1,94 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
+  use ieee.numeric_std.all;
 
 package day_mux_pkg_hdr is
-  constant C_NUM_DAYS: natural := 1;
+
+  constant c_num_days : natural := 1;
+
 end package day_mux_pkg_hdr;
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
+  use ieee.numeric_std.all;
+  use work.day_mux_pkg_hdr.all;
 
-use work.day_mux_pkg_hdr.ALL;
+entity DAY_MUX is
+  port (
+    RESET                        : in    std_logic;
+    CLK                          : in    std_logic;
 
-entity day_mux is
-  port(
-    reset : in std_logic;
-    clk   : in std_logic;
-
-    day_sel_IN: in unsigned(7 downto 0);
-    data_len_bytes_IN: in unsigned(11 downto 0);
-    day_done_OUT: out std_logic;
+    DAY_SEL_IN                   : in    unsigned(7 downto 0);
+    DATA_LEN_BYTES_IN            : in    unsigned(11 downto 0);
+    DAY_DONE_OUT                 : out   std_logic;
 
     -- Port B controls --
-    bram_addr_b_OUT: OUT std_logic_vector(11 downto 0);
-    bram_write_data_b_OUT: OUT std_logic_vector(7 downto 0);
-    bram_read_data_b_IN: IN std_logic_vector(7 downto 0);
-    bram_port_b_write_enable_OUT: OUT std_logic;
-    bram_port_b_enabled_IN: IN std_logic
+    BRAM_ADDR_B_OUT              : out   std_logic_vector(11 downto 0);
+    BRAM_WRITE_DATA_B_OUT        : out   std_logic_vector(7 downto 0);
+    BRAM_READ_DATA_B_IN          : in    std_logic_vector(7 downto 0);
+    BRAM_PORT_B_WRITE_ENABLE_OUT : out   std_logic;
+    BRAM_PORT_B_ENABLED_IN       : in    std_logic
   );
-end day_mux;
+end entity DAY_MUX;
 
-architecture rtl of day_mux is
+architecture RTL of DAY_MUX is
 
-  type T_BRAM_ADDR_ARR is
+  type t_bram_addr_arr is
     array (0 to C_NUM_DAYS - 1) of std_logic_vector(11 downto 0);
-  signal bram_addr_b: T_BRAM_ADDR_ARR;
 
-  type T_BRAM_DATA_ARR is
+  signal bram_addr_b              : t_bram_addr_arr;
+
+  type t_bram_data_arr is
     array (0 to C_NUM_DAYS - 1) of std_logic_vector(7 downto 0);
-  signal bram_write_data_b: T_BRAM_DATA_ARR;
 
-  signal bram_port_b_enabled: std_logic_vector(0 to C_NUM_DAYS - 1);
-  signal bram_port_b_write_enable: std_logic_vector(0 to C_NUM_DAYS - 1);
-  signal day_done: std_logic_vector(0 to C_NUM_DAYS - 1);
+  signal bram_write_data_b        : t_bram_data_arr;
+
+  signal bram_port_b_enabled      : std_logic_vector(0 to C_NUM_DAYS - 1);
+  signal bram_port_b_write_enable : std_logic_vector(0 to C_NUM_DAYS - 1);
+  signal day_done                 : std_logic_vector(0 to C_NUM_DAYS - 1);
+
 begin
-  mux: process(all) is
+
+  MUX : process (all) is
   begin
-    case day_sel_IN is
-    when x"00" =>
-      -- day zero
-      bram_addr_b_OUT <= bram_addr_b(0);
-      bram_write_data_b_OUT <= bram_write_data_b(0);
-      bram_port_b_enabled <= (0 => bram_port_b_enabled_IN, others => '0');
-      bram_port_b_write_enable_OUT <= bram_port_b_write_enable(0);
-      day_done_OUT <= day_done(0);
-    when others =>
-      bram_addr_b_OUT <= x"000";
-      bram_write_data_b_OUT <= x"00";
-      bram_port_b_enabled <= (others => '0');
-      bram_port_b_write_enable_OUT <= '0';
-        day_done_OUT <= '0';
+
+    case DAY_SEL_IN is
+
+      when x"00" =>
+
+        -- day zero
+        BRAM_ADDR_B_OUT              <= bram_addr_b(0);
+        BRAM_WRITE_DATA_B_OUT        <= bram_write_data_b(0);
+        bram_port_b_enabled          <= (0 => BRAM_PORT_B_ENABLED_IN, others => '0');
+        BRAM_PORT_B_WRITE_ENABLE_OUT <= bram_port_b_write_enable(0);
+        DAY_DONE_OUT                 <= day_done(0);
+
+      when others =>
+
+        BRAM_ADDR_B_OUT              <= x"000";
+        BRAM_WRITE_DATA_B_OUT        <= x"00";
+        bram_port_b_enabled          <= (others => '0');
+        BRAM_PORT_B_WRITE_ENABLE_OUT <= '0';
+        DAY_DONE_OUT                 <= '0';
+
     end case;
-  end process mux;
 
-  day0_inst: entity work.day0(rtl)
-  port map (
-    reset => reset,
-    clk => clk,
+  end process MUX;
 
-    data_len_bytes_IN => data_len_bytes_IN,
-    day_done_OUT => day_done(0),
+  DAY0_INST : entity work.day0(rtl)
+    port map (
+      RESET => RESET,
+      CLK   => CLK,
 
-    -- Port B controls --
-    bram_addr_b_OUT => bram_addr_b(0),
-    bram_write_data_b_OUT => bram_write_data_b(0),
-    bram_read_data_b_IN => bram_read_data_b_IN,
-    bram_port_b_write_enable_OUT => bram_port_b_write_enable(0),
-    bram_port_b_enabled_IN => bram_port_b_enabled(0)
-  );
-end rtl;
+      DATA_LEN_BYTES_IN => DATA_LEN_BYTES_IN,
+      DAY_DONE_OUT      => day_done(0),
+
+      -- Port B controls --
+      BRAM_ADDR_B_OUT              => bram_addr_b(0),
+      BRAM_WRITE_DATA_B_OUT        => bram_write_data_b(0),
+      BRAM_READ_DATA_B_IN          => BRAM_READ_DATA_B_IN,
+      BRAM_PORT_B_WRITE_ENABLE_OUT => bram_port_b_write_enable(0),
+      BRAM_PORT_B_ENABLED_IN       => bram_port_b_enabled(0)
+    );
+
+end architecture RTL;

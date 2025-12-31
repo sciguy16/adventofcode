@@ -1,38 +1,44 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
 
-entity hb is
-      Generic (
-        g_PERIOD: natural := 25000000
-      );
-    port(
-        reset: in std_logic;
-        clk: in std_logic;
-        hb_led: out std_logic
-    );
-end hb;
+entity HB is
+  generic (
+    G_PERIOD : natural := 25000000
+  );
+  port (
+    RESET  : in    std_logic;
+    CLK    : in    std_logic;
+    HB_LED : out   std_logic
+  );
+end entity HB;
 
-architecture rtl of hb is
-    signal counter: integer := 0;
-    begin
-    process(clk) is
-    begin
-        if(rising_edge(clk)) then
-            counter <= counter + 1;
-            if (counter <= g_PERIOD/2 - 1) then
-                hb_led <= '1';
-            else
-                hb_led <= '0';
-            end if;
+architecture RTL of HB is
 
-            if(counter = g_PERIOD - 1) then
-                counter <= 0;
-            end if;
+  signal counter : integer := 0;
 
-            if (reset = '1') then
-                hb_led <= '1';
-                counter <= 0;
-            end if;
-        end if;
-    end process;
-end rtl;
+begin
+
+  process (CLK) is
+  begin
+
+    if (rising_edge(CLK)) then
+      counter <= counter + 1;
+      if (counter <= G_PERIOD / 2 - 1) then
+        HB_LED <= '1';
+      else
+        HB_LED <= '0';
+      end if;
+
+      if (counter = G_PERIOD - 1) then
+        counter <= 0;
+      end if;
+
+      if (RESET = '1') then
+        HB_LED  <= '1';
+        counter <= 0;
+      end if;
+    end if;
+
+  end process;
+
+end architecture RTL;

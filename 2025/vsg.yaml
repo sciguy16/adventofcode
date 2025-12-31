@@ -1,0 +1,7 @@
+# Configuration for vsg - https://vhdl-style-guide.readthedocs.io/
+file_list:
+  - hdl/**/*.vhd
+rule:
+  # Max line length
+  length_001:
+     length: 80

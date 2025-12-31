@@ -1,49 +1,55 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+  use ieee.std_logic_1164.all;
+  use ieee.numeric_std.all;
 
-entity day0 is
+entity DAY0 is
   port (
-    reset: in std_logic;
-    clk: in std_logic;
+    RESET                        : in    std_logic;
+    CLK                          : in    std_logic;
 
-    data_len_bytes_IN: in unsigned(11 downto 0);
-    day_done_OUT: out std_logic;
+    DATA_LEN_BYTES_IN            : in    unsigned(11 downto 0);
+    DAY_DONE_OUT                 : out   std_logic;
 
     -- Port B controls --
-    bram_addr_b_OUT: OUT std_logic_vector(11 downto 0);
-    bram_write_data_b_OUT: OUT std_logic_vector(7 downto 0);
-    bram_read_data_b_IN: IN std_logic_vector(7 downto 0);
-    bram_port_b_write_enable_OUT: OUT std_logic;
-    bram_port_b_enabled_IN: IN std_logic
+    BRAM_ADDR_B_OUT              : out   std_logic_vector(11 downto 0);
+    BRAM_WRITE_DATA_B_OUT        : out   std_logic_vector(7 downto 0);
+    BRAM_READ_DATA_B_IN          : in    std_logic_vector(7 downto 0);
+    BRAM_PORT_B_WRITE_ENABLE_OUT : out   std_logic;
+    BRAM_PORT_B_ENABLED_IN       : in    std_logic
   );
-end day0;
+end entity DAY0;
 
-architecture rtl of day0 is
-  signal accumulator: unsigned(31 downto 0) := x"00000000";
+architecture RTL of DAY0 is
 
-  type T_STATE is (
+  signal accumulator : unsigned(31 downto 0) := x"00000000";
+
+  type t_state is (
     STATE_IDLE,
     STATE_RUNNING
   );
-  signal state: T_STATE := STATE_IDLE;
+
+  signal state       : t_state := STATE_IDLE;
 
 begin
-  day0_proc: process(clk)
+
+  DAY0_PROC : process (CLK) is
   begin
-    if rising_edge(clk) then
-      if bram_port_b_enabled_IN = '1' then
-        day_done_OUT <= '1';
+
+    if rising_edge(CLK) then
+      if (BRAM_PORT_B_ENABLED_IN = '1') then
+        DAY_DONE_OUT <= '1';
       else
-        day_done_OUT <= '0';
+        DAY_DONE_OUT <= '0';
       end if;
 
-      if reset = '1' then
-        day_done_OUT <= '0';
-        bram_addr_b_OUT <= x"000";
-        bram_write_data_b_OUT <= x"00";
-        bram_port_b_write_enable_OUT <= '0';
+      if (RESET = '1') then
+        DAY_DONE_OUT                 <= '0';
+        BRAM_ADDR_B_OUT              <= x"000";
+        BRAM_WRITE_DATA_B_OUT        <= x"00";
+        BRAM_PORT_B_WRITE_ENABLE_OUT <= '0';
       end if;
     end if;
-  end process day0_proc;
-end rtl;
+
+  end process DAY0_PROC;
+
+end architecture RTL;
