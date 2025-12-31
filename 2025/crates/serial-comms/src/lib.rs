@@ -105,21 +105,40 @@ impl SerialHandler {
         }
     }
 
+    pub fn run_day(&mut self, day: u8, data_len_bytes: u16) -> Result<()> {
+        use types::codegen::top::{RunDay, Types};
+
+        let run_day = Types::from(RunDay {
+            day,
+            data_len_bytes,
+            padding: 0,
+        });
+        let response = self.send(run_day)?;
+        if let Types::RunDayAck(response) = response
+            && response.day == day
+            && response.ok == 0x01
+        {
+            Ok(())
+        } else {
+            Err(eyre!("RunDay response mismatch"))
+        }
+    }
+
     pub fn self_test(&mut self) -> Result<()> {
         self.ping_pong()?;
 
         let data = rand::random();
         self.write_ram(0x00, data)?;
         let read_back = self.read_ram(0x00)?;
-        if data == read_back {
-            Ok(())
-        } else {
-            Err(eyre!(
+        if data != read_back {
+            return Err(eyre!(
                 "Data readback mismatch!\nSent: {}\nRead: {}",
                 hex_string_as_words(&data),
                 hex_string_as_words(&read_back),
-            ))
+            ));
         }
+
+        self.run_day(0, 0)
     }
 }
 
@@ -173,9 +192,12 @@ fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
 }
 
 fn hex_string_as_words(data: &[u8]) -> String {
-    data.chunks(4).map(hex::encode).reduce(|mut acc, item| {
-        acc.push(' ');
-        acc.push_str(&item);
-        acc
-    }).unwrap()
+    data.chunks(4)
+        .map(hex::encode)
+        .reduce(|mut acc, item| {
+            acc.push(' ');
+            acc.push_str(&item);
+            acc
+        })
+        .unwrap()
 }

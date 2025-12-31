@@ -274,8 +274,12 @@ begin
               and RX_PACKET_LENGTH_OKAY then
               m_axi_write_word_offset_port_a_OUT  <= v_ram_offset(9 downto 0);
               --TODO validate that the word count fits into 8 bits
+              -- RX_PACKET_LENGTH_WORDS is the number of words in the packet
+              -- first word is offset
+              -- AWLEN is 1 less than the burst length (AWLEN=0 => burst 1)
+              -- so subtract 2 from RX_PACKET_LENGTH_WORDS
               m_axi_awlen_port_a_OUT   <=
-                std_logic_vector(RX_PACKET_LENGTH_WORDS(7 downto 0));
+                std_logic_vector(RX_PACKET_LENGTH_WORDS(7 downto 0) - 2);
               m_axi_awvalid_port_a_OUT <= '1';
 
               -- If the BRAM AXI interface immediately accepts the write
@@ -420,7 +424,8 @@ begin
           -- set up the read request
           --TODO validate that the ram offset fits into 12 bits
           m_axi_read_word_offset_port_a_OUT  <= RAM_OFFSET(9 downto 0);
-          m_axi_arlen_port_a_OUT   <= std_logic_vector(c_BRAM_READ_LEN_WORDS);
+          -- ARLEN is one less than burst length (ARLEN=0 => burst 1)
+          m_axi_arlen_port_a_OUT   <= std_logic_vector(c_BRAM_READ_LEN_WORDS - 1);
           m_axi_arvalid_port_a_OUT <= '1';
 
           if m_axi_arready_port_a_IN = '1' then
@@ -466,10 +471,10 @@ begin
       end case;
 
       if reset = '1' then
-        reply_state                   <= REPLY_STATE_IDLE;
-        reply_done                    <= '0';
-        m_axi_arvalid_port_a_OUT      <= '0';
-        m_axi_arlen_port_a_OUT        <= x"00";
+        reply_state              <= REPLY_STATE_IDLE;
+        reply_done               <= '0';
+        m_axi_arvalid_port_a_OUT <= '0';
+        m_axi_arlen_port_a_OUT   <= std_logic_vector(c_BRAM_READ_LEN_WORDS - 1);
         m_axi_read_word_offset_port_a_OUT <= 10x"000";
         axi_str_txd_tdata_OUT   <= (others => '0');
       end if;

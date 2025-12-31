@@ -86,6 +86,9 @@ architecture rtl of aoc_top is
   signal data_len_bytes: unsigned(11 downto 0);
   signal day_done: std_logic;
 
+  ATTRIBUTE MARK_DEBUG: string;
+  ATTRIBUTE MARK_DEBUG of bram_axi_arlen_port_a: signal is "TRUE";
+
   component clk_wiz_0
     port
     ( -- Clock in ports
