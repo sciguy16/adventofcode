@@ -6,7 +6,6 @@ entity DAY0_TB is
 end entity DAY0_TB;
 
 architecture RTL of DAY0_TB is
-
   -- 25 MHz clock, 40 ns period
   constant c_half_period_25_mhz : time := 20 ns;
 
@@ -25,10 +24,8 @@ architecture RTL of DAY0_TB is
 
   procedure wait_edge is
   begin
-
     wait until rising_edge(clk);
     wait for 2 ns;
-
   end procedure wait_edge;
 
   procedure wait_eq (
@@ -36,47 +33,36 @@ architecture RTL of DAY0_TB is
     expected     : in std_logic;
     message      : in string
   ) is
-
     variable clock_count : integer := 0;
 
   begin
-
     if (verbose) then
       report "wait for: " & message
         severity note;
     end if;
-
     wait_edge;
 
     while value /= expected loop
-
       wait_edge;
       clock_count := clock_count + 1;
-
       if (clock_count = 10) then
         report "condition not met after timeout: " & message
           severity failure;
         exit;
       end if;
-
     end loop;
-
   end procedure wait_eq;
 
   subtype byte is std_logic_vector(7 downto 0);
 
   function to_byte (c : character) return byte is
   begin
-
     return byte(to_unsigned(character'pos(c), 8));
-
   end function to_byte;
 
   function to_character (b: byte) return character is
   begin
-
     return character'val(to_integer(unsigned(b)));
-
   end function to_character;
 
   constant input : string := "10" & LF & "22" & LF & "322" & LF;
@@ -93,9 +79,9 @@ begin
       DAY_DONE_OUT      => day_done_out,
 
       -- Port B controls --
-      BRAM_ADDR_OUT       => bram_addr,
-      BRAM_WRITE_DATA_OUT => bram_write_data,
-      BRAM_READ_DATA_IN   => bram_read_data,
+      BRAM_ADDR_OUT         => bram_addr,
+      BRAM_WRITE_DATA_OUT   => bram_write_data,
+      BRAM_READ_DATA_IN     => bram_read_data,
       BRAM_WRITE_ENABLE_OUT => bram_write_enable,
       BRAM_ENABLED_IN       => bram_enabled_in
     );
@@ -103,18 +89,12 @@ begin
   clk <= not clk after c_half_period_25_mhz;
 
   STIMULUS : process is
-
     variable expected_bram_addr : unsigned(11 downto 0);
     variable result             : std_logic_vector(31 downto 0);
-
   begin
-
     for idx in 0 to 3 loop
-
       wait_edge;
-
     end loop;
-
     reset <= '0';
     wait_edge;
 
@@ -127,7 +107,6 @@ begin
     wait_edge;
 
     for chr in 1 to 10 loop
-
       wait_edge;
       expected_bram_addr := to_unsigned(chr, expected_bram_addr'length) - 1;
       assert bram_addr = std_logic_vector(expected_bram_addr)
@@ -136,9 +115,7 @@ begin
                & ", chr index is: "
                & integer'image(chr);
       bram_read_data     <= to_byte(INPUT(chr));
-
     end loop;
-
     result             := (others => '0');
     wait_eq(bram_write_enable, '1', "bram write enable");
     assert bram_addr = x"00B"
@@ -160,13 +137,9 @@ begin
     bram_enabled_in <= '0';
 
     for idx in 0 to 3 loop
-
       wait_edge;
-
     end loop;
-
     std.env.stop;
-
   end process STIMULUS;
 
 end architecture RTL;

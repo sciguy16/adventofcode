@@ -94,7 +94,6 @@ entity PACKET_HANDLER is
 end entity PACKET_HANDLER;
 
 architecture RTL of PACKET_HANDLER is
-
   signal packet_type           : unsigned(7 downto 0)  := (others => '0');
   signal rx_packet_len_bytes   : unsigned(15 downto 0) := (others => '0');
   signal rx_packet_len_words   : unsigned(15 downto 0) := (others => '0');
@@ -150,106 +149,81 @@ architecture RTL of PACKET_HANDLER is
   function bool_to_std_logic (
     input: boolean
   ) return std_logic is
-
     variable ret : std_logic;
 
   begin
-
     if (input) then
       ret := '1';
     else
       ret := '0';
     end if;
-
     return ret;
-
   end function bool_to_std_logic;
 
 begin
 
   SET_REPLY_HEADER : process (packet_type) is
-
     variable v_header_typ     : unsigned(7 downto 0);
     variable v_header_typ_slv : std_logic_vector(7 downto 0);
     variable v_packet_len     : std_logic_vector(15 downto 0);
-
   begin
-
     case packet_type is
 
       when C_DESTINATION_top_TYPE_ping =>
-
         v_header_typ := C_DESTINATION_top_TYPE_pong;
         v_packet_len := x"0004";
 
       when C_DESTINATION_top_TYPE_write_ram =>
-
         v_header_typ := C_DESTINATION_top_TYPE_write_ram_ack;
         v_packet_len := x"0008";
 
       when C_DESTINATION_top_TYPE_read_ram =>
-
         v_header_typ := C_DESTINATION_top_TYPE_read_ram_ack;
         v_packet_len := x"0088";
 
       when C_DESTINATION_top_TYPE_run_day =>
-
         v_header_typ := C_DESTINATION_top_TYPE_run_day_ack;
         v_packet_len := x"0004";
 
       when others =>
-
         report "Unexpected packet type" & to_hex_string(packet_type)
           severity error;
         v_header_typ := x"00";
         v_packet_len := x"0004";
-
     end case;
 
     v_header_typ_slv := std_logic_vector(v_header_typ);
     reply_header     <= (x"00" & v_header_typ_slv) & v_packet_len;
-
   end process SET_REPLY_HEADER;
 
   SET_BRAM_OKAY : process (all) is
   begin
-
     bram_offset_okay <= ram_offset < c_MAX_RAM_OFFSET;
-
   end process SET_BRAM_OKAY;
 
   -- Packet length must be no greater than the max packet length and it
   -- must (for now) be a multiple of four bytes
   SET_RX_PACKET_LENGTH_OKAY : process (all) is
-
     variable length_ok           : boolean;
     variable is_multiple_of_four : boolean;
-
   begin
-
     length_ok           := rx_packet_len_bytes <= c_MAX_PACKET_LENGTH_BYTES;
     is_multiple_of_four := rx_packet_len_bytes(1 downto 0) = "00";
     rx_packet_len_okay  <= length_ok and is_multiple_of_four;
-
   end process SET_RX_PACKET_LENGTH_OKAY;
 
   SET_RUN_DAY_OK : process (all) is
   begin
-
     run_day_ok <= day_sel < c_NUM_DAYS and data_len_bytes(15 downto 12) = "000";
-
   end process SET_RUN_DAY_OK;
 
   RX_PROC : process (CLK) is
-
     variable v_packet_type   : unsigned(7 downto 0);
     variable v_ram_offset    : word;
     variable v_pkt_len_bytes : unsigned(15 downto 0);
     variable v_current_word  : word;
     variable v_awlen_tmp     : unsigned(7 downto 0);
-
   begin
-
     if rising_edge(CLK) then
       -- defaults
       AXI_STR_RXD_TREADY_OUT <= '0';
@@ -264,7 +238,6 @@ begin
       case rx_state is
 
         when RX_STATE_IDLE =>
-
           AXI_STR_RXD_TREADY_OUT <= '1';
           if (AXI_STR_RXD_TVALID_IN = '1') then
             v_packet_type       := unsigned(AXI_STR_RXD_TDATA_IN(23 downto 16));
@@ -282,27 +255,21 @@ begin
           end if;
 
         when RX_STATE_PAYLOAD_1 =>
-
           AXI_STR_RXD_TREADY_OUT <= '1';
-
           if (AXI_STR_RXD_TVALID_IN = '1') then
             v_current_word := AXI_STR_RXD_TDATA_IN;
 
             case packet_type is
 
               when C_DESTINATION_top_TYPE_ping =>
-
                 ping_payload <= v_current_word;
 
               when C_DESTINATION_top_TYPE_run_day =>
-
                 day_sel        <= unsigned(v_current_word(7 downto 0));
                 data_len_bytes <= unsigned(v_current_word(23 downto 8));
 
               when others =>
-
             -- nothing (latch)
-
             end case;
 
             payload_counter <= payload_counter + 1;
@@ -314,7 +281,6 @@ begin
           end if;
 
         when RX_STATE_RAM_OFFSET =>
-
           AXI_STR_RXD_TREADY_OUT <= '1';
           if (AXI_STR_RXD_TVALID_IN = '1') then
             -- Record the RAM offset into a register
@@ -353,7 +319,6 @@ begin
           end if;
 
         when RX_STATE_WRITE_REQ_WAIT_AWREADY =>
-
           if (M_AXI_AWREADY_IN = '1') then
             rx_state          <= RX_STATE_WRITE_RAM;
             M_AXI_AWVALID_OUT <= '0';
@@ -362,7 +327,6 @@ begin
           end if;
 
         when RX_STATE_WRITE_RAM =>
-
           M_AXI_AWVALID_OUT <= '0';
           -- forward data words to BRAM axi interface
           rx_state <= RX_STATE_WRITE_RAM; -- default stay in this state
@@ -377,21 +341,18 @@ begin
           else
             AXI_STR_RXD_TREADY_OUT <= '1';
           end if;
-
           if (AXI_STR_RXD_TVALID_IN = '1') then
             if (payload_counter = rx_packet_len_words - 1) then
               M_AXI_WLAST_OUT <= '1';
             end if;
             payload_counter <= payload_counter + 1;
           end if;
-
           if (payload_counter = rx_packet_len_words) then
             rx_state         <= RX_STATE_SEND_REPLY;
             M_AXI_WVALID_OUT <= '0';
           end if;
 
         when RX_STATE_WRITE_RAM_LAST_WORD =>
-
           M_AXI_WLAST_OUT <= '1';
           if (AXI_STR_RXD_TVALID_IN = '1') then
             rx_state        <= RX_STATE_SEND_REPLY;
@@ -400,13 +361,11 @@ begin
         -- TODO check BRESP
 
         when RX_STATE_SEND_REPLY =>
-
           if (reply_done = '1') then
             rx_state <= RX_STATE_IDLE;
           else
             rx_state <= RX_STATE_SEND_REPLY;
           end if;
-
       end case;
 
       if (RESET = '1') then
@@ -421,17 +380,13 @@ begin
         DATA_LEN_BYTES_OUT          <= x"000";
       end if;
     end if;
-
   end process RX_PROC;
 
   REPLY_CTRL : process (CLK) is
-
     variable v_header_typ     : unsigned(7 downto 0);
     variable v_header_typ_slv : std_logic_vector(7 downto 0);
     variable v_packet_len     : std_logic_vector(15 downto 0);
-
   begin
-
     if rising_edge(CLK) then
       -- defaults
       reply_done             <= '0';
@@ -442,7 +397,6 @@ begin
       case reply_state is
 
         when REPLY_ST_IDLE =>
-
           if (rx_state = RX_STATE_SEND_REPLY) then
             AXI_STR_TXD_TDATA_OUT  <= reply_header;
             AXI_STR_TXD_TVALID_OUT <= '1';
@@ -456,7 +410,6 @@ begin
           end if;
 
         when REPLY_ST_SEND_PONG_PAYLOAD =>
-
           if (AXI_STR_TXD_TREADY_IN) then
             AXI_STR_TXD_TVALID_OUT <= '1';
             reply_state            <= REPLY_ST_WAIT_DONE;
@@ -464,7 +417,6 @@ begin
           end if;
 
         when REPLY_ST_SEND_BRAM_OFFSET =>
-
           AXI_STR_TXD_TVALID_OUT <= '1';
           if (AXI_STR_TXD_TREADY_IN) then
             reply_state           <= REPLY_ST_SEND_BRAM_OKAY;
@@ -472,7 +424,6 @@ begin
           end if;
 
         when REPLY_ST_SEND_BRAM_OKAY =>
-
           AXI_STR_TXD_TVALID_OUT <= '1';
           if (AXI_STR_TXD_TREADY_IN) then
             AXI_STR_TXD_TVALID_OUT <= '1';
@@ -485,7 +436,6 @@ begin
           end if;
 
         when REPLY_ST_SETUP_BRAM_READ =>
-
           reply_state <= REPLY_ST_SETUP_BRAM_READ;
           -- set up the read request
           -- TODO validate that the ram offset fits into 12 bits
@@ -493,25 +443,21 @@ begin
           -- ARLEN is one less than burst length (ARLEN=0 => burst 1)
           M_AXI_ARLEN_OUT   <= std_logic_vector(c_bram_arlen);
           M_AXI_ARVALID_OUT <= '1';
-
           if (M_AXI_ARREADY_IN = '1') then
             reply_state <= REPLY_ST_SEND_BRAM_DATA;
           end if;
 
         when REPLY_ST_SEND_BRAM_DATA =>
-
           reply_state <= REPLY_ST_SEND_BRAM_DATA; -- default
 
           AXI_STR_TXD_TDATA_OUT  <= M_AXI_RDATA_IN;
           AXI_STR_TXD_TVALID_OUT <= M_AXI_RVALID_IN;
           M_AXI_RREADY_OUT       <= AXI_STR_TXD_TREADY_IN;
-
           if (M_AXI_RLAST_IN = '1') then
             reply_state <= REPLY_ST_WAIT_DONE;
           end if;
 
         when REPLY_ST_RUN_DAY =>
-
           -- if request is bad then send ACK immediately, otherwise
           -- wait for the day mux to report DONE
           if (not run_day_ok or DAY_DONE_IN = '1') then
@@ -526,7 +472,6 @@ begin
           end if;
 
         when REPLY_ST_WAIT_DONE =>
-
           if (AXI_STR_TXD_TREADY_IN) then
             AXI_STR_TXD_TVALID_OUT <= '0';
             reply_done             <= '1';
@@ -534,11 +479,9 @@ begin
           end if;
 
         when REPLY_ST_WAIT_IDLE =>
-
           if (rx_state = RX_STATE_IDLE) then
             reply_state <= REPLY_ST_IDLE;
           end if;
-
       end case;
 
       if (RESET = '1') then
@@ -550,7 +493,6 @@ begin
         AXI_STR_TXD_TDATA_OUT      <= (others => '0');
       end if;
     end if;
-
   end process REPLY_CTRL;
 
 end architecture RTL;

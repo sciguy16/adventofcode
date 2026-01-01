@@ -103,9 +103,38 @@ rule:
   # Set optional item rules
   instantiation_033 :
     action : remove
-  # Set blank line rules
+
+  # Set blank line rules (the rule group is no good because it includes
+  # basically everything)
   case_200 :
     disable: True
+  block_203: { style: no_blank_line }           # blank below 'begin'
+  block_204: { style: no_blank_line }           # blank below 'end'
+  subprogram_body_201: { style: no_blank_line } # blank below 'is'
+  subprogram_body_203: { style: no_blank_line } # blank below 'begin'
+  subprogram_body_204: { style: no_blank_line } # blank above 'end'
+  loop_statement_200: { disable: true } # blank above 'loop'
+  loop_statement_201: { style: no_blank_line } # blank below 'loop'
+  loop_statement_202: { style: no_blank_line } # blank above 'end'
+  loop_statement_203: { style: no_blank_line } # blank below 'end'
+  case_007: { disable: true } # blank above 'case'
+  case_010: { disable: true } # blank below 'end case'
+  case_009: { style: no_blank_line } # blank above 'end case'
+  case_200: { style: no_blank_line } # blank below '=>'
+  entity_016: { style: no_blank_line } # blank above 'end entity'
+  entity_200: { style: no_blank_line } # blank above 'generic'
+  entity_201: { style: no_blank_line } # blank below 'is'
+  architecture_015: { style: no_blank_line } # blank below declaration
+  architecture_016: { disable: true } # blank above 'begin'
+  # architecture_017: { style: no_blank_line } # blank below 'begin'
+  process_021: { style: no_blank_line } # blank above 'begin' if no decl
+  process_022: { style: no_blank_line } # blank below 'begin'
+  process_023: { style: no_blank_line } # blank above 'end process'
+  process_026: { style: no_blank_line } # blank above first decl line
+  process_027: { style: no_blank_line } # blank above 'begin' if decl
+  if_031: { disable: true } # blank above 'if'
+  if_030: { disable: true } # blank below 'end if'
+
   # Set structure rules
   function_019:
     first_open_paren: 'remove_new_line'

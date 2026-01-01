@@ -5,7 +5,6 @@ entity RESET_EXPANDER_TB is
 end entity RESET_EXPANDER_TB;
 
 architecture RTL of RESET_EXPANDER_TB is
-
   -- 25 MHz clock, 40 ns period
   constant c_half_period_25_mhz    : time := 20 ns;
   -- 50 MHz clock, 20 ns period
@@ -43,16 +42,13 @@ begin
   reset_out <= reset_25mhz & reset_50mhz;
 
   STIMULUS : process is
-
     alias uut_reset_in_reg   is << signal uut.reset_in_reg : std_logic >>;
     alias uut_reset_latch    is << signal uut.reset_latch : std_logic >>;
     alias uut_counter        is << signal uut.counter : natural >>;
     alias uut_rst_pipe_25mhz is << signal uut.rst_pipe_25MHz : std_logic >>;
     alias uut_rst_pipe_50mhz is
         << signal uut.rst_pipe_50MHz : std_logic_vector(2 downto 0) >>;
-
   begin
-
     reset_in <= '0';
 
     wait for 40 ns;
@@ -227,7 +223,6 @@ begin
       report "Reset out should still be deasserted";
 
     std.env.stop;
-
   end process STIMULUS;
 
 end architecture RTL;

@@ -58,7 +58,6 @@ entity BLK_MEM_WRAPPER is
 end entity BLK_MEM_WRAPPER;
 
 architecture RTL of BLK_MEM_WRAPPER is
-
   signal bram_enable_a       : std_logic;
   signal bram_reset_a        : std_logic;
   signal bram_write_enable_a : std_logic_vector(3 downto 0);
@@ -164,11 +163,8 @@ begin
   -- end process increment_ctrl;
 
   DATA_OUT_CONNECT : process (all) is
-
     variable bram_write_enable_a_bit : std_logic;
-
   begin
-
     -- read_valid_a_out <= not bram_write_enable_b and not addr_a_in;
     -- if read_valid_a_out then
     --  data_a_out <= bram_dout_a;
@@ -189,7 +185,6 @@ begin
   -- else
   --  data_b_out <= (others => '0');
   -- end if;
-
   end process DATA_OUT_CONNECT;
 
   -- port_b_addr_ctrl: process(clk) is

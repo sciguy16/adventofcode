@@ -8,7 +8,6 @@ entity PACKET_HANDLER_TB_DAY_MUX is
 end entity PACKET_HANDLER_TB_DAY_MUX;
 
 architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
-
   -- 25 MHz clock, 40 ns period
   constant c_half_period_25_mhz : time := 20 ns;
   constant c_timeout            : time := 8 * c_half_period_25_mhz;
@@ -70,10 +69,8 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
 
   procedure wait_edge is
   begin
-
     wait until rising_edge(clk);
     wait for 2 ns;
-
   end procedure wait_edge;
 
   procedure wait_eq (
@@ -81,33 +78,26 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
     expected     : in std_logic;
     message      : in string
   ) is
-
     variable clock_count : integer;
 
   begin
-
     if (verbose) then
       report "wait for: " & message
         severity note;
     end if;
-
     wait_edge;
 
     clock_count := 0;
 
     while value /= expected loop
-
       wait_edge;
       clock_count := clock_count + 1;
-
       if (clock_count = 10) then
         report "condition not met after timeout: " & message
           severity failure;
         exit;
       end if;
-
     end loop;
-
   end procedure wait_eq;
 
 begin
@@ -167,7 +157,6 @@ begin
 
   STIMULUS : process is
   begin
-
     reset <= '1';
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -221,7 +210,6 @@ begin
     wait_edge;
     wait_edge;
     std.env.stop;
-
   end process STIMULUS;
 
   BLK_MEM_WRAPPER_INST : entity work.blk_mem_wrapper(rtl)
@@ -279,9 +267,9 @@ begin
       DAY_DONE_OUT      => day_done,
 
       -- Port B controls --
-      BRAM_ADDR_OUT              => bram_addr_b,
-      BRAM_WRITE_DATA_OUT        => bram_write_data_b,
-      BRAM_READ_DATA_IN          => bram_read_data_b,
+      BRAM_ADDR_OUT         => bram_addr_b,
+      BRAM_WRITE_DATA_OUT   => bram_write_data_b,
+      BRAM_READ_DATA_IN     => bram_read_data_b,
       BRAM_WRITE_ENABLE_OUT => bram_port_b_write_en,
       BRAM_ENABLED_IN       => bram_port_b_enabled
     );

@@ -13,14 +13,12 @@ entity HB is
 end entity HB;
 
 architecture RTL of HB is
-
   signal counter : integer := 0;
 
 begin
 
   HB_PROC : process (CLK) is
   begin
-
     if (rising_edge(CLK)) then
       counter <= counter + 1;
       if (counter <= G_PERIOD / 2 - 1) then
@@ -28,17 +26,14 @@ begin
       else
         HB_LED <= '0';
       end if;
-
       if (counter = G_PERIOD - 1) then
         counter <= 0;
       end if;
-
       if (RESET = '1') then
         HB_LED  <= '1';
         counter <= 0;
       end if;
     end if;
-
   end process HB_PROC;
 
 end architecture RTL;

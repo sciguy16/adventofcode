@@ -6,7 +6,6 @@ entity AXI_UART_WRAPPER_TB is
 end entity AXI_UART_WRAPPER_TB;
 
 architecture RTL of AXI_UART_WRAPPER_TB is
-
   -- 50,000,000 (50 Mhz) / 115200 Baud rate;
   constant c_cycles_per_bit : integer := 434;
 
@@ -50,7 +49,6 @@ begin
 
   STIMULUS : process is
   begin
-
     axi_str_txd_tvalid <= '0';
     axi_str_txd_tdata  <= x"0000_0000";
     axi_str_rxd_tready <= '1';
@@ -88,7 +86,6 @@ begin
     -- wait for 200_000 ns;
 
     std.env.stop;
-
   end process STIMULUS;
 
 end architecture RTL;

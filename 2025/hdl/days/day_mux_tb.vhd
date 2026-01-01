@@ -6,7 +6,6 @@ entity DAY_MUX_TB is
 end entity DAY_MUX_TB;
 
 architecture RTL of DAY_MUX_TB is
-
   -- 25 MHz clock, 40 ns period
   constant c_half_period_25_mhz : time := 20 ns;
 
@@ -24,10 +23,8 @@ architecture RTL of DAY_MUX_TB is
 
   procedure wait_edge is
   begin
-
     wait until rising_edge(clk);
     wait for 2 ns;
-
   end procedure wait_edge;
 
 begin
@@ -53,13 +50,9 @@ begin
 
   STIMULUS : process is
   begin
-
     for idx in 0 to 3 loop
-
       wait_edge;
-
     end loop;
-
     reset <= '0';
     wait_edge;
 
@@ -80,13 +73,9 @@ begin
       report "day done out end";
 
     for idx in 0 to 3 loop
-
       wait_edge;
-
     end loop;
-
     std.env.stop;
-
   end process STIMULUS;
 
 end architecture RTL;

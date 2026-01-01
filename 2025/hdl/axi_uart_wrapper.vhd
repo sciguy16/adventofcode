@@ -36,7 +36,6 @@ entity AXI_UART_WRAPPER is
 end entity AXI_UART_WRAPPER;
 
 architecture RTL of AXI_UART_WRAPPER is
-
   signal init_complete : std_logic := '0';
 
   signal interrupt : std_logic;
@@ -303,7 +302,6 @@ begin
 
   UART_TX_PROC : process (AXI_CLK) is
   begin
-
     if rising_edge(AXI_CLK) then
       -- TX_STATE_INIT_INTERRUPT
       --  * Enable the interrupt on received data
@@ -326,7 +324,6 @@ begin
       case tx_state is
 
         when TX_STATE_INIT_INTERRUPT =>
-
           s_axi_awaddr  <= x"C";                -- control register
           s_axi_wdata   <= x"0000000" & "1000"; -- enable interrupt
           s_axi_awvalid <= '1';
@@ -340,14 +337,12 @@ begin
           end if;
 
         when TX_STATE_INIT_INTERRUPT_WAIT_RESPONSE =>
-
           if (s_axi_bvalid = '1') then
             s_axi_bready <= '1';
             tx_state     <= TX_STATE_IDLE;
           end if;
 
         when TX_STATE_IDLE =>
-
           if (conv_uart_tx_tvalid = '1') then
             conv_uart_tx_tready <= '1';
             s_axi_wdata         <= x"000000" & conv_uart_tx_tdata;
@@ -355,14 +350,12 @@ begin
           end if;
 
         when TX_STATE_WRITE_DATA =>
-
           s_axi_awaddr  <= x"4"; -- TX FIFO
           s_axi_awvalid <= '1';
           s_axi_wvalid  <= '1';
           tx_state      <= TX_STATE_WAIT_READY;
 
         when TX_STATE_WAIT_READY =>
-
           if (s_axi_wready = '1' and s_axi_awready = '1') then
             s_axi_awvalid <= '0';
             s_axi_wvalid  <= '0';
@@ -370,7 +363,6 @@ begin
           end if;
 
         when TX_STATE_WAIT_RESPONSE =>
-
           if (s_axi_bvalid = '1') then
             s_axi_bready <= '1';
             with s_axi_bresp select tx_state <=
@@ -379,7 +371,6 @@ begin
               -- TX FIFO is full, try again
               TX_STATE_WRITE_DATA when others;
           end if;
-
       end case;
 
       if (AXI_NRST = '0') then
@@ -390,12 +381,10 @@ begin
         conv_uart_tx_tready <= '0';
       end if;
     end if;
-
   end process UART_TX_PROC;
 
   UART_RX_PROC : process (AXI_CLK) is
   begin
-
     if (rising_edge(AXI_CLK)) then
       -- RX_STATE_WAIT_INIT
       --  * Wait for TX task to assert init_complete
@@ -413,13 +402,11 @@ begin
       case rx_state is
 
         when RX_STATE_WAIT_INIT =>
-
           if (init_complete = '1') then
             rx_state <= RX_STATE_IDLE;
           end if;
 
         when RX_STATE_IDLE =>
-
           -- if (interrupt = '1') then
           s_axi_araddr  <= x"0";
           s_axi_arvalid <= '1';
@@ -427,14 +414,12 @@ begin
 
         -- end if;
         when RX_STATE_WAIT_RADDR_READY =>
-
           if (s_axi_arready = '1') then
             s_axi_arvalid <= '0';
             rx_state      <= RX_STATE_WAIT_VALID;
           end if;
 
         when RX_STATE_WAIT_VALID =>
-
           if (s_axi_rvalid = '1') then
             s_axi_rready <= '1';
             rx_rresp_reg <= s_axi_rresp;
@@ -444,7 +429,6 @@ begin
           end if;
 
         when RX_STATE_PROCESS_READ_DATA =>
-
           -- if read was successful then assert TVALID and wait for TREADY
           s_axi_rready <= '0';
           if (rx_rresp_reg = c_AXI_RESP_OKAY) then
@@ -455,12 +439,10 @@ begin
           end if;
 
         when RX_STATE_WAIT_CONV =>
-
           if (uart_conv_rx_tready = '1') then
             uart_conv_rx_tvalid <= '0';
             rx_state            <= RX_STATE_IDLE;
           end if;
-
       end case;
 
       if (AXI_NRST = '0') then
@@ -473,7 +455,6 @@ begin
         uart_conv_rx_tdata  <= x"00";
       end if;
     end if;
-
   end process UART_RX_PROC;
 
 end architecture RTL;

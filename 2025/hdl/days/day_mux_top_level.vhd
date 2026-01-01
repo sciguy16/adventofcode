@@ -23,7 +23,6 @@ entity DAY_MUX_TOP_LEVEL is
 end entity DAY_MUX_TOP_LEVEL;
 
 architecture RTL of DAY_MUX_TOP_LEVEL is
-
   -- Day signals to mux --
   signal bram_addr_mux         : t_bram_addr_arr;
   signal bram_write_data_mux   : t_bram_data_arr;

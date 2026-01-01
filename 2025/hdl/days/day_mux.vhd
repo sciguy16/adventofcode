@@ -27,18 +27,14 @@ entity DAY_MUX is
 end entity DAY_MUX;
 
 architecture RTL of DAY_MUX is
-
 begin
 
   MUX : process (all) is
   begin
-
     case DAY_SEL_IN is
-
       -- TODO switch on day sel value rather than static case switch
 
       when x"00" =>
-
         -- day zero
         BRAM_ADDR_OUT         <= BRAM_ADDR_MUX(0);
         BRAM_WRITE_DATA_OUT   <= BRAM_WRITE_DATA_MUX(0);
@@ -51,15 +47,12 @@ begin
         DAY_DONE_OUT          <= DAY_DONE_MUX(0);
 
       when others =>
-
         BRAM_ADDR_OUT         <= x"000";
         BRAM_WRITE_DATA_OUT   <= x"00";
         BRAM_ENABLED_MUX      <= (others => '0');
         BRAM_WRITE_ENABLE_OUT <= '0';
         DAY_DONE_OUT          <= '0';
-
     end case;
-
   end process MUX;
 
 end architecture RTL;

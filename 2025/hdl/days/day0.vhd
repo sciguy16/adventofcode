@@ -20,7 +20,6 @@ entity DAY0 is
 end entity DAY0;
 
 architecture RTL of DAY0 is
-
   signal accumulator : unsigned(31 downto 0);
   signal bram_addr   : unsigned(11 downto 0);
   signal value_reg   : unsigned(31 downto 0);
@@ -48,15 +47,12 @@ begin
 
   BRAM_ADDR_FROM_UNSIGNED : process (all) is
   begin
-
     BRAM_ADDR_OUT <= std_logic_vector(bram_addr);
-
   end process BRAM_ADDR_FROM_UNSIGNED;
 
   -- Parse the numbers from decimal and sum them
   DAY0_CTRL_PROC : process (CLK) is
   begin
-
     if rising_edge(CLK) then
       DAY_DONE_OUT <= '0';
       go           <= '0';
@@ -72,7 +68,6 @@ begin
           end if;
 
         when CTRL_RUNNING =>
-
           if (done = '1') then
             ctrl_state <= CTRL_DONE;
           else
@@ -82,7 +77,6 @@ begin
         when CTRL_DONE =>
           DAY_DONE_OUT <= '1';
           ctrl_state   <= CTRL_IDLE;
-
       end case;
 
       if (RESET = '1') then
@@ -90,16 +84,12 @@ begin
         ctrl_state   <= CTRL_IDLE;
       end if;
     end if;
-
   end process DAY0_CTRL_PROC;
 
   DAY0_RUN_PROC : process (CLK) is
-
     variable current_digit     : std_logic_vector(7 downto 0);
     variable current_digit_int : unsigned(7 downto 0);
-
   begin
-
     if rising_edge(CLK) then
       done                  <= '0';
       BRAM_WRITE_ENABLE_OUT <= '0';
@@ -127,7 +117,6 @@ begin
           else
             value_reg <= resize(value_reg * 10, 32) + current_digit_int;
           end if;
-
           if (bram_addr = DATA_LEN_BYTES_IN) then
             run_state <= RUN_WRITE_RESULT;
           else
@@ -151,7 +140,6 @@ begin
         when RUN_DONE =>
           run_state <= RUN_IDLE;
           done      <= '1';
-
       end case;
 
       if (RESET = '1') then
@@ -162,7 +150,6 @@ begin
         run_state             <= RUN_IDLE;
       end if;
     end if;
-
   end process DAY0_RUN_PROC;
 
 end architecture RTL;

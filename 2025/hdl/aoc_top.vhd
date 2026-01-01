@@ -29,7 +29,6 @@ entity AOC_TOP is
 end entity AOC_TOP;
 
 architecture RTL of AOC_TOP is
-
   signal clk_25mhz    : std_logic;
   signal clk_50mhz    : std_logic;
   signal reset_in_reg : std_logic := '0';
@@ -109,11 +108,9 @@ begin
 
   RESET_REG_PROC : process (clk_25mhz) is
   begin
-
     if rising_edge(clk_25mhz) then
       reset_in_reg <= RESET_IN;
     end if;
-
   end process RESET_REG_PROC;
 
   RESET_EXPANDER_INST : entity work.reset_expander(rtl)

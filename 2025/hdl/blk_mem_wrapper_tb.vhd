@@ -7,7 +7,6 @@ entity BLK_MEM_WRAPPER_TB is
 end entity BLK_MEM_WRAPPER_TB;
 
 architecture RTL of BLK_MEM_WRAPPER_TB is
-
   constant c_half_period_25_mhz : time := 20 ns; -- 25 MHz clock, 40 ns period
 
   signal clk   : std_logic := '1';
@@ -54,10 +53,8 @@ architecture RTL of BLK_MEM_WRAPPER_TB is
 
   procedure wait_edge is
   begin
-
     wait until rising_edge(clk);
     wait for 2 ns;
-
   end procedure wait_edge;
 
   procedure wait_eq (
@@ -65,31 +62,24 @@ architecture RTL of BLK_MEM_WRAPPER_TB is
     expected     : in std_logic;
     message      : in string
   ) is
-
     variable clock_count : integer := 0;
 
   begin
-
     if (verbose) then
       report "wait for: " & message
         severity note;
     end if;
-
     wait_edge;
 
     while value /= expected loop
-
       wait_edge;
       clock_count := clock_count + 1;
-
       if (clock_count = 10) then
         report "condition not met after timeout: " & message
           severity failure;
         exit;
       end if;
-
     end loop;
-
   end procedure wait_eq;
 
 begin
@@ -142,11 +132,8 @@ begin
   clk <= not clk after c_half_period_25_mhz;
 
   STIMULUS : process is
-
     variable nibble_slv : std_logic_vector(3 downto 0);
-
   begin
-
     bram_addr_b_in              <= x"000";
     bram_data_b_in              <= x"00";
     bram_port_b_write_enable_in <= '0';
@@ -277,11 +264,8 @@ begin
       report "rlast deasserted";
 
     for idx in 0 to 1 loop
-
       wait_edge;
-
     end loop;
-
     report "-- test the byte interface";
     assert bram_port_b_enabled_out = '1'
       report "Port B is not enabled";
@@ -290,7 +274,6 @@ begin
     bram_data_b_in <= x"00";
 
     for nibble in 0 to 15 loop
-
       nibble_slv := std_logic_vector(to_unsigned(nibble, nibble_slv'length));
 
       wait_edge;
@@ -300,19 +283,13 @@ begin
                & " != "
                & to_hex_string(nibble_slv & nibble_slv);
       bram_addr_b_in <= std_logic_vector(unsigned(bram_addr_b_in) + 1);
-
     end loop;
-
     -- bram_port_b_write_enable_in <= '1';
 
     for idx in 0 to 5 loop
-
       wait_edge;
-
     end loop;
-
     std.env.stop;
-
   end process STIMULUS;
 
 end architecture RTL;

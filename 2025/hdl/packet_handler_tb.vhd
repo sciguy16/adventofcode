@@ -6,7 +6,6 @@ entity PACKET_HANDLER_TB is
 end entity PACKET_HANDLER_TB;
 
 architecture RTL of PACKET_HANDLER_TB is
-
   signal clk   : std_logic := '0';
   signal reset : std_logic := '0';
 
@@ -76,12 +75,9 @@ begin
   clk <= not clk after 1 ns; -- 25 MHz clock
 
   STIMULUS : process is
-
     alias reply_done_internal is
         << signal packet_handler_inst.reply_done : std_logic >>;
-
   begin
-
     reset <= '1';
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -91,7 +87,6 @@ begin
     wait until rising_edge(clk);
 
     for clocks_between_header_and_payload in 0 to 2 loop
-
       report "clocks=" & integer'image(clocks_between_header_and_payload);
 
       -- packet header
@@ -104,11 +99,8 @@ begin
       axi_str_rxd_tvalid <= '0';
 
       for clock in clocks_between_header_and_payload - 1 downto 0 loop
-
         wait until falling_edge(clk);
-
       end loop;
-
       -- packet payload
       axi_str_rxd_tdata  <= x"12345678";
       axi_str_rxd_tvalid <= '1';
@@ -145,11 +137,8 @@ begin
         report "done internal";
 
       wait until falling_edge(clk);
-
     end loop;
-
     std.env.stop;
-
   end process STIMULUS;
 
 end architecture RTL;

@@ -8,7 +8,6 @@ entity PACKET_HANDLER_TB_BRAM is
 end entity PACKET_HANDLER_TB_BRAM;
 
 architecture RTL of PACKET_HANDLER_TB_BRAM is
-
   -- 25 MHz clock, 40 ns period
   constant c_half_period_25_mhz : time := 20 ns;
   constant c_timeout            : time := 8 * c_half_period_25_mhz;
@@ -58,10 +57,8 @@ architecture RTL of PACKET_HANDLER_TB_BRAM is
 
   procedure wait_edge is
   begin
-
     wait until rising_edge(clk);
     wait for 2 ns;
-
   end procedure wait_edge;
 
   procedure wait_eq (
@@ -69,31 +66,24 @@ architecture RTL of PACKET_HANDLER_TB_BRAM is
     expected     : in std_logic;
     message      : in string
   ) is
-
     variable clock_count : integer := 0;
 
   begin
-
     if (verbose) then
       report "wait for: " & message
         severity note;
     end if;
-
     wait_edge;
 
     while value /= expected loop
-
       wait_edge;
       clock_count := clock_count + 1;
-
       if (clock_count = 10) then
         report "condition not met after timeout: " & message
           severity failure;
         exit;
       end if;
-
     end loop;
-
   end procedure wait_eq;
 
 begin
@@ -152,14 +142,11 @@ begin
   clk <= not clk after c_half_period_25_mhz;
 
   STIMULUS : process is
-
     alias    reply_done_internal is
       << signal packet_handler_inst.reply_done : std_logic >>;
     variable counter_byte        : std_logic_vector(7 downto 0);
     variable counter_tdata       : std_logic_vector(31 downto 0);
-
   begin
-
     reset <= '1';
     wait until rising_edge(clk);
     wait until rising_edge(clk);
@@ -196,14 +183,14 @@ begin
 
     -- data to write - 32 words
     for word in 0 to 31 loop
-
       -- report "word = " & integer'image(word);
-      counter_byte      := std_logic_vector(
-                             to_unsigned(word, counter_byte'length));
-      counter_tdata     := counter_byte
-                           & counter_byte
-                           & counter_byte
-                           & counter_byte;
+      counter_byte  := std_logic_vector(
+                         to_unsigned(word, counter_byte'length));
+      counter_tdata := counter_byte
+                       & counter_byte
+                       & counter_byte
+                       & counter_byte;
+
       axi_str_rxd_tdata <= counter_tdata;
 
       axi_str_rxd_tvalid <= '1';
@@ -220,9 +207,7 @@ begin
       wait_edge;
       wait_edge;
       wait_edge;
-
     end loop;
-
     axi_str_rxd_tvalid <= '0';
 
     report "WAIT FOR WRITE ACK";
@@ -306,7 +291,6 @@ begin
 
     -- data read back - 32 words
     for word in 0 to 31 loop
-
       -- wait for UUT to clock out the data on a rising edge
       wait_eq(
               axi_str_txd_tvalid,
@@ -324,9 +308,7 @@ begin
       assert axi_str_txd_tdata = counter_tdata
         report "READ ACK data word" & integer'image(word);
     -- wait until rising_edge(clk);
-
     end loop;
-
     wait_edge;
     axi_str_txd_tready <= '0';
 
@@ -335,7 +317,6 @@ begin
     wait_edge;
     wait_edge;
     std.env.stop;
-
   end process STIMULUS;
 
   BLK_MEM_WRAPPER_INST : entity work.blk_mem_wrapper(rtl)
