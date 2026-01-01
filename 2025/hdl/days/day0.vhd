@@ -11,9 +11,9 @@ entity DAY0 is
     DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
-    BRAM_ADDR_B_OUT       : out   std_logic_vector(11 downto 0);
-    BRAM_WRITE_DATA_B_OUT : out   std_logic_vector(7 downto 0);
-    BRAM_READ_DATA_B_IN   : in    std_logic_vector(7 downto 0);
+    BRAM_ADDR_OUT         : out   std_logic_vector(11 downto 0);
+    BRAM_WRITE_DATA_OUT   : out   std_logic_vector(7 downto 0);
+    BRAM_READ_DATA_IN     : in    std_logic_vector(7 downto 0);
     BRAM_WRITE_ENABLE_OUT : out   std_logic;
     BRAM_ENABLED_IN       : in    std_logic
   );
@@ -49,7 +49,7 @@ begin
   BRAM_ADDR_FROM_UNSIGNED : process (all) is
   begin
 
-    BRAM_ADDR_B_OUT <= std_logic_vector(bram_addr);
+    BRAM_ADDR_OUT <= std_logic_vector(bram_addr);
 
   end process BRAM_ADDR_FROM_UNSIGNED;
 
@@ -116,7 +116,7 @@ begin
 
         when RUN_RUNNING =>
           -- Read digit from bram
-          current_digit     := BRAM_READ_DATA_B_IN;
+          current_digit     := BRAM_READ_DATA_IN;
           current_digit_int := x"0" & unsigned(current_digit(3 downto 0));
 
           -- If it's a newline then add register to accumulator, otherwise
@@ -141,7 +141,7 @@ begin
           if (bram_addr = DATA_LEN_BYTES_IN + 4) then
             run_state <= RUN_DONE;
           else
-            BRAM_WRITE_DATA_B_OUT <= std_logic_vector(accumulator(7 downto 0));
+            BRAM_WRITE_DATA_OUT   <= std_logic_vector(accumulator(7 downto 0));
             BRAM_WRITE_ENABLE_OUT <= '1';
             accumulator           <= x"00" & accumulator(31 downto 8);
             bram_addr             <= bram_addr + 1;
@@ -155,7 +155,7 @@ begin
       end case;
 
       if (RESET = '1') then
-        BRAM_WRITE_DATA_B_OUT <= x"00";
+        BRAM_WRITE_DATA_OUT   <= x"00";
         BRAM_WRITE_ENABLE_OUT <= '0';
         accumulator           <= x"00000000";
         bram_addr             <= x"000";

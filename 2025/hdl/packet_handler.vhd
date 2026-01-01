@@ -30,7 +30,7 @@ library ieee;
   use ieee.numeric_std.all;
   use work.packet_types_pkg_hdr.all;
   use work.packet_handler_pkg.all;
-  use work.day_mux_pkg_hdr.c_num_days;
+  use work.day_mux_top_level_pkg_hdr.c_num_days;
 
 -- TODO
 -- * Make read/write length variable

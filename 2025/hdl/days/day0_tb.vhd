@@ -93,9 +93,9 @@ begin
       DAY_DONE_OUT      => day_done_out,
 
       -- Port B controls --
-      BRAM_ADDR_B_OUT       => bram_addr,
-      BRAM_WRITE_DATA_B_OUT => bram_write_data,
-      BRAM_READ_DATA_B_IN   => bram_read_data,
+      BRAM_ADDR_OUT       => bram_addr,
+      BRAM_WRITE_DATA_OUT => bram_write_data,
+      BRAM_READ_DATA_IN   => bram_read_data,
       BRAM_WRITE_ENABLE_OUT => bram_write_enable,
       BRAM_ENABLED_IN       => bram_enabled_in
     );

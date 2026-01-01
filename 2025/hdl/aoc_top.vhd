@@ -260,7 +260,7 @@ begin
       BRAM_PORT_B_ENABLED_OUT     => bram_port_b_enabled
     );
 
-  DAY_MUX_INST : entity work.day_mux(rtl)
+  DAY_MUX_INST : entity work.day_mux_top_level(rtl)
     port map (
       RESET => reset,
       CLK   => clk_25mhz,
@@ -270,11 +270,11 @@ begin
       DAY_DONE_OUT      => day_done,
 
       -- Port B controls --
-      BRAM_ADDR_B_OUT              => bram_addr_b,
-      BRAM_WRITE_DATA_B_OUT        => bram_write_data_b,
-      BRAM_READ_DATA_B_IN          => bram_read_data_b,
-      BRAM_PORT_B_WRITE_ENABLE_OUT => bram_port_b_write_enable,
-      BRAM_PORT_B_ENABLED_IN       => bram_port_b_enabled
+      BRAM_ADDR_OUT         => bram_addr_b,
+      BRAM_WRITE_DATA_OUT   => bram_write_data_b,
+      BRAM_READ_DATA_IN     => bram_read_data_b,
+      BRAM_WRITE_ENABLE_OUT => bram_port_b_write_enable,
+      BRAM_ENABLED_IN       => bram_port_b_enabled
     );
 
 end architecture RTL;

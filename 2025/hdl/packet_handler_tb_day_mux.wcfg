@@ -7,7 +7,7 @@
          <top_modules>
             <top_module name="aoc_top_pkg_hdr" />
             <top_module name="axi_bram_ctrl_funcs" />
-            <top_module name="day_mux_pkg_hdr" />
+            <top_module name="day_mux_top_level_pkg_hdr" />
             <top_module name="glbl" />
             <top_module name="packet_handler_pkg" />
             <top_module name="packet_handler_tb_day_mux" />

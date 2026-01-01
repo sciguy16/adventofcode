@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="day0_tb_behav.wdb" id="1">
+      <db_ref path="DAY0_TB_behav.wdb" id="1">
          <top_modules>
             <top_module name="DAY0_TB" />
             <top_module name="glbl" />
@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="207.416 ns"></ZoomStartTime>
-      <ZoomEndTime time="818.917 ns"></ZoomEndTime>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="683.345 ns"></ZoomEndTime>
       <Cursor1Time time="842.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="338"></NameColumnWidth>
-      <ValueColumnWidth column_width="131"></ValueColumnWidth>
+      <ValueColumnWidth column_width="127"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="19" />
+   <WVObjectSize size="24" />
    <wvobject type="logic" fp_name="/DAY0_TB/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -36,9 +36,29 @@
       <obj_property name="ElementShortName">day_done_out</obj_property>
       <obj_property name="ObjectShortName">day_done_out</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY0_TB/UUT/CLK">
-      <obj_property name="ElementShortName">CLK</obj_property>
-      <obj_property name="ObjectShortName">CLK</obj_property>
+   <wvobject type="array" fp_name="/DAY0_TB/bram_addr">
+      <obj_property name="ElementShortName">bram_addr[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_addr[11:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/DAY0_TB/bram_write_data">
+      <obj_property name="ElementShortName">bram_write_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_write_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/DAY0_TB/bram_read_data">
+      <obj_property name="ElementShortName">bram_read_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bram_read_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/DAY0_TB/bram_write_enable">
+      <obj_property name="ElementShortName">bram_write_enable</obj_property>
+      <obj_property name="ObjectShortName">bram_write_enable</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/DAY0_TB/bram_enabled_in">
+      <obj_property name="ElementShortName">bram_enabled_in</obj_property>
+      <obj_property name="ObjectShortName">bram_enabled_in</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/DAY0_TB/input">
+      <obj_property name="ElementShortName">input[1:10]</obj_property>
+      <obj_property name="ObjectShortName">input[1:10]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/DAY0_TB/UUT/DATA_LEN_BYTES_IN">
       <obj_property name="ElementShortName">DATA_LEN_BYTES_IN[11:0]</obj_property>
@@ -48,31 +68,29 @@
       <obj_property name="ElementShortName">DAY_DONE_OUT</obj_property>
       <obj_property name="ObjectShortName">DAY_DONE_OUT</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_ADDR_B_OUT">
-      <obj_property name="ElementShortName">BRAM_ADDR_B_OUT[11:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_ADDR_B_OUT[11:0]</obj_property>
+   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_ADDR_OUT">
+      <obj_property name="ElementShortName">BRAM_ADDR_OUT[11:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM_ADDR_OUT[11:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_WRITE_DATA_B_OUT">
-      <obj_property name="ElementShortName">BRAM_WRITE_DATA_B_OUT[7:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_WRITE_DATA_B_OUT[7:0]</obj_property>
+   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_WRITE_DATA_OUT">
+      <obj_property name="ElementShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_READ_DATA_B_IN">
-      <obj_property name="ElementShortName">BRAM_READ_DATA_B_IN[7:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_READ_DATA_B_IN[7:0]</obj_property>
-      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_READ_DATA_IN">
+      <obj_property name="ElementShortName">BRAM_READ_DATA_IN[7:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM_READ_DATA_IN[7:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY0_TB/UUT/BRAM_PORT_B_WRITE_ENABLE_OUT">
-      <obj_property name="ElementShortName">BRAM_PORT_B_WRITE_ENABLE_OUT</obj_property>
-      <obj_property name="ObjectShortName">BRAM_PORT_B_WRITE_ENABLE_OUT</obj_property>
+   <wvobject type="logic" fp_name="/DAY0_TB/UUT/BRAM_WRITE_ENABLE_OUT">
+      <obj_property name="ElementShortName">BRAM_WRITE_ENABLE_OUT</obj_property>
+      <obj_property name="ObjectShortName">BRAM_WRITE_ENABLE_OUT</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY0_TB/UUT/BRAM_PORT_B_ENABLED_IN">
-      <obj_property name="ElementShortName">BRAM_PORT_B_ENABLED_IN</obj_property>
-      <obj_property name="ObjectShortName">BRAM_PORT_B_ENABLED_IN</obj_property>
+   <wvobject type="logic" fp_name="/DAY0_TB/UUT/BRAM_ENABLED_IN">
+      <obj_property name="ElementShortName">BRAM_ENABLED_IN</obj_property>
+      <obj_property name="ObjectShortName">BRAM_ENABLED_IN</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/DAY0_TB/UUT/accumulator">
       <obj_property name="ElementShortName">accumulator[31:0]</obj_property>
       <obj_property name="ObjectShortName">accumulator[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/DAY0_TB/UUT/bram_addr">
       <obj_property name="ElementShortName">bram_addr[11:0]</obj_property>
@@ -81,7 +99,6 @@
    <wvobject type="array" fp_name="/DAY0_TB/UUT/value_reg">
       <obj_property name="ElementShortName">value_reg[31:0]</obj_property>
       <obj_property name="ObjectShortName">value_reg[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/DAY0_TB/UUT/go">
       <obj_property name="ElementShortName">go</obj_property>

@@ -41,18 +41,22 @@ load: $(VIVADO_PROJ)
 $(VIVADO_PROJ): $(PROJ_INIT_TCL)
 	echo "TODO load init tcl script into new proj"
 
-clean:
+clean: clean-backup-log-jou clean-hw
 	echo "TODO clean up vivado project files"
 
 clean-hw:
 	rm -rfv vivado/aoc-2025.hw/hw_1
 
-run-tcl-script:
+clean-backup-log-jou: .FORCE
+	rm -v vivado_*.backup.log vivado_*.backup.jou
+
+run-tcl-script: clean-backup-log-jou
 	echo "Running $(SCRIPT)"
 	$(VIVADO) \
 		-mode batch \
 		-script $(SCRIPT) \
 		$(VIVADO_PROJ) \
+		2>&1 \
 	| ./scripts/colouriser.sh
 
 .FORCE:
