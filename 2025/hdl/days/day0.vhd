@@ -1,6 +1,7 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
+  use work.bin_to_bcd_pkg_hdr.all;
 
 entity DAY0 is
   port (
@@ -26,6 +27,12 @@ architecture RTL of DAY0 is
   signal go          : std_logic;
   signal done        : std_logic;
 
+  signal accumulator_bcd   : t_bcd_out;
+  signal bcd_digit_counter : integer range 0 to c_num_digits := 0;
+  signal is_leading_zeroes : boolean                         := false;
+
+  constant ascii_digit_prefix : std_logic_vector(3 downto 0) := x"3";
+
   type t_control_state is (
     CTRL_IDLE,
     CTRL_RUNNING,
@@ -36,12 +43,24 @@ architecture RTL of DAY0 is
 
   type t_run_state is (
     RUN_IDLE,
+    -- RUN_WAIT_ONE_CLK,
     RUN_RUNNING,
     RUN_WRITE_RESULT,
     RUN_DONE
   );
 
   signal run_state : t_run_state := RUN_IDLE;
+
+  attribute mark_debug : string;
+  attribute mark_debug of accumulator       : signal is "TRUE";
+  attribute mark_debug of bram_addr         : signal is "TRUE";
+  attribute mark_debug of value_reg         : signal is "TRUE";
+  attribute mark_debug of go                : signal is "TRUE";
+  attribute mark_debug of done              : signal is "TRUE";
+  attribute mark_debug of accumulator_bcd   : signal is "TRUE";
+  attribute mark_debug of bcd_digit_counter : signal is "TRUE";
+  attribute mark_debug of ctrl_state        : signal is "TRUE";
+  attribute mark_debug of run_state         : signal is "TRUE";
 
 begin
 
@@ -87,8 +106,9 @@ begin
   end process DAY0_CTRL_PROC;
 
   DAY0_RUN_PROC : process (CLK) is
-    variable current_digit     : std_logic_vector(7 downto 0);
-    variable current_digit_int : unsigned(7 downto 0);
+    variable current_digit      : std_logic_vector(7 downto 0);
+    variable current_digit_int  : unsigned(7 downto 0);
+    variable current_bcd_nibble : std_logic_vector(3 downto 0);
   begin
     if rising_edge(CLK) then
       done                  <= '0';
@@ -97,12 +117,22 @@ begin
       case run_state is
 
         when RUN_IDLE =>
-          bram_addr   <= x"000";
-          accumulator <= x"00000000";
-          value_reg   <= (others => '0');
+          bram_addr         <= x"000";
+          accumulator       <= x"00000000";
+          value_reg         <= (others => '0');
+          bcd_digit_counter <= 0;
           if (go = '1') then
+            -- preemptively increment bram_addr since the bram read output
+            -- is one cycle behind
+            bram_addr <= bram_addr + 1;
             run_state <= RUN_RUNNING;
           end if;
+
+        -- when RUN_WAIT_ONE_CLK =>
+        --  -- wait one clock to allow the bram address update to return new
+        --  -- data through its pipeline
+        --  bram_addr <= bram_addr + 1;
+        --  run_state <= RUN_RUNNING;
 
         when RUN_RUNNING =>
           -- Read digit from bram
@@ -117,24 +147,31 @@ begin
           else
             value_reg <= resize(value_reg * 10, 32) + current_digit_int;
           end if;
-          if (bram_addr = DATA_LEN_BYTES_IN) then
-            run_state <= RUN_WRITE_RESULT;
+          if (bram_addr = DATA_LEN_BYTES_IN + 1) then
+            run_state         <= RUN_WRITE_RESULT;
+            is_leading_zeroes <= true;
           else
             bram_addr <= bram_addr + 1;
             run_state <= RUN_RUNNING;
           end if;
 
         when RUN_WRITE_RESULT =>
-          -- for now, just write the 32-bit result value into the next
-          -- four bytes of bram
-          if (bram_addr = DATA_LEN_BYTES_IN + 4) then
-            run_state <= RUN_DONE;
+          BRAM_WRITE_ENABLE_OUT <= '1';
+          -- Write the BCD-encoded result into the next section of BRAM
+          if (bcd_digit_counter = c_num_digits) then
+            run_state           <= RUN_DONE;
+            bram_addr           <= bram_addr + 1;
+            BRAM_WRITE_DATA_OUT <= x"00";
           else
-            BRAM_WRITE_DATA_OUT   <= std_logic_vector(accumulator(7 downto 0));
-            BRAM_WRITE_ENABLE_OUT <= '1';
-            accumulator           <= x"00" & accumulator(31 downto 8);
-            bram_addr             <= bram_addr + 1;
-            run_state             <= RUN_WRITE_RESULT;
+            current_bcd_nibble := accumulator_bcd(bcd_digit_counter);
+            if (not is_leading_zeroes or current_bcd_nibble /= x"0") then
+              is_leading_zeroes   <= false;
+              BRAM_WRITE_DATA_OUT <= ascii_digit_prefix
+                                     & current_bcd_nibble;
+              bram_addr           <= bram_addr + 1;
+            end if;
+            bcd_digit_counter <= bcd_digit_counter + 1;
+            run_state         <= RUN_WRITE_RESULT;
           end if;
 
         when RUN_DONE =>
@@ -151,5 +188,11 @@ begin
       end if;
     end if;
   end process DAY0_RUN_PROC;
+
+  BIN_TO_BCD_INST : entity work.bin_to_bcd(rtl)
+    port map (
+      BIN_IN  => accumulator,
+      BCD_OUT => accumulator_bcd
+    );
 
 end architecture RTL;

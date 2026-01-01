@@ -6,20 +6,21 @@
       <db_ref path="DAY0_TB_behav.wdb" id="1">
          <top_modules>
             <top_module name="DAY0_TB" />
+            <top_module name="bin_to_bcd_pkg_hdr" />
             <top_module name="glbl" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="683.345 ns"></ZoomEndTime>
-      <Cursor1Time time="842.000 ns"></Cursor1Time>
+      <ZoomStartTime time="100.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,335.001 ns"></ZoomEndTime>
+      <Cursor1Time time="1,156.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="338"></NameColumnWidth>
-      <ValueColumnWidth column_width="127"></ValueColumnWidth>
+      <ValueColumnWidth column_width="119"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="24" />
+   <WVObjectSize size="26" />
    <wvobject type="logic" fp_name="/DAY0_TB/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -72,13 +73,18 @@
       <obj_property name="ElementShortName">BRAM_ADDR_OUT[11:0]</obj_property>
       <obj_property name="ObjectShortName">BRAM_ADDR_OUT[11:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_WRITE_DATA_OUT">
-      <obj_property name="ElementShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_READ_DATA_IN">
       <obj_property name="ElementShortName">BRAM_READ_DATA_IN[7:0]</obj_property>
       <obj_property name="ObjectShortName">BRAM_READ_DATA_IN[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/DAY0_TB/UUT/BRAM_WRITE_DATA_OUT">
+      <obj_property name="ElementShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject type="other" fp_name="/DAY0_TB/UUT/bcd_digit_counter">
+      <obj_property name="ElementShortName">bcd_digit_counter</obj_property>
+      <obj_property name="ObjectShortName">bcd_digit_counter</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/DAY0_TB/UUT/BRAM_WRITE_ENABLE_OUT">
       <obj_property name="ElementShortName">BRAM_WRITE_ENABLE_OUT</obj_property>
@@ -91,6 +97,11 @@
    <wvobject type="array" fp_name="/DAY0_TB/UUT/accumulator">
       <obj_property name="ElementShortName">accumulator[31:0]</obj_property>
       <obj_property name="ObjectShortName">accumulator[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/DAY0_TB/UUT/accumulator_bcd">
+      <obj_property name="ElementShortName">accumulator_bcd[0:10][3:0]</obj_property>
+      <obj_property name="ObjectShortName">accumulator_bcd[0:10][3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/DAY0_TB/UUT/bram_addr">
       <obj_property name="ElementShortName">bram_addr[11:0]</obj_property>

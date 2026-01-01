@@ -89,22 +89,22 @@ entity PACKET_HANDLER is
     -- Day mux controls
     DAY_SEL_OUT        : out   unsigned(7 downto 0);
     DATA_LEN_BYTES_OUT : out   unsigned(11 downto 0);
+    DAY_START_OUT      : out   std_logic;
     DAY_DONE_IN        : in    std_logic
   );
 end entity PACKET_HANDLER;
 
 architecture RTL of PACKET_HANDLER is
-  signal packet_type           : unsigned(7 downto 0)  := (others => '0');
-  signal rx_packet_len_bytes   : unsigned(15 downto 0) := (others => '0');
-  signal rx_packet_len_words   : unsigned(15 downto 0) := (others => '0');
-  signal rx_packet_len_okay    : boolean;
-  signal ping_payload          : word                  := (others => '0');
-  signal ram_offset            : word                  := (others => '0');
-  signal payload_counter       : unsigned(15 downto 0) := (others => '0');
-  signal reply_payload_counter : unsigned(7 downto 0)  := (others => '0');
-  signal reply_done            : std_logic;
-  signal reply_header          : word                  := (others => '0');
-  signal bram_offset_okay      : boolean;
+  signal packet_type         : unsigned(7 downto 0)  := (others => '0');
+  signal rx_packet_len_bytes : unsigned(15 downto 0) := (others => '0');
+  signal rx_packet_len_words : unsigned(15 downto 0) := (others => '0');
+  signal rx_packet_len_okay  : boolean;
+  signal ping_payload        : word                  := (others => '0');
+  signal ram_offset          : word                  := (others => '0');
+  signal payload_counter     : unsigned(15 downto 0) := (others => '0');
+  signal reply_done          : std_logic;
+  signal reply_header        : word                  := (others => '0');
+  signal bram_offset_okay    : boolean;
 
   signal day_sel        : unsigned(7 downto 0)  := (others => '0');
   signal data_len_bytes : unsigned(15 downto 0) := (others => '0');
@@ -137,14 +137,15 @@ architecture RTL of PACKET_HANDLER is
   signal reply_state : t_reply_state := REPLY_ST_IDLE;
 
   attribute mark_debug : string;
-  attribute mark_debug of rx_state              : signal is "TRUE";
-  attribute mark_debug of PACKET_TYPE           : signal is "TRUE";
-  attribute mark_debug of RX_PACKET_LEN_WORDS   : signal is "TRUE";
-  attribute mark_debug of RAM_OFFSET            : signal is "TRUE";
-  attribute mark_debug of payload_counter       : signal is "TRUE";
-  attribute mark_debug of reply_payload_counter : signal is "TRUE";
-  attribute mark_debug of reply_done            : signal is "TRUE";
-  attribute mark_debug of reply_state           : signal is "TRUE";
+  attribute mark_debug of rx_state            : signal is "TRUE";
+  attribute mark_debug of PACKET_TYPE         : signal is "TRUE";
+  attribute mark_debug of RX_PACKET_LEN_WORDS : signal is "TRUE";
+  attribute mark_debug of RAM_OFFSET          : signal is "TRUE";
+  attribute mark_debug of payload_counter     : signal is "TRUE";
+  attribute mark_debug of reply_done          : signal is "TRUE";
+  attribute mark_debug of reply_state         : signal is "TRUE";
+  attribute mark_debug of data_len_bytes      : signal is "TRUE";
+  attribute mark_debug of run_day_ok          : signal is "TRUE";
 
   function bool_to_std_logic (
     input: boolean
@@ -214,7 +215,14 @@ begin
 
   SET_RUN_DAY_OK : process (all) is
   begin
-    run_day_ok <= day_sel < c_NUM_DAYS and data_len_bytes(15 downto 12) = "000";
+    run_day_ok <= packet_type = C_DESTINATION_top_TYPE_run_day
+                  and day_sel < c_NUM_DAYS
+                  and data_len_bytes(15 downto 12) = "000";
+    if (run_day_ok) then
+      DATA_LEN_BYTES_OUT <= data_len_bytes(11 downto 0);
+    else
+      DATA_LEN_BYTES_OUT <= x"000";
+    end if;
   end process SET_RUN_DAY_OK;
 
   RX_PROC : process (CLK) is
@@ -234,6 +242,7 @@ begin
       -- Without it asserted there's a FIFO in the AXI IP that gets full
       -- and blocks further transfers
       M_AXI_BREADY_OUT <= '1';
+      DAY_START_OUT    <= '0';
 
       case rx_state is
 
@@ -275,6 +284,10 @@ begin
             payload_counter <= payload_counter + 1;
             if (payload_counter = rx_packet_len_words - 1) then
               rx_state <= RX_STATE_SEND_REPLY;
+
+              if (run_day_ok) then
+                DAY_START_OUT <= '1';
+              end if;
             else
               rx_state <= RX_STATE_PAYLOAD_1;
             end if;
@@ -377,7 +390,6 @@ begin
         M_AXI_WRITE_WORD_OFFSET_OUT <= 10x"000";
         M_AXI_AWLEN_OUT             <= x"00";
         DAY_SEL_OUT                 <= x"00";
-        DATA_LEN_BYTES_OUT          <= x"000";
       end if;
     end if;
   end process RX_PROC;

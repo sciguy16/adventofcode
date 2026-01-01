@@ -1,7 +1,7 @@
 use color_eyre::{Result, eyre::eyre};
 use mio_serial::{SerialPort, SerialPortType, UsbPortInfo};
 use rand::Rng;
-use std::{fmt::Write, sync::mpsc, time::Duration};
+use std::{ffi::CStr, fmt::Write, sync::mpsc, time::Duration};
 use types::{Header, SerDe, codegen::top::Types};
 
 const BAUD: u32 = 115200;
@@ -46,6 +46,7 @@ impl SerialHandler {
     }
 
     pub fn send(&mut self, packet: Types) -> Result<Types> {
+        println!("To send: {packet:02x?}");
         let mut buf = [0; 1024];
         let len = packet.serialise(&mut buf)?;
         let to_send = &buf[..len];
@@ -79,7 +80,7 @@ impl SerialHandler {
         let response = self.send(write_ram)?;
         if response
             == (WriteRamAck {
-                offset: 0x0000_0000,
+                offset,
                 ok: 0x0100_0000,
             })
         {
@@ -92,9 +93,7 @@ impl SerialHandler {
     pub fn read_ram(&mut self, offset: u32) -> Result<[u8; 128]> {
         use types::codegen::top::{ReadRam, Types};
 
-        let read_ram = Types::from(ReadRam {
-            offset: 0x0000_0000,
-        });
+        let read_ram = Types::from(ReadRam { offset });
         let response = self.send(read_ram)?;
         if let Types::ReadRamAck(response) = response
             && response.offset == offset
@@ -106,7 +105,7 @@ impl SerialHandler {
         }
     }
 
-    pub fn run_day(&mut self, day: u8, data_len_bytes: u16) -> Result<()> {
+    pub fn run_day(&mut self, day: u8, data_len_bytes: u16) -> Result<String> {
         use types::codegen::top::{RunDay, Types};
 
         let run_day = Types::from(RunDay {
@@ -119,10 +118,29 @@ impl SerialHandler {
             && response.day == day
             && response.ok == 0x01
         {
-            Ok(())
         } else {
-            Err(eyre!("RunDay response mismatch"))
-        }
+            return Err(eyre!("RunDay response mismatch"));
+        };
+
+        // get the result from BRAM - the result is ten ASCII digits
+        // immediately following the puzzle input
+        let base_addr = data_len_bytes / 4;
+        let offset = usize::from(data_len_bytes % 4) + 2;
+
+        println!("Base address: {base_addr:04x}");
+        println!("Offset: {offset:02x}");
+
+        let data = self.read_ram(base_addr.into())?;
+
+        let digits = &data[offset..offset + 12];
+        println!("digits: {digits:02x?}");
+        let digits = CStr::from_bytes_until_nul(digits)?;
+        let result = digits.to_str()?.to_string();
+
+        let ram = self.read_ram(0)?;
+        println!("Ram from zero: {ram:02x?}");
+
+        Ok(result)
     }
 
     pub fn self_test(&mut self) -> Result<()> {
@@ -173,7 +191,17 @@ impl SerialHandler {
             }
         }
 
-        self.run_day(0, to_send.len().try_into().unwrap())
+        let result = self.run_day(0, to_send.len().try_into().unwrap())?;
+        let expected = sum.to_string();
+        println!("Test data: {test_data:?}, sum={sum}");
+        println!("Day result: {result}, expected {expected}");
+
+        if result == expected {
+            println!("    PASS");
+            Ok(())
+        } else {
+            Err(eyre!("Incorrect result: {result} != {expected}"))
+        }
     }
 }
 

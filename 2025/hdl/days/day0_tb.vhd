@@ -116,20 +116,35 @@ begin
                & integer'image(chr);
       bram_read_data     <= to_byte(INPUT(chr));
     end loop;
-    result             := (others => '0');
+    result := (others => '0');
+
     wait_eq(bram_write_enable, '1', "bram write enable");
-    assert bram_addr = x"00B"
-      report "bram addr 00b";
-    result(7 downto 0) := bram_write_data;
 
+    -- expecting ten digits: 0000 0003 54
+    expected_bram_addr := x"00A";
+    for i in 0 to 7 loop
+      expected_bram_addr := expected_bram_addr + 1;
+      assert bram_addr = std_logic_vector(expected_bram_addr)
+        report "bram addr 00b";
+      assert bram_write_data = x"30"
+        report "ascii 0";
+      wait_edge;
+    end loop;
+    assert bram_addr = x"013"
+      report "bram addr 013";
+    assert bram_write_data = x"33"
+      report "ascii 3";
     wait_edge;
-    assert bram_addr = x"00C"
-      report "bram addr 00c";
-    result(15 downto 8) := bram_write_data;
-
-    -- 354 is 0x162
-    assert result = x"0000_0162"
-      report "result";
+    assert bram_addr = x"014"
+      report "bram addr 014";
+    assert bram_write_data = x"35"
+      report "ascii 5";
+    wait_edge;
+    assert bram_addr = x"015"
+      report "bram addr 015";
+    assert bram_write_data = x"34"
+      report "ascii 4";
+    wait_edge;
 
     wait_eq(day_done_out, '1', "day done out");
     assert day_done_out = '1'

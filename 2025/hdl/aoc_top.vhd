@@ -83,10 +83,15 @@ architecture RTL of AOC_TOP is
   -- Day mux controls
   signal day_sel        : unsigned(7 downto 0);
   signal data_len_bytes : unsigned(11 downto 0);
+  signal day_start      : std_logic;
   signal day_done       : std_logic;
 
   attribute mark_debug : string;
   attribute mark_debug of bram_axi_arlen_port_a : signal is "TRUE";
+  attribute mark_debug of day_sel               : signal is "TRUE";
+  attribute mark_debug of data_len_bytes        : signal is "TRUE";
+  attribute mark_debug of day_start             : signal is "TRUE";
+  attribute mark_debug of day_done              : signal is "TRUE";
 
   component CLK_WIZ_0 is
     port (
@@ -209,6 +214,7 @@ begin
       -- Day mux controls
       DAY_SEL_OUT        => day_sel,
       DATA_LEN_BYTES_OUT => data_len_bytes,
+      DAY_START_OUT      => day_start,
       DAY_DONE_IN        => day_done
     );
 
@@ -271,7 +277,7 @@ begin
       BRAM_WRITE_DATA_OUT   => bram_write_data_b,
       BRAM_READ_DATA_IN     => bram_read_data_b,
       BRAM_WRITE_ENABLE_OUT => bram_port_b_write_enable,
-      BRAM_ENABLED_IN       => bram_port_b_enabled
+      BRAM_ENABLED_IN       => bram_port_b_enabled and day_start
     );
 
 end architecture RTL;
