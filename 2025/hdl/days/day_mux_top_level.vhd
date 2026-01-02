@@ -71,4 +71,20 @@ begin
       BRAM_ENABLED_IN       => bram_enabled_mux(0)
     );
 
+  DAY1_INST : entity work.day1(rtl)
+    port map (
+      RESET => RESET,
+      CLK   => CLK,
+
+      DATA_LEN_BYTES_IN => DATA_LEN_BYTES_IN,
+      DAY_DONE_OUT      => day_done_mux(0),
+
+      -- Port B controls --
+      BRAM_ADDR_OUT         => bram_addr_mux(0),
+      BRAM_WRITE_DATA_OUT   => bram_write_data_mux(0),
+      BRAM_READ_DATA_IN     => BRAM_READ_DATA_IN,
+      BRAM_WRITE_ENABLE_OUT => bram_write_enable_mux(0),
+      BRAM_ENABLED_IN       => bram_enabled_mux(0)
+    );
+
 end architecture RTL;

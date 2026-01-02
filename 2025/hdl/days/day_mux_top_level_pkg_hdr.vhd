@@ -5,7 +5,7 @@ library ieee;
 
 package day_mux_top_level_pkg_hdr is
 
-  constant c_num_days : natural := 1;
+  constant c_num_days : natural := 2;
 
   type t_bram_addr_arr is
     array (0 to C_NUM_DAYS - 1) of t_addr_b;
