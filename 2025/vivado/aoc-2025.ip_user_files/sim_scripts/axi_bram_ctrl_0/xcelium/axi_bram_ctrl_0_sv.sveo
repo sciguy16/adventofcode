@@ -1,5 +1,5 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-// Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+// Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
 // -------------------------------------------------------------------------------
 // This file contains confidential and proprietary information
 // of AMD and is protected under U.S. and international copyright
@@ -61,7 +61,7 @@
 // INCLUDE_TAG_END ------  End cut for INTERFACE INSTANTIATION Include  ------
 
 // INTF_TAG     ------ Begin cut for INTERFACE INSTANTIATION Template ------
-vivado_aximm_v1_0 #(.ADDR_WIDTH(12)) S_AXI();
+vivado_aximm_v1_0 #(.ADDR_WIDTH(15)) S_AXI();
 // INTF_TAG_END ------  End cut for INTERFACE INSTANTIATION Template  ------
 
 // INST_TAG     ------ Begin cut for WRAPPER INSTANTIATION Template ------
@@ -73,7 +73,7 @@ axi_bram_ctrl_0_sv your_instance_name (
   .bram_clk_a(bram_clk_a), // output wire bram_clk_a
   .bram_en_a(bram_en_a), // output wire bram_en_a
   .bram_we_a(bram_we_a), // output wire [3:0] bram_we_a
-  .bram_addr_a(bram_addr_a), // output wire [11:0] bram_addr_a
+  .bram_addr_a(bram_addr_a), // output wire [14:0] bram_addr_a
   .bram_wrdata_a(bram_wrdata_a), // output wire [31:0] bram_wrdata_a
   .bram_rddata_a(bram_rddata_a) // input wire [31:0] bram_rddata_a
 );

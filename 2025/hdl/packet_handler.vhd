@@ -12,9 +12,9 @@ package packet_handler_pkg is
   -- Total = 132 bytes
   constant c_max_packet_length_bytes : unsigned(31 downto 0) := x"0000_0084";
 
-  -- BRAM is 1024 32-bit words deep, and packet payload is fixed at 128 bytes.
-  -- 128 bytes is 32 words, so upper bound is 1024 - 32 = 0x400 - 0x20 = 0x3e0
-  constant c_max_ram_offset    : word := x"0000_03E0";
+  -- BRAM is 8192 32-bit words deep, and packet payload is fixed at 128 bytes.
+  -- 128 bytes is 32 words, so upper bound is 8192 - 32 = 0x2000 - 0x20 = 0x1fe0
+  constant c_max_ram_offset    : word := x"0000_1FE0";
   constant c_bram_off_okay     : word := x"0100_0000";
   constant c_bram_off_not_okay : word := x"0000_0000";
   -- 128 bytes = 32 words
@@ -31,6 +31,7 @@ library ieee;
   use work.packet_types_pkg_hdr.all;
   use work.packet_handler_pkg.all;
   use work.day_mux_top_level_pkg_hdr.c_num_days;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 -- TODO
 -- * Make read/write length variable
@@ -56,7 +57,7 @@ entity PACKET_HANDLER is
 
     -- Write controls --
     -- Start address of write transaction, in bytes?
-    M_AXI_WRITE_WORD_OFFSET_OUT : out   std_logic_vector(9 downto 0);
+    M_AXI_WRITE_WORD_OFFSET_OUT : out   t_addr_a;
     -- Burst length of write transaction, in words/data beats
     M_AXI_AWLEN_OUT             : out   std_logic_vector(7 downto 0);
     M_AXI_AWVALID_OUT           : out   std_logic;
@@ -74,7 +75,7 @@ entity PACKET_HANDLER is
     M_AXI_BREADY_OUT : out   std_logic;
 
     -- Read controls --
-    M_AXI_READ_WORD_OFFSET_OUT : out   std_logic_vector(9 downto 0);
+    M_AXI_READ_WORD_OFFSET_OUT : out   t_addr_a;
     M_AXI_ARLEN_OUT            : out   std_logic_vector(7 downto 0);
     M_AXI_ARVALID_OUT          : out   std_logic;
     M_AXI_ARREADY_IN           : in    std_logic;
@@ -305,7 +306,7 @@ begin
             -- interface (but only if the write request is valid)
             if (packet_type = C_DESTINATION_top_TYPE_write_ram
                 and rx_packet_len_okay) then
-              M_AXI_WRITE_WORD_OFFSET_OUT <= v_ram_offset(9 downto 0);
+              M_AXI_WRITE_WORD_OFFSET_OUT <= v_ram_offset(bram_port_a_addr_width - 1 downto 0);
               -- TODO validate that the word count fits into 8 bits
               -- RX_PACKET_LEN_WORDS is the number of words in the packet
               -- first word is offset
@@ -387,7 +388,7 @@ begin
         AXI_STR_RXD_TREADY_OUT      <= '0';
         M_AXI_AWVALID_OUT           <= '0';
         M_AXI_BREADY_OUT            <= '0';
-        M_AXI_WRITE_WORD_OFFSET_OUT <= 10x"000";
+        M_AXI_WRITE_WORD_OFFSET_OUT <= (others => '0');
         M_AXI_AWLEN_OUT             <= x"00";
         DAY_SEL_OUT                 <= x"00";
       end if;
@@ -451,7 +452,7 @@ begin
           reply_state <= REPLY_ST_SETUP_BRAM_READ;
           -- set up the read request
           -- TODO validate that the ram offset fits into 12 bits
-          M_AXI_READ_WORD_OFFSET_OUT <= ram_offset(9 downto 0);
+          M_AXI_READ_WORD_OFFSET_OUT <= ram_offset(bram_port_a_addr_width - 1 downto 0);
           -- ARLEN is one less than burst length (ARLEN=0 => burst 1)
           M_AXI_ARLEN_OUT   <= std_logic_vector(c_bram_arlen);
           M_AXI_ARVALID_OUT <= '1';
@@ -501,7 +502,7 @@ begin
         reply_done                 <= '0';
         M_AXI_ARVALID_OUT          <= '0';
         M_AXI_ARLEN_OUT            <= std_logic_vector(c_BRAM_ARLEN);
-        M_AXI_READ_WORD_OFFSET_OUT <= 10x"000";
+        M_AXI_READ_WORD_OFFSET_OUT <= (others => '0');
         AXI_STR_TXD_TDATA_OUT      <= (others => '0');
       end if;
     end if;

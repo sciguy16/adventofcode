@@ -1,13 +1,9 @@
+
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use work.aoc_top_pkg_hdr.all;
-
--- 1024 deep at 32 bits wide (minimum supported by axi controller IP)
--- 4096 deep at 8 bits wide
---
--- 32-bit AXI interface
--- 12-bit address, addressing byte offsets
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity BLK_MEM_WRAPPER is
   port (
@@ -18,7 +14,7 @@ entity BLK_MEM_WRAPPER is
 
     -- Write controls --
     -- Start address of write transaction, in words
-    S_AXI_WRITE_WORD_OFFSET_PORT_A_IN : in    std_logic_vector(9 downto 0);
+    S_AXI_WRITE_WORD_OFFSET_PORT_A_IN : in    t_addr_a;
     -- Burst length of write transaction, in words/data beats
     S_AXI_AWLEN_PORT_A_IN             : in    std_logic_vector(7 downto 0);
     S_AXI_AWVALID_PORT_A_IN           : in    std_logic;
@@ -36,7 +32,7 @@ entity BLK_MEM_WRAPPER is
     S_AXI_BREADY_PORT_A_IN  : in    std_logic;
 
     -- Read controls --
-    S_AXI_READ_WORD_OFFSET_PORT_A_IN : in    std_logic_vector(9 downto 0);
+    S_AXI_READ_WORD_OFFSET_PORT_A_IN : in    t_addr_a;
     S_AXI_ARLEN_PORT_A_IN            : in    std_logic_vector(7 downto 0);
     S_AXI_ARVALID_PORT_A_IN          : in    std_logic;
     S_AXI_ARREADY_PORT_A_OUT         : out   std_logic;
@@ -49,7 +45,7 @@ entity BLK_MEM_WRAPPER is
     S_AXI_RREADY_PORT_A_IN  : in    std_logic;
 
     -- Port B controls --
-    BRAM_ADDR_B_IN              : in    std_logic_vector(11 downto 0);
+    BRAM_ADDR_B_IN              : in    t_addr_b;
     BRAM_DATA_B_IN              : in    std_logic_vector(7 downto 0);
     BRAM_DATA_B_OUT             : out   std_logic_vector(7 downto 0);
     BRAM_PORT_B_WRITE_ENABLE_IN : in    std_logic;
@@ -61,7 +57,7 @@ architecture RTL of BLK_MEM_WRAPPER is
   signal bram_enable_a       : std_logic;
   signal bram_reset_a        : std_logic;
   signal bram_write_enable_a : std_logic_vector(3 downto 0);
-  signal bram_addr_a         : std_logic_vector(11 downto 0);
+  signal bram_addr_a         : std_logic_vector(bram_port_a_addr_width + 1 downto 0);
   signal bram_din_a          : std_logic_vector(31 downto 0);
   signal bram_dout_a         : std_logic_vector(31 downto 0);
   signal bram_clk            : std_logic;
@@ -73,7 +69,7 @@ architecture RTL of BLK_MEM_WRAPPER is
       RSTA_BUSY : out   std_logic;
       ENA       : in    std_logic;
       WEA       : in    std_logic_vector(0 downto 0);
-      ADDRA     : in    std_logic_vector(9 downto 0);
+      ADDRA     : in    t_addr_a;
       DINA      : in    std_logic_vector(31 downto 0);
       DOUTA     : out   std_logic_vector(31 downto 0);
 
@@ -81,7 +77,7 @@ architecture RTL of BLK_MEM_WRAPPER is
       RSTB_BUSY : out   std_logic;
       ENB       : in    std_logic;
       WEB       : in    std_logic_vector(0 downto 0);
-      ADDRB     : in    std_logic_vector(11 downto 0);
+      ADDRB     : in    t_addr_b;
       DINB      : in    std_logic_vector(7 downto 0);
       DOUTB     : out   std_logic_vector(7 downto 0)
     );
@@ -91,7 +87,7 @@ architecture RTL of BLK_MEM_WRAPPER is
     port (
       S_AXI_ACLK    : in    std_logic;
       S_AXI_ARESETN : in    std_logic;
-      S_AXI_AWADDR  : in    std_logic_vector(11 downto 0);
+      S_AXI_AWADDR  : in    std_logic_vector(14 downto 0);
       S_AXI_AWLEN   : in    std_logic_vector(7 downto 0);
       S_AXI_AWSIZE  : in    std_logic_vector(2 downto 0);
       S_AXI_AWBURST : in    std_logic_vector(1 downto 0);
@@ -108,7 +104,7 @@ architecture RTL of BLK_MEM_WRAPPER is
       S_AXI_BRESP   : out   std_logic_vector(1 downto 0);
       S_AXI_BVALID  : out   std_logic;
       S_AXI_BREADY  : in    std_logic;
-      S_AXI_ARADDR  : in    std_logic_vector(11 downto 0);
+      S_AXI_ARADDR  : in    std_logic_vector(14 downto 0);
       S_AXI_ARLEN   : in    std_logic_vector(7 downto 0);
       S_AXI_ARSIZE  : in    std_logic_vector(2 downto 0);
       S_AXI_ARBURST : in    std_logic_vector(1 downto 0);
@@ -126,7 +122,7 @@ architecture RTL of BLK_MEM_WRAPPER is
       BRAM_CLK_A    : out   std_logic;
       BRAM_EN_A     : out   std_logic;
       BRAM_WE_A     : out   std_logic_vector(3 downto 0);
-      BRAM_ADDR_A   : out   std_logic_vector(11 downto 0);
+      BRAM_ADDR_A   : out   std_logic_vector(14 downto 0);
       BRAM_WRDATA_A : out   std_logic_vector(31 downto 0);
       BRAM_RDDATA_A : in    std_logic_vector(31 downto 0)
     );
@@ -248,7 +244,7 @@ begin
         and bram_write_enable_a(1)
         and bram_write_enable_a(2)
         and bram_write_enable_a(3),
-      ADDRA     => bram_addr_a(11 downto 2),
+      ADDRA     => bram_addr_a(bram_port_a_addr_width + 1 downto 2),
       DINA      => bram_din_a,
       DOUTA     => bram_dout_a,
 
@@ -267,7 +263,7 @@ begin
       S_AXI_ARESETN => not RESET,
 
       -- Write controls
-      S_AXI_AWADDR(11 downto 2) => S_AXI_WRITE_WORD_OFFSET_PORT_A_IN,
+      S_AXI_AWADDR(14 downto 2) => S_AXI_WRITE_WORD_OFFSET_PORT_A_IN,
       S_AXI_AWADDR(1 downto 0)  => "00",
       S_AXI_AWLEN               => S_AXI_AWLEN_PORT_A_IN,
       S_AXI_AWSIZE              => c_AXI_BURST_SIZE_BYTES_4,
@@ -296,7 +292,7 @@ begin
       S_AXI_BREADY => S_AXI_BREADY_PORT_A_IN,
 
       -- Read controls
-      S_AXI_ARADDR(11 downto 2) => S_AXI_READ_WORD_OFFSET_PORT_A_IN,
+      S_AXI_ARADDR(14 downto 2) => S_AXI_READ_WORD_OFFSET_PORT_A_IN,
       S_AXI_ARADDR(1 downto 0)  => "00",
       S_AXI_ARLEN               => S_AXI_ARLEN_PORT_A_IN,
       S_AXI_ARSIZE              => c_AXI_BURST_SIZE_BYTES_4,

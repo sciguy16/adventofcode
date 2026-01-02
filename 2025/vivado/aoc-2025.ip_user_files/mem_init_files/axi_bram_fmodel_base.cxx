@@ -1,6 +1,5 @@
-// Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-// Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
-// -------------------------------------------------------------------------------
+// (c) Copyright 1995-2021, 2023 Advanced Micro Devices, Inc. All rights reserved.
+//
 // This file contains confidential and proprietary information
 // of AMD and is protected under U.S. and international copyright
 // and other intellectual property laws.
@@ -43,47 +42,24 @@
 //
 // THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 // PART OF THIS FILE AT ALL TIMES.
-//
-// DO NOT MODIFY THIS FILE.
+////////////////////////////////////////////////////////////
 
-// MODULE VLNV: xilinx.com:ip:blk_mem_gen:8.4
+#include <sys/stat.h>
+#include "axi_bram_fmodel_base.h"
+//#define DEBUGMSG
 
-// The following must be inserted into your System Verilog file for this
-// module to be instantiated. Change the instance name, port and interface connections
-// (in parentheses) to your own signal names.
 
-// IMPORTANT: Please check the generated 'blk_mem_gen_0_sv.sv' wrapper file is also included in the project.
-//            This file can be found in the .gen folder of the respective IP or Block Design after
-//            running the generate output products step.
+axi_bram_fmodel_base::~ axi_bram_fmodel_base()
+{
 
-// INCLUDE_TAG     ------ Begin cut for INTERFACE INSTANTIATION Include ------
-`include "vivado_interfaces.svh"
-// INCLUDE_TAG_END ------  End cut for INTERFACE INSTANTIATION Include  ------
+}
 
-// INTF_TAG     ------ Begin cut for INTERFACE INSTANTIATION Template ------
+axi_bram_fmodel_base::axi_bram_fmodel_base(std::string p_module_name,xsc::common_cpp::report_handler* report_handler,uint64_t addr_size): module_name(p_module_name)
+{
+}
 
-// INTF_TAG_END ------  End cut for INTERFACE INSTANTIATION Template  ------
+void axi_bram_fmodel_base::init_fmodel()
+{
 
-// INST_TAG     ------ Begin cut for WRAPPER INSTANTIATION Template ------
-blk_mem_gen_0_sv your_instance_name (
-  .clka(clka), // input wire clka
-  .rsta(rsta), // input wire rsta
-  .ena(ena), // input wire ena
-  .wea(wea), // input wire [0:0] wea
-  .addra(addra), // input wire [12:0] addra
-  .dina(dina), // input wire [31:0] dina
-  .douta(douta), // output wire [31:0] douta
-  .clkb(clkb), // input wire clkb
-  .enb(enb), // input wire enb
-  .web(web), // input wire [0:0] web
-  .addrb(addrb), // input wire [14:0] addrb
-  .dinb(dinb), // input wire [7:0] dinb
-  .doutb(doutb), // output wire [7:0] doutb
-  .rsta_busy(rsta_busy), // output wire rsta_busy
-  .rstb_busy(rstb_busy) // output wire rstb_busy
-);
-// INST_TAG_END ------  End cut for WRAPPER INSTANTIATION Template  ------
+}
 
-// You must compile the wrapper file blk_mem_gen_0_sv.sv when simulating
-// the module, blk_mem_gen_0_sv. When compiling the wrapper file, be sure to
-// reference the System Verilog simulation library.

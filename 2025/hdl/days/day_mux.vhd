@@ -2,6 +2,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use work.day_mux_top_level_pkg_hdr.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity DAY_MUX is
   port (
@@ -12,7 +13,7 @@ entity DAY_MUX is
     DAY_DONE_OUT : out   std_logic;
 
     -- Port B controls --
-    BRAM_ADDR_OUT         : out   std_logic_vector(11 downto 0);
+    BRAM_ADDR_OUT         : out   t_addr_b;
     BRAM_WRITE_DATA_OUT   : out   std_logic_vector(7 downto 0);
     BRAM_WRITE_ENABLE_OUT : out   std_logic;
     BRAM_ENABLED_IN       : in    std_logic;
@@ -41,7 +42,7 @@ begin
       BRAM_WRITE_ENABLE_OUT           <= BRAM_WRITE_ENABLE_MUX(v_day_sel_int);
       DAY_DONE_OUT                    <= DAY_DONE_MUX(v_day_sel_int);
     else
-      BRAM_ADDR_OUT         <= x"000";
+      BRAM_ADDR_OUT         <= (others => '0');
       BRAM_WRITE_DATA_OUT   <= x"00";
       BRAM_ENABLED_MUX      <= (others => '0');
       BRAM_WRITE_ENABLE_OUT <= '0';

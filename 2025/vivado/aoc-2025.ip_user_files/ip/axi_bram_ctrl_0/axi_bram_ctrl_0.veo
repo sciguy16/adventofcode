@@ -1,5 +1,5 @@
 // (c) Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-// (c) Copyright 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+// (c) Copyright 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of AMD and is protected under U.S. and international copyright
@@ -57,7 +57,7 @@
 axi_bram_ctrl_0 your_instance_name (
   .s_axi_aclk(s_axi_aclk),        // input wire s_axi_aclk
   .s_axi_aresetn(s_axi_aresetn),  // input wire s_axi_aresetn
-  .s_axi_awaddr(s_axi_awaddr),    // input wire [11 : 0] s_axi_awaddr
+  .s_axi_awaddr(s_axi_awaddr),    // input wire [14 : 0] s_axi_awaddr
   .s_axi_awlen(s_axi_awlen),      // input wire [7 : 0] s_axi_awlen
   .s_axi_awsize(s_axi_awsize),    // input wire [2 : 0] s_axi_awsize
   .s_axi_awburst(s_axi_awburst),  // input wire [1 : 0] s_axi_awburst
@@ -74,7 +74,7 @@ axi_bram_ctrl_0 your_instance_name (
   .s_axi_bresp(s_axi_bresp),      // output wire [1 : 0] s_axi_bresp
   .s_axi_bvalid(s_axi_bvalid),    // output wire s_axi_bvalid
   .s_axi_bready(s_axi_bready),    // input wire s_axi_bready
-  .s_axi_araddr(s_axi_araddr),    // input wire [11 : 0] s_axi_araddr
+  .s_axi_araddr(s_axi_araddr),    // input wire [14 : 0] s_axi_araddr
   .s_axi_arlen(s_axi_arlen),      // input wire [7 : 0] s_axi_arlen
   .s_axi_arsize(s_axi_arsize),    // input wire [2 : 0] s_axi_arsize
   .s_axi_arburst(s_axi_arburst),  // input wire [1 : 0] s_axi_arburst
@@ -92,7 +92,7 @@ axi_bram_ctrl_0 your_instance_name (
   .bram_clk_a(bram_clk_a),        // output wire bram_clk_a
   .bram_en_a(bram_en_a),          // output wire bram_en_a
   .bram_we_a(bram_we_a),          // output wire [3 : 0] bram_we_a
-  .bram_addr_a(bram_addr_a),      // output wire [11 : 0] bram_addr_a
+  .bram_addr_a(bram_addr_a),      // output wire [14 : 0] bram_addr_a
   .bram_wrdata_a(bram_wrdata_a),  // output wire [31 : 0] bram_wrdata_a
   .bram_rddata_a(bram_rddata_a)  // input wire [31 : 0] bram_rddata_a
 );

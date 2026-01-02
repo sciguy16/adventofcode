@@ -2,6 +2,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use work.bin_to_bcd_pkg_hdr.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity DAY0 is
   port (
@@ -12,7 +13,7 @@ entity DAY0 is
     DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
-    BRAM_ADDR_OUT         : out   std_logic_vector(11 downto 0);
+    BRAM_ADDR_OUT         : out   t_addr_b;
     BRAM_WRITE_DATA_OUT   : out   std_logic_vector(7 downto 0);
     BRAM_READ_DATA_IN     : in    std_logic_vector(7 downto 0);
     BRAM_WRITE_ENABLE_OUT : out   std_logic;
@@ -22,7 +23,7 @@ end entity DAY0;
 
 architecture RTL of DAY0 is
   signal accumulator : unsigned(31 downto 0);
-  signal bram_addr   : unsigned(11 downto 0);
+  signal bram_addr   : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
   signal value_reg   : unsigned(31 downto 0);
   signal go          : std_logic;
   signal done        : std_logic;
@@ -117,8 +118,8 @@ begin
       case run_state is
 
         when RUN_IDLE =>
-          bram_addr         <= x"000";
-          accumulator       <= x"00000000";
+          bram_addr         <= (others => '0');
+          accumulator       <= (others => '0');
           value_reg         <= (others => '0');
           bcd_digit_counter <= 0;
           if (go = '1') then
@@ -182,8 +183,8 @@ begin
       if (RESET = '1') then
         BRAM_WRITE_DATA_OUT   <= x"00";
         BRAM_WRITE_ENABLE_OUT <= '0';
-        accumulator           <= x"00000000";
-        bram_addr             <= x"000";
+        accumulator           <= (others => '0');
+        bram_addr             <= (others => '0');
         run_state             <= RUN_IDLE;
       end if;
     end if;

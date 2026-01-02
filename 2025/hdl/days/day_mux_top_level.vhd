@@ -3,6 +3,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use work.day_mux_top_level_pkg_hdr.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity DAY_MUX_TOP_LEVEL is
   port (
@@ -14,7 +15,7 @@ entity DAY_MUX_TOP_LEVEL is
     DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
-    BRAM_ADDR_OUT         : out   std_logic_vector(11 downto 0);
+    BRAM_ADDR_OUT         : out   t_addr_b;
     BRAM_WRITE_DATA_OUT   : out   std_logic_vector(7 downto 0);
     BRAM_READ_DATA_IN     : in    std_logic_vector(7 downto 0);
     BRAM_WRITE_ENABLE_OUT : out   std_logic;

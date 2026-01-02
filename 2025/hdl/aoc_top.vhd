@@ -12,6 +12,7 @@ library ieee;
   -- use UNISIM.VComponents.all;
   use work.packet_types_pkg_hdr.all;
   use work.aoc_top_pkg_hdr.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity AOC_TOP is
   port (
@@ -44,7 +45,7 @@ architecture RTL of AOC_TOP is
   signal axi_uart_txd_tdata  : std_logic_vector(31 downto 0);
 
   -- Write controls --
-  signal bram_axi_write_word_offset_port_a : std_logic_vector(9 downto 0);
+  signal bram_axi_write_word_offset_port_a : t_addr_a;
   signal bram_axi_awlen_port_a             : std_logic_vector(7 downto 0);
   signal bram_axi_awvalid_port_a           : std_logic;
   signal bram_axi_awready_port_a           : std_logic;
@@ -61,7 +62,7 @@ architecture RTL of AOC_TOP is
   signal bram_axi_bready_port_a : std_logic;
 
   -- Read controls --
-  signal bram_axi_read_word_offset_port_a : std_logic_vector(9 downto 0);
+  signal bram_axi_read_word_offset_port_a : t_addr_a;
   signal bram_axi_arlen_port_a            : std_logic_vector(7 downto 0);
   signal bram_axi_arvalid_port_a          : std_logic;
   signal bram_axi_arready_port_a          : std_logic;
@@ -74,7 +75,7 @@ architecture RTL of AOC_TOP is
   signal bram_axi_rready_port_a : std_logic;
 
   -- Port B controls --
-  signal bram_addr_b              : std_logic_vector(11 downto 0);
+  signal bram_addr_b              : t_addr_b;
   signal bram_write_data_b        : std_logic_vector(7 downto 0);
   signal bram_read_data_b         : std_logic_vector(7 downto 0);
   signal bram_port_b_write_enable : std_logic;
