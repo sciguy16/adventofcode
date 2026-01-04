@@ -83,7 +83,7 @@ architecture RTL of AOC_TOP is
 
   -- Day mux controls
   signal day_sel        : unsigned(7 downto 0);
-  signal data_len_bytes : unsigned(11 downto 0);
+  signal data_len_bytes : unsigned(14 downto 0);
   signal day_start      : std_logic;
   signal day_done       : std_logic;
 

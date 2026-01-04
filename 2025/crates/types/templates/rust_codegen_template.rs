@@ -16,7 +16,7 @@ pub mod {{ dest.name }} {
     use std::io::{Read, Write};
 
     {% for ty in dest.types -%}
-    #[derive(Clone, Debug, PartialEq, Eq)]
+    #[derive(Clone, PartialEq, Eq)]
     pub struct {{ ty.name|struct_name }} {
         {% for field in ty.payload -%}
         pub {{ field.name }}: {{ field.ty() }},
@@ -52,6 +52,27 @@ pub mod {{ dest.name }} {
                 {{ field.name }},
             {% endfor %}{# field in ty.payload -#}
             })
+        }
+    }
+
+    impl std::fmt::Debug for {{ ty.name|struct_name }} {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+            fmt.debug_struct("{{ ty.name|struct_name }}")
+            {% for field in ty.payload -%}
+                {% if field.is_slice() %}
+                .field(
+                    "{{ field.name }}",
+                    &format_args!("{}",
+                        crate::build_lib::hex_string_as_words(
+                            &self.{{ field.name }},
+                        ),
+                    ),
+                )
+                {% else %}
+                .field("{{ field.name }}", &format_args!("{:02x}", self.{{ field.name }}))
+                {% endif %}{# field.is_slice() #}
+            {%- endfor %}{# field in ty.payload #}
+                .finish()
         }
     }
     {%- endfor %}{# ty in destination.types #}

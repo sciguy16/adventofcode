@@ -12,7 +12,7 @@ entity DAY1 is
     RESET : in    std_logic;
     CLK   : in    std_logic;
 
-    DATA_LEN_BYTES_IN : in    unsigned(11 downto 0);
+    DATA_LEN_BYTES_IN : in    unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
@@ -27,7 +27,7 @@ end entity DAY1;
 architecture RTL of DAY1 is
   signal accumulator : unsigned(31 downto 0);
   signal bram_addr   : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
-  signal value_reg   : unsigned(31 downto 0);
+  signal value_reg   : std_logic_vector(15 downto 0) := (others => '0');
   signal go          : std_logic;
   signal done        : std_logic;
 
@@ -36,6 +36,23 @@ architecture RTL of DAY1 is
   signal is_leading_zeroes : boolean                         := false;
 
   constant ascii_digit_prefix : std_logic_vector(3 downto 0) := x"3";
+
+  constant ascii_l  : std_logic_vector(7 downto 0) := x"4C";
+  constant ascii_r  : std_logic_vector(7 downto 0) := x"52";
+  constant ascii_lf : std_logic_vector(7 downto 0) := x"0A";
+
+  constant dial_init : signed(15 downto 0) := 16d"50";
+
+  signal parse_enable      : boolean             := false;
+  signal dial_position     : signed(15 downto 0) := (others => '0');
+  signal number_to_process : std_logic_vector(15 downto 0) := (others => '0');
+  signal process_go        : std_logic;
+  signal process_ready     : std_logic;
+
+  type t_direction is (DIR_LEFT, DIR_RIGHT);
+
+  signal direction_reg        : t_direction := DIR_RIGHT;
+  signal direction_to_process : t_direction := DIR_RIGHT;
 
   type t_control_state is (
     CTRL_IDLE,
@@ -49,11 +66,27 @@ architecture RTL of DAY1 is
     RUN_IDLE,
     -- RUN_WAIT_ONE_CLK,
     RUN_RUNNING,
+    RUN_WAIT_PROC_IDLE,
     RUN_WRITE_RESULT,
     RUN_DONE
   );
 
   signal run_state : t_run_state := RUN_IDLE;
+
+  type t_parse_state is (
+    PARSE_DIRECTION,
+    PARSE_DIGIT
+  );
+
+  signal parse_state : t_parse_state := PARSE_DIRECTION;
+
+  type t_process_state is (
+    PROCESS_IDLE,
+    PROCESS_MOVE_DIAL,
+    PROCESS_DO_MOD
+  );
+
+  signal process_state : t_process_state := PROCESS_IDLE;
 
   attribute mark_debug : string;
   attribute mark_debug of accumulator       : signal is "TRUE";
@@ -110,8 +143,6 @@ begin
   end process DAY1_CTRL_PROC;
 
   DAY1_RUN_PROC : process (CLK) is
-    variable current_digit      : std_logic_vector(7 downto 0);
-    variable current_digit_int  : unsigned(7 downto 0);
     variable current_bcd_nibble : std_logic_vector(3 downto 0);
   begin
     if rising_edge(CLK) then
@@ -122,40 +153,33 @@ begin
 
         when RUN_IDLE =>
           bram_addr         <= (others => '0');
-          accumulator       <= (others => '0');
-          value_reg         <= (others => '0');
           bcd_digit_counter <= 0;
           if (go = '1') then
             -- preemptively increment bram_addr since the bram read output
             -- is one cycle behind
-            bram_addr <= bram_addr + 1;
-            run_state <= RUN_RUNNING;
+            bram_addr    <= bram_addr + 1;
+            run_state    <= RUN_RUNNING;
+            parse_enable <= true;
           end if;
-
-        -- when RUN_WAIT_ONE_CLK =>
-        --  -- wait one clock to allow the bram address update to return new
-        --  -- data through its pipeline
-        --  bram_addr <= bram_addr + 1;
-        --  run_state <= RUN_RUNNING;
 
         when RUN_RUNNING =>
-          -- Read digit from bram
-          current_digit     := BRAM_READ_DATA_IN;
-          current_digit_int := x"0" & unsigned(current_digit(3 downto 0));
-
-          -- If it's a newline then add register to accumulator, otherwise
-          -- shift it into the register
-          if (current_digit = x"0A") then
-            accumulator <= accumulator + value_reg;
-            value_reg   <= (others => '0');
-          else
-            value_reg <= resize(value_reg * 10, 32) + current_digit_int;
-          end if;
           if (bram_addr = DATA_LEN_BYTES_IN + 1) then
             run_state         <= RUN_WRITE_RESULT;
             is_leading_zeroes <= true;
+            parse_enable      <= false;
           else
-            bram_addr <= bram_addr + 1;
+            --if (not (parse_state = PARSE_DIGIT
+            --         and BRAM_READ_DATA_IN = ascii_lf
+            --         and process_ready = '0')) then
+              bram_addr <= bram_addr + 1;
+            --end if;
+            run_state <= RUN_RUNNING;
+          end if;
+
+        when RUN_WAIT_PROC_IDLE =>
+          if (process_state = PROCESS_IDLE) then
+            run_state <= RUN_WRITE_RESULT;
+          else
             run_state <= RUN_RUNNING;
           end if;
 
@@ -186,12 +210,149 @@ begin
       if (RESET = '1') then
         BRAM_WRITE_DATA_OUT   <= x"00";
         BRAM_WRITE_ENABLE_OUT <= '0';
-        accumulator           <= (others => '0');
         bram_addr             <= (others => '0');
         run_state             <= RUN_IDLE;
+        parse_enable          <= false;
       end if;
     end if;
   end process DAY1_RUN_PROC;
+
+  PARSE_PROC : process (CLK) is
+    variable current_char      : std_logic_vector(7 downto 0);
+    variable current_digit_int : signed(7 downto 0);
+  begin
+    if (rising_edge(CLK)) then
+      -- Read digit from bram
+      current_char      := BRAM_READ_DATA_IN;
+      current_digit_int := x"0" & signed(current_char(3 downto 0));
+      process_go        <= '0';
+
+      if (parse_enable) then
+        case parse_state is
+
+          when PARSE_DIRECTION =>
+            -- Parse the direction value (left/right)
+            case current_char is
+
+              when ascii_l =>
+                direction_reg <= DIR_LEFT;
+
+              when ascii_r =>
+                direction_reg <= DIR_RIGHT;
+
+              when others =>
+                direction_reg <= DIR_LEFT;
+            end case;
+
+            value_reg   <= (others => '0');
+            parse_state <= PARSE_DIGIT;
+
+          when PARSE_DIGIT =>
+            -- If it's a newline then process the command, otherwise
+            -- base 10-shift it into the number register
+            if (current_char = ascii_lf) then
+              -- wait until the process FSM is ready, since the modulo operation
+              -- can take several clocks to complete
+              --if (process_ready = '1') then
+                process_go           <= '1';
+                number_to_process    <= value_reg;
+                direction_to_process <= direction_reg;
+
+                value_reg   <= (others => '0');
+                parse_state <= PARSE_DIRECTION;
+              --else
+                --parse_state <= PARSE_DIGIT;
+              --end if;
+            else
+              -- store BCD value in value_reg
+              value_reg <= value_reg(11 downto 0) & current_char(3 downto 0);
+              --value_reg   <= resize(value_reg * 10, value_reg'length)
+              --               + current_digit_int;
+              parse_state <= PARSE_DIGIT;
+            end if;
+        end case;
+      else
+        parse_state <= PARSE_DIRECTION;
+        value_reg   <= (others => '0');
+      end if;
+
+      if (RESET = '1' or run_state = RUN_IDLE) then
+        parse_state <= PARSE_DIRECTION;
+        value_reg   <= (others => '0');
+      end if;
+    end if;
+  end process PARSE_PROC;
+
+  PROCESSING_PROC : process (CLK) is
+  variable v_hundreds: std_logic_vector(3 downto 0);
+  variable v_tens: std_logic_vector(3 downto 0);
+  variable v_units: std_logic_vector(3 downto 0);
+  variable v_to_rotate_by: unsigned(7 downto 0);
+  begin
+    if (rising_edge(CLK)) then
+      process_ready <= '0';
+
+      v_hundreds := number_to_process(11 downto 8);
+      v_tens := number_to_process(7 downto 4);
+      v_units := number_to_process(3 downto 0);
+      v_to_rotate_by := unsigned(v_tens) * 10 + unsigned(v_units);
+
+      case process_state is
+
+        when PROCESS_IDLE =>
+          if (process_go) then
+            process_state <= PROCESS_MOVE_DIAL;
+          else
+            process_state <= PROCESS_IDLE;
+            process_ready <= '1';
+          end if;
+
+        when PROCESS_MOVE_DIAL =>
+          -- Add/subtract tens and units from dial position. Hundreds
+          -- field has no impact
+          report "Rotate by: " & integer'image(to_integer(v_to_rotate_by));
+          case direction_to_process is
+
+            when DIR_LEFT =>
+              dial_position <= dial_position - to_integer(resize(v_to_rotate_by,16));
+
+            when DIR_RIGHT =>
+              dial_position <= dial_position + to_integer(resize(v_to_rotate_by,16));
+          end case;
+          process_state <= PROCESS_DO_MOD;
+
+        when PROCESS_DO_MOD =>
+          -- If the dial has rotated past zero then increment the counter. Oh
+          -- wait, that's part 2. For now, if the dial position is congruent
+          -- to zero mod 100 then increment the counter
+
+          if (dial_position = 0
+            or dial_position = 100
+            or dial_position = -100
+          ) then
+            accumulator <= accumulator + 1;
+          end if;
+
+          if (dial_position > 99) then
+            -- accumulator   <= accumulator + 1;
+            dial_position <= dial_position - 100;
+            --process_state <= PROCESS_DO_MOD;
+          elsif (dial_position < 0) then
+            -- accumulator   <= accumulator + 1;
+            dial_position <= dial_position + 100;
+            --process_state <= PROCESS_DO_MOD;
+          --else
+          end if;
+            process_state <= PROCESS_IDLE;
+      end case;
+
+      if (RESET = '1' or run_state = RUN_IDLE) then
+        dial_position <= dial_init;
+        accumulator   <= (others => '0');
+        process_state <= PROCESS_IDLE;
+      end if;
+    end if;
+  end process PROCESSING_PROC;
 
   BIN_TO_BCD_INST : entity work.bin_to_bcd(rtl)
     port map (

@@ -89,6 +89,10 @@ impl PayloadField {
         }
     }
 
+    pub fn is_slice(&self) -> bool {
+        self.width_bytes > 4
+    }
+
     pub fn deserialise_fn(&self, base: &str, indent: usize) -> String {
         let indent = Indent { depth: indent };
 
@@ -165,6 +169,17 @@ where
     }
     writeln!(codegen, "END PACKAGE packet_types_pkg_hdr;")?;
     Ok(())
+}
+
+pub fn hex_string_as_words(data: &[u8]) -> String {
+    data.chunks(4)
+        .map(hex::encode)
+        .reduce(|mut acc, item| {
+            acc.push(' ');
+            acc.push_str(&item);
+            acc
+        })
+        .unwrap()
 }
 
 #[cfg(test)]

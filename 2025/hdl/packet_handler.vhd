@@ -89,7 +89,7 @@ entity PACKET_HANDLER is
 
     -- Day mux controls
     DAY_SEL_OUT        : out   unsigned(7 downto 0);
-    DATA_LEN_BYTES_OUT : out   unsigned(11 downto 0);
+    DATA_LEN_BYTES_OUT : out   unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_START_OUT      : out   std_logic;
     DAY_DONE_IN        : in    std_logic
   );
@@ -218,11 +218,13 @@ begin
   begin
     run_day_ok <= packet_type = C_DESTINATION_top_TYPE_run_day
                   and day_sel < c_NUM_DAYS
-                  and data_len_bytes(15 downto 12) = "000";
+                  and data_len_bytes(15) = '0';
     if (run_day_ok) then
-      DATA_LEN_BYTES_OUT <= data_len_bytes(11 downto 0);
+      DATA_LEN_BYTES_OUT <= data_len_bytes(14 downto 0);
+      DAY_SEL_OUT        <= day_sel;
     else
-      DATA_LEN_BYTES_OUT <= x"000";
+      DATA_LEN_BYTES_OUT <= (others => '0');
+      DAY_SEL_OUT        <= x"00";
     end if;
   end process SET_RUN_DAY_OK;
 
@@ -275,7 +277,7 @@ begin
                 ping_payload <= v_current_word;
 
               when C_DESTINATION_top_TYPE_run_day =>
-                day_sel        <= unsigned(v_current_word(7 downto 0));
+                day_sel        <= unsigned(v_current_word(31 downto 24));
                 data_len_bytes <= unsigned(v_current_word(23 downto 8));
 
               when others =>
@@ -306,7 +308,7 @@ begin
             -- interface (but only if the write request is valid)
             if (packet_type = C_DESTINATION_top_TYPE_write_ram
                 and rx_packet_len_okay) then
-              M_AXI_WRITE_WORD_OFFSET_OUT <= v_ram_offset(bram_port_a_addr_width - 1 downto 0);
+              M_AXI_WRITE_WORD_OFFSET_OUT <= v_ram_offset(t_addr_a'range);
               -- TODO validate that the word count fits into 8 bits
               -- RX_PACKET_LEN_WORDS is the number of words in the packet
               -- first word is offset
@@ -390,7 +392,6 @@ begin
         M_AXI_BREADY_OUT            <= '0';
         M_AXI_WRITE_WORD_OFFSET_OUT <= (others => '0');
         M_AXI_AWLEN_OUT             <= x"00";
-        DAY_SEL_OUT                 <= x"00";
       end if;
     end if;
   end process RX_PROC;
@@ -452,7 +453,7 @@ begin
           reply_state <= REPLY_ST_SETUP_BRAM_READ;
           -- set up the read request
           -- TODO validate that the ram offset fits into 12 bits
-          M_AXI_READ_WORD_OFFSET_OUT <= ram_offset(bram_port_a_addr_width - 1 downto 0);
+          M_AXI_READ_WORD_OFFSET_OUT <= ram_offset(t_addr_a'range);
           -- ARLEN is one less than burst length (ARLEN=0 => burst 1)
           M_AXI_ARLEN_OUT   <= std_logic_vector(c_bram_arlen);
           M_AXI_ARVALID_OUT <= '1';

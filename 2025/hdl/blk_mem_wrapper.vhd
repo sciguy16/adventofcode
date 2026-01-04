@@ -130,43 +130,9 @@ architecture RTL of BLK_MEM_WRAPPER is
 
 begin
 
-  -- Three operations:
-  -- 1. Set address
-  --   * Load address from the data in line into the address register
-  -- 2. Write & increment
-  --   * Write from data in to the bram and then increment the address
-  --   * Performed automatically on a data valid in pulse
-  -- 3. Read & increment
-  --   * Read data from the bram and then increment the address
-  --   * Data valid out is asserted when data available. Address is incremented
-  --     on receipt of READY pulse
-
-  -- increment_ctrl: process(clk) is
-  -- begin
-  --  if rising_edge(clk) then
-  --    if read_ready_a_in = '1' or write_valid_a_in = '1' then
-  --      bram_addr_a <= bram_addr_a + 1;
-  --    end if;
-
-  --    if addr_a_in = '1' then
-  --      bram_addr_a <= unsigned(data_a_in(8 downto 0));
-  --    end if;
-
-  --    if reset = '1' then
-  --      bram_addr_a <= (others => '0');
-  --    end if;
-  --  end if;
-  -- end process increment_ctrl;
-
   DATA_OUT_CONNECT : process (all) is
     variable bram_write_enable_a_bit : std_logic;
   begin
-    -- read_valid_a_out <= not bram_write_enable_b and not addr_a_in;
-    -- if read_valid_a_out then
-    --  data_a_out <= bram_dout_a;
-    -- else
-    --  data_a_out <= (others => '0');
-    -- end if;
     bram_write_enable_a_bit := bram_write_enable_a(0)
                                and bram_write_enable_a(1)
                                and bram_write_enable_a(2)
@@ -174,63 +140,8 @@ begin
     assert (bram_write_enable_a = "0000"
       or bram_write_enable_a = "1111")
       report "BRAM attempting narrow write: " & to_string(bram_write_enable_a);
-    -- data_valid_b_out <= not bram_write_enable_a_bit and not addr_b_valid_in;
     BRAM_PORT_B_ENABLED_OUT <= not bram_write_enable_a_bit;
-  -- if data_valid_b_out then
-  --  data_b_out <= bram_dout_b;
-  -- else
-  --  data_b_out <= (others => '0');
-  -- end if;
   end process DATA_OUT_CONNECT;
-
-  -- port_b_addr_ctrl: process(clk) is
-  -- begin
-  --  if rising_edge(clk) then
-  --    if addr_b_valid_in = '1' then
-  --      bram_addr_b <= unsigned(addr_b_in);
-  --    end if;
-  --  end if;
-  -- end process port_b_addr_ctrl;
-
-  -- data_in_connect: process(all) is
-  -- begin
-  --  --read_valid_a_out <= '1';
-  --  bram_din_a <= data_a_in;
-  -- end process data_in_connect;
-
-  -- priority encoder - ensure that only one port can write during any
-  -- given clock cycle
-  -- write_enable_ctrl: process(all) is
-  --  variable write_valid: std_logic_vector(1 downto 0);
-  -- begin
-  --  bram_write_enable_a <= write_valid_a_in;
-  --  bram_write_enable_b <= write_valid_b_in and not write_valid_a_in;
-  -- end process write_enable_ctrl;
-
-  -- port_a_ctrl: process (clk) is
-  -- begin
-  --  if rising_edge(clk) then
-  --    --bram_write_enable_a <= '0';
-  --    write_ready_a_out <= '1';
-
-  --  end if;
-  -- end process port_a_ctrl;
-
-  -- Toggle the enable signals for the two BRAM ports based on which interface
-  -- is active
-  -- transaction_ctrl: process(clk) is
-  --  variable next_status: T_TRANSACTION_STATUS;
-  -- begin
-  --  case transaction_status is
-  --    when TXN_IDLE =>
-  --      if s_axi_awvalid_port_a = '1' then
-  --        next_status := TXN_A;
-  --      elsif
-  --    when TXN_A =>
-  --      -- if
-  --    when TXN_B =>
-  --  end case;
-  -- end process transaction_ctrl;
 
   -- 512 deep at 32 bits wide
   -- 2048 deep at 8 bits wide

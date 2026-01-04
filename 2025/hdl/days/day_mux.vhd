@@ -6,9 +6,6 @@ library ieee;
 
 entity DAY_MUX is
   port (
-    RESET : in    std_logic;
-    CLK   : in    std_logic;
-
     DAY_SEL_IN   : in    unsigned(7 downto 0);
     DAY_DONE_OUT : out   std_logic;
 

@@ -11,7 +11,7 @@ entity DAY_MUX_TOP_LEVEL is
     CLK   : in    std_logic;
 
     DAY_SEL_IN        : in    unsigned(7 downto 0);
-    DATA_LEN_BYTES_IN : in    unsigned(11 downto 0);
+    DATA_LEN_BYTES_IN : in    unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
@@ -35,9 +35,6 @@ begin
 
   DAY_MUX_INST : entity work.day_mux(rtl)
     port map (
-      RESET => RESET,
-      CLK   => CLK,
-
       DAY_SEL_IN   => DAY_SEL_IN,
       DAY_DONE_OUT => DAY_DONE_OUT,
 
@@ -77,14 +74,14 @@ begin
       CLK   => CLK,
 
       DATA_LEN_BYTES_IN => DATA_LEN_BYTES_IN,
-      DAY_DONE_OUT      => day_done_mux(0),
+      DAY_DONE_OUT      => day_done_mux(1),
 
       -- Port B controls --
-      BRAM_ADDR_OUT         => bram_addr_mux(0),
-      BRAM_WRITE_DATA_OUT   => bram_write_data_mux(0),
+      BRAM_ADDR_OUT         => bram_addr_mux(1),
+      BRAM_WRITE_DATA_OUT   => bram_write_data_mux(1),
       BRAM_READ_DATA_IN     => BRAM_READ_DATA_IN,
-      BRAM_WRITE_ENABLE_OUT => bram_write_enable_mux(0),
-      BRAM_ENABLED_IN       => bram_enabled_mux(0)
+      BRAM_WRITE_ENABLE_OUT => bram_write_enable_mux(1),
+      BRAM_ENABLED_IN       => bram_enabled_mux(1)
     );
 
 end architecture RTL;

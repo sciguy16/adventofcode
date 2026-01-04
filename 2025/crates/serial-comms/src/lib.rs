@@ -1,11 +1,24 @@
 use color_eyre::{Result, eyre::eyre};
 use mio_serial::{SerialPort, SerialPortType, UsbPortInfo};
 use rand::Rng;
-use std::{ffi::CStr, fmt::Write, sync::mpsc, time::Duration};
+use std::{
+    ffi::CStr,
+    fmt::{Display, Write},
+    io::Read,
+    sync::mpsc,
+    time::Duration,
+};
 use types::{Header, SerDe, codegen::top::Types};
+
+#[allow(unused)]
+use tracing::{debug, error, info, trace, warn};
 
 const BAUD: u32 = 115200;
 const RECV_TIMEOUT: Duration = Duration::from_secs(10);
+
+const BRAM_WRITE_LEN_BYTES: usize = 128;
+const WORD_SIZE_BYTES: usize = 4;
+const BRAM_WRITE_LEN_WORDS: usize = BRAM_WRITE_LEN_BYTES / WORD_SIZE_BYTES;
 
 pub struct PortInfo {
     pub name: String,
@@ -30,6 +43,36 @@ pub fn list_ports() -> Result<Vec<PortInfo>> {
         .collect())
 }
 
+#[track_caller]
+fn check_eq_hex(
+    (left, left_label): (impl AsRef<[u8]>, &'static str),
+    (right, right_label): (impl AsRef<[u8]>, &'static str),
+    msg: impl Display,
+) -> Result<()> {
+    fn inner(
+        (left, left_label): (&[u8], &'static str),
+        (right, right_label): (&[u8], &'static str),
+        msg: String,
+    ) -> Result<()> {
+        if left == right {
+            Ok(())
+        } else {
+            Err(eyre!(
+                "Data mismatch - {msg}:\n\
+                    {left_label}:\t{left_hex}\n\
+                    {right_label}:\t{right_hex}",
+                left_hex = hex_string_as_words(left),
+                right_hex = hex_string_as_words(right),
+            ))
+        }
+    }
+
+    let left = left.as_ref();
+    let right = right.as_ref();
+    let msg = msg.to_string();
+    inner((left, left_label), (right, right_label), msg)
+}
+
 pub struct SerialHandler {
     port: Box<dyn SerialPort>,
     read_rx: mpsc::Receiver<Types>,
@@ -46,15 +89,15 @@ impl SerialHandler {
     }
 
     pub fn send(&mut self, packet: Types) -> Result<Types> {
-        println!("To send: {packet:02x?}");
+        debug!("To send: {packet:02x?}");
         let mut buf = [0; 1024];
         let len = packet.serialise(&mut buf)?;
         let to_send = &buf[..len];
-        println!("Sending: {}", hex_string_as_words(to_send));
+        trace!("Sending: {}", hex_string_as_words(to_send));
         self.port.write_all(to_send)?;
 
         let response = self.read_rx.recv_timeout(RECV_TIMEOUT)?;
-        println!("Received response: {response:02x?}");
+        debug!("Received response: {response:02x?}");
 
         Ok(response)
     }
@@ -127,41 +170,45 @@ impl SerialHandler {
         let base_addr = data_len_bytes / 4;
         let offset = usize::from(data_len_bytes % 4) + 2;
 
-        println!("Base address: {base_addr:04x}");
-        println!("Offset: {offset:02x}");
+        debug!("Output base address: {base_addr:04x}");
+        debug!("Output offset: {offset:02x}");
 
         let data = self.read_ram(base_addr.into())?;
 
         let digits = &data[offset..offset + 12];
-        println!("digits: {digits:02x?}");
+        debug!("Output digits: {digits:02x?}");
         let digits = CStr::from_bytes_until_nul(digits)?;
         let result = digits.to_str()?.to_string();
 
         let ram = self.read_ram(0)?;
-        println!("Ram from zero: {ram:02x?}");
+        trace!("Ram from zero: {ram:02x?}");
 
         Ok(result)
     }
 
     pub fn self_test(&mut self) -> Result<()> {
+        info!("1. Ping/pong exchange");
         self.ping_pong()?;
 
+        info!("2. BRAM page write/read back");
         let mut rng = rand::rng();
         let data = rng.random();
         self.write_ram(0x00, data)?;
         let read_back = self.read_ram(0x00)?;
-        if data != read_back {
-            return Err(eyre!(
-                "Data readback mismatch!\nSent: {}\nRead: {}",
-                hex_string_as_words(&data),
-                hex_string_as_words(&read_back),
-            ));
-        }
+        check_eq_hex(
+            (data, "data"),
+            (read_back, "read_back"),
+            "BRAM data readback",
+        )?;
 
+        info!("3. BRAM page boundary write/read back");
+        self.test_bram_access_boundary()?;
+
+        info!("4. Day zero (short)");
         let mut test_data = [0_u16; 10];
         rng.fill(&mut test_data);
         let sum = test_data.iter().copied().map(u32::from).sum::<u32>();
-        println!("Test data: {test_data:?}, sum={sum}");
+        debug!("Test data: {test_data:?}, sum={sum}");
 
         let mut to_send = String::new();
         for line in test_data {
@@ -182,26 +229,79 @@ impl SerialHandler {
         for (idx, chunk) in chunks.iter().chain(rest.iter()).enumerate() {
             let offset = u32::try_from(idx).unwrap() * 32;
             let read_back = self.read_ram(offset)?;
-            if *chunk != read_back {
-                return Err(eyre!(
-                    "Data readback mismatch!\nSent: {}\nRead: {}",
-                    hex_string_as_words(chunk),
-                    hex_string_as_words(&read_back),
-                ));
-            }
+
+            check_eq_hex(
+                (chunk, "chunk"),
+                (read_back, "read_back"),
+                "BRAM data readback",
+            )?;
         }
 
         let result = self.run_day(0, to_send.len().try_into().unwrap())?;
         let expected = sum.to_string();
-        println!("Test data: {test_data:?}, sum={sum}");
-        println!("Day result: {result}, expected {expected}");
+        debug!("Test data: {test_data:?}, sum={sum}");
+        debug!("Day result: {result}, expected {expected}");
 
-        if result == expected {
-            println!("    PASS");
-            Ok(())
-        } else {
-            Err(eyre!("Incorrect result: {result} != {expected}"))
+        if result != expected {
+            return Err(eyre!("Incorrect result: {result} != {expected}"));
         }
+
+        info!("5. Day zero (long)");
+
+        info!("Self-test PASS");
+        Ok(())
+    }
+
+    /// Test BRAM access by writing two consecutive "pages" and then reading
+    /// back across the boundary to ensure consistency and correct operation
+    fn test_bram_access_boundary(&mut self) -> Result<()> {
+        let two_pages =
+            std::array::from_fn::<_, { 2 * BRAM_WRITE_LEN_BYTES }, _>(|idx| {
+                idx as u8
+            });
+
+        let mut buf = [0; BRAM_WRITE_LEN_BYTES];
+        buf.copy_from_slice(&two_pages[..BRAM_WRITE_LEN_BYTES]);
+        self.write_ram(0, buf)?;
+        buf.copy_from_slice(&two_pages[BRAM_WRITE_LEN_BYTES..]);
+        self.write_ram(BRAM_WRITE_LEN_WORDS.try_into()?, buf)?;
+        let read_back =
+            self.read_ram((BRAM_WRITE_LEN_WORDS / 2).try_into()?)?;
+        let expected_page =
+            std::array::from_fn::<_, BRAM_WRITE_LEN_BYTES, _>(|idx| {
+                (idx + BRAM_WRITE_LEN_BYTES / 2) as u8
+            });
+        let res = check_eq_hex(
+            (read_back, "read_back"),
+            (expected_page, "expected_page"),
+            "BRAM write boundary readback",
+        );
+
+        if res.is_err() {
+            debug!("");
+        }
+        res?;
+
+        Ok(())
+    }
+
+    pub fn run_day_from_reader<R: Read>(
+        &mut self,
+        day: u8,
+        mut reader: R,
+    ) -> Result<String> {
+        let mut buf = [0; 128];
+        let mut offset = 0;
+        let mut total_len = 0;
+        while let Ok(len) = reader.read(&mut buf)
+            && len > 0
+        {
+            self.write_ram(offset, buf)?;
+            offset += 128 / 4;
+            total_len += len;
+        }
+
+        self.run_day(day, total_len.try_into()?)
     }
 }
 
@@ -223,7 +323,7 @@ fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
             let Ok(()) = port.read_exact(&mut buf) else {
                 continue;
             };
-            println!("Read 4 bytes: {:02x?}", &buf);
+            trace!("Read 4 bytes: {:02x?}", &buf);
 
             receive_buf.extend_from_slice(&buf);
             state = match state {
@@ -233,14 +333,14 @@ fn read_thread(mut port: Box<dyn SerialPort>, tx: mpsc::Sender<Types>) {
                 }
                 RxState::Payload => {
                     if receive_buf.len() == usize::from(header.len) + 4 {
-                        println!(
+                        debug!(
                             "Received packet: {}",
                             hex_string_as_words(&receive_buf),
                         );
                         match Types::deserialise(&receive_buf) {
                             Ok(parsed) => tx.send(parsed).unwrap(),
                             Err(err) => {
-                                eprintln!("Deserialisation failed: {err}")
+                                error!("Deserialisation failed: {err}")
                             }
                         }
                         receive_buf.clear();
@@ -263,4 +363,17 @@ fn hex_string_as_words(data: &[u8]) -> String {
             acc
         })
         .unwrap()
+}
+
+pub fn init_tracing() {
+    use tracing_subscriber::{EnvFilter, filter::LevelFilter};
+
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            EnvFilter::builder()
+                .with_default_directive(LevelFilter::DEBUG.into())
+                .from_env_lossy(),
+        )
+        .with_line_number(true)
+        .init();
 }

@@ -9,7 +9,7 @@ entity DAY0 is
     RESET : in    std_logic;
     CLK   : in    std_logic;
 
-    DATA_LEN_BYTES_IN : in    unsigned(11 downto 0);
+    DATA_LEN_BYTES_IN : in    unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_DONE_OUT      : out   std_logic;
 
     -- Port B controls --
@@ -51,17 +51,6 @@ architecture RTL of DAY0 is
   );
 
   signal run_state : t_run_state := RUN_IDLE;
-
-  attribute mark_debug : string;
-  attribute mark_debug of accumulator       : signal is "TRUE";
-  attribute mark_debug of bram_addr         : signal is "TRUE";
-  attribute mark_debug of value_reg         : signal is "TRUE";
-  attribute mark_debug of go                : signal is "TRUE";
-  attribute mark_debug of done              : signal is "TRUE";
-  attribute mark_debug of accumulator_bcd   : signal is "TRUE";
-  attribute mark_debug of bcd_digit_counter : signal is "TRUE";
-  attribute mark_debug of ctrl_state        : signal is "TRUE";
-  attribute mark_debug of run_state         : signal is "TRUE";
 
 begin
 
