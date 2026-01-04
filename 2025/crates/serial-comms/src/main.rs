@@ -77,9 +77,11 @@ fn do_run(port: &str) -> Result<()> {
     let hdl_dir = find_hdl_dir()?;
 
     let result = run_day_from_file(&mut port, &hdl_dir, 1, InputOrTest::Test)?;
-    check_eq(result, "3", "Day 1 test")?;
+    // check_eq(result, "3", "Day 1 test")?;
+    check_eq(result, "6", "Day 1 test")?;
     let result = run_day_from_file(&mut port, &hdl_dir, 1, InputOrTest::Input)?;
-    check_eq(result, "995", "Day 1 test")?;
+    // check_eq(result, "995", "Day 1 test")?;
+    check_eq(result, "5847", "Day 1 test")?;
 
     Ok(())
 }

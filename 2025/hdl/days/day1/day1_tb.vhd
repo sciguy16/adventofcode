@@ -208,7 +208,7 @@ begin
       bram_write_enable_b_preload <= '1';
       bram_write_data_b_preload   <= to_byte(INPUT(idx));
 
-      --report "Input is: " & input(idx);
+      -- report "Input is: " & input(idx);
       wait_edge;
     end loop;
     bram_write_enable_b_preload <= '0';
@@ -236,23 +236,25 @@ begin
 
     wait_edge;
 
-    bram_addr_b_preload         <= 15x"003a";
+    bram_addr_b_preload <= 15x"003A";
     wait_edge;
-    assert bram_read_data_b = x"35" report "digit 5";
+    assert bram_read_data_b = x"35"
+      report "digit 5";
 
-    bram_addr_b_preload         <= 15x"003b";
+    bram_addr_b_preload <= 15x"003B";
     wait_edge;
-    assert bram_read_data_b = x"00" report "NUL";
+    assert bram_read_data_b = x"00"
+      report "NUL";
 
-    --bram_addr_b_preload <= std_logic_vector(v_bram_addr);
+    -- bram_addr_b_preload <= std_logic_vector(v_bram_addr);
 
-    --for idx in v_read_output'range loop
+    -- for idx in v_read_output'range loop
     --  wait_edge;
     --  v_read_output(idx)  := bram_read_data_b;
     --  v_bram_addr         := v_bram_addr + 1;
     --  bram_addr_b_preload <= std_logic_vector(v_bram_addr);
-    --end loop;
-    --assert v_bram_addr = (
+    -- end loop;
+    -- assert v_bram_addr = (
     --  x"00",
     --  x"00",
     --  x"00",

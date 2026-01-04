@@ -25,15 +25,17 @@ entity DAY1 is
 end entity DAY1;
 
 architecture RTL of DAY1 is
-  signal accumulator : unsigned(31 downto 0);
-  signal bram_addr   : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
-  signal value_reg   : std_logic_vector(15 downto 0) := (others => '0');
-  signal go          : std_logic;
-  signal done        : std_logic;
+  signal accumulator        : unsigned(31 downto 0);
+  signal accumulator_part_2 : unsigned(31 downto 0);
+  signal bram_addr          : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
+  signal value_reg          : std_logic_vector(15 downto 0) := (others => '0');
+  signal go                 : std_logic;
+  signal done               : std_logic;
 
-  signal accumulator_bcd   : t_bcd_out;
-  signal bcd_digit_counter : integer range 0 to c_num_digits := 0;
-  signal is_leading_zeroes : boolean                         := false;
+  signal accumulator_bcd        : t_bcd_out;
+  signal accumulator_bcd_part_2 : t_bcd_out;
+  signal bcd_digit_counter      : integer range 0 to c_num_digits := 0;
+  signal is_leading_zeroes      : boolean                         := false;
 
   constant ascii_digit_prefix : std_logic_vector(3 downto 0) := x"3";
 
@@ -43,8 +45,8 @@ architecture RTL of DAY1 is
 
   constant dial_init : signed(15 downto 0) := 16d"50";
 
-  signal parse_enable      : boolean             := false;
-  signal dial_position     : signed(15 downto 0) := (others => '0');
+  signal parse_enable      : boolean                       := false;
+  signal dial_position     : signed(15 downto 0)           := (others => '0');
   signal number_to_process : std_logic_vector(15 downto 0) := (others => '0');
   signal process_go        : std_logic;
   signal process_ready     : std_logic;
@@ -89,15 +91,16 @@ architecture RTL of DAY1 is
   signal process_state : t_process_state := PROCESS_IDLE;
 
   attribute mark_debug : string;
-  attribute mark_debug of accumulator       : signal is "TRUE";
-  attribute mark_debug of bram_addr         : signal is "TRUE";
-  attribute mark_debug of value_reg         : signal is "TRUE";
-  attribute mark_debug of go                : signal is "TRUE";
-  attribute mark_debug of done              : signal is "TRUE";
-  attribute mark_debug of accumulator_bcd   : signal is "TRUE";
-  attribute mark_debug of bcd_digit_counter : signal is "TRUE";
-  attribute mark_debug of ctrl_state        : signal is "TRUE";
-  attribute mark_debug of run_state         : signal is "TRUE";
+  attribute mark_debug of accumulator        : signal is "TRUE";
+  attribute mark_debug of accumulator_part_2 : signal is "TRUE";
+  attribute mark_debug of bram_addr          : signal is "TRUE";
+  attribute mark_debug of value_reg          : signal is "TRUE";
+  attribute mark_debug of go                 : signal is "TRUE";
+  attribute mark_debug of done               : signal is "TRUE";
+  attribute mark_debug of accumulator_bcd    : signal is "TRUE";
+  attribute mark_debug of bcd_digit_counter  : signal is "TRUE";
+  attribute mark_debug of ctrl_state         : signal is "TRUE";
+  attribute mark_debug of run_state          : signal is "TRUE";
 
 begin
 
@@ -168,11 +171,11 @@ begin
             is_leading_zeroes <= true;
             parse_enable      <= false;
           else
-            --if (not (parse_state = PARSE_DIGIT
+            -- if (not (parse_state = PARSE_DIGIT
             --         and BRAM_READ_DATA_IN = ascii_lf
             --         and process_ready = '0')) then
-              bram_addr <= bram_addr + 1;
-            --end if;
+            bram_addr <= bram_addr + 1;
+            -- end if;
             run_state <= RUN_RUNNING;
           end if;
 
@@ -191,7 +194,8 @@ begin
             bram_addr           <= bram_addr + 1;
             BRAM_WRITE_DATA_OUT <= x"00";
           else
-            current_bcd_nibble := accumulator_bcd(bcd_digit_counter);
+            --TODO output both part 1 and part 2
+            current_bcd_nibble := accumulator_bcd_part_2(bcd_digit_counter);
             if (not is_leading_zeroes or current_bcd_nibble /= x"0") then
               is_leading_zeroes   <= false;
               BRAM_WRITE_DATA_OUT <= ascii_digit_prefix
@@ -253,20 +257,20 @@ begin
             if (current_char = ascii_lf) then
               -- wait until the process FSM is ready, since the modulo operation
               -- can take several clocks to complete
-              --if (process_ready = '1') then
-                process_go           <= '1';
-                number_to_process    <= value_reg;
-                direction_to_process <= direction_reg;
+              -- if (process_ready = '1') then
+              process_go           <= '1';
+              number_to_process    <= value_reg;
+              direction_to_process <= direction_reg;
 
-                value_reg   <= (others => '0');
-                parse_state <= PARSE_DIRECTION;
-              --else
-                --parse_state <= PARSE_DIGIT;
-              --end if;
+              value_reg   <= (others => '0');
+              parse_state <= PARSE_DIRECTION;
+            -- else
+            -- parse_state <= PARSE_DIGIT;
+            -- end if;
             else
               -- store BCD value in value_reg
               value_reg <= value_reg(11 downto 0) & current_char(3 downto 0);
-              --value_reg   <= resize(value_reg * 10, value_reg'length)
+              -- value_reg   <= resize(value_reg * 10, value_reg'length)
               --               + current_digit_int;
               parse_state <= PARSE_DIGIT;
             end if;
@@ -284,18 +288,21 @@ begin
   end process PARSE_PROC;
 
   PROCESSING_PROC : process (CLK) is
-  variable v_hundreds: std_logic_vector(3 downto 0);
-  variable v_tens: std_logic_vector(3 downto 0);
-  variable v_units: std_logic_vector(3 downto 0);
-  variable v_to_rotate_by: unsigned(7 downto 0);
+    variable v_hundreds     : std_logic_vector(3 downto 0);
+    variable v_hundreds_int : unsigned(31 downto 0);
+    variable v_tens         : std_logic_vector(3 downto 0);
+    variable v_units        : std_logic_vector(3 downto 0);
+    variable v_to_rotate_by : unsigned(15 downto 0);
   begin
     if (rising_edge(CLK)) then
       process_ready <= '0';
 
-      v_hundreds := number_to_process(11 downto 8);
-      v_tens := number_to_process(7 downto 4);
-      v_units := number_to_process(3 downto 0);
-      v_to_rotate_by := unsigned(v_tens) * 10 + unsigned(v_units);
+      v_hundreds     := number_to_process(11 downto 8);
+      v_hundreds_int := resize(unsigned(v_hundreds), 32);
+      v_tens         := number_to_process(7 downto 4);
+      v_units        := number_to_process(3 downto 0);
+      v_to_rotate_by := resize(unsigned(v_tens) * 10 + unsigned(v_units), 16);
+
 
       case process_state is
 
@@ -308,17 +315,19 @@ begin
           end if;
 
         when PROCESS_MOVE_DIAL =>
-          -- Add/subtract tens and units from dial position. Hundreds
-          -- field has no impact
+          -- Add/subtract tens and units from dial position.
+          -- Add hundreds field to part 2 accumulator
           report "Rotate by: " & integer'image(to_integer(v_to_rotate_by));
+          accumulator_part_2 <= accumulator_part_2 + to_integer(v_hundreds_int);
           case direction_to_process is
 
             when DIR_LEFT =>
-              dial_position <= dial_position - to_integer(resize(v_to_rotate_by,16));
+              dial_position <= dial_position - to_integer(v_to_rotate_by);
 
             when DIR_RIGHT =>
-              dial_position <= dial_position + to_integer(resize(v_to_rotate_by,16));
+              dial_position <= dial_position + to_integer(v_to_rotate_by);
           end case;
+
           process_state <= PROCESS_DO_MOD;
 
         when PROCESS_DO_MOD =>
@@ -327,29 +336,38 @@ begin
           -- to zero mod 100 then increment the counter
 
           if (dial_position = 0
-            or dial_position = 100
-            or dial_position = -100
-          ) then
+              or dial_position = 100
+              or dial_position = -100
+            ) then
             accumulator <= accumulator + 1;
           end if;
 
           if (dial_position > 99) then
-            -- accumulator   <= accumulator + 1;
             dial_position <= dial_position - 100;
-            --process_state <= PROCESS_DO_MOD;
+            accumulator_part_2 <= accumulator_part_2 + 1;
+          -- process_state <= PROCESS_DO_MOD;
           elsif (dial_position < 0) then
-            -- accumulator   <= accumulator + 1;
-            dial_position <= dial_position + 100;
-            --process_state <= PROCESS_DO_MOD;
-          --else
+            if -dial_position /= to_integer(v_to_rotate_by) then
+            accumulator_part_2 <= accumulator_part_2 + 1;
+            end if;
+            dial_position      <= dial_position + 100;
+          -- process_state <= PROCESS_DO_MOD;
+          -- else
+          --elsif dial_position = 0 then
+          --  accumulator_part_2 <= accumulator_part_2 + 1;
+          --end if;
+          elsif (dial_position > 100 or dial_position = 0) then
+            -- avoid double-counting when dial = 100
+            accumulator_part_2 <= accumulator_part_2 + 1;
           end if;
-            process_state <= PROCESS_IDLE;
+          process_state <= PROCESS_IDLE;
       end case;
 
       if (RESET = '1' or run_state = RUN_IDLE) then
-        dial_position <= dial_init;
-        accumulator   <= (others => '0');
-        process_state <= PROCESS_IDLE;
+        dial_position      <= dial_init;
+        accumulator        <= (others => '0');
+        accumulator_part_2 <= (others => '0');
+        process_state      <= PROCESS_IDLE;
       end if;
     end if;
   end process PROCESSING_PROC;
@@ -358,6 +376,12 @@ begin
     port map (
       BIN_IN  => accumulator,
       BCD_OUT => accumulator_bcd
+    );
+
+  BIN_TO_BCD_INST_PART_2 : entity work.bin_to_bcd(rtl)
+    port map (
+      BIN_IN  => accumulator_part_2,
+      BCD_OUT => accumulator_bcd_part_2
     );
 
 end architecture RTL;
