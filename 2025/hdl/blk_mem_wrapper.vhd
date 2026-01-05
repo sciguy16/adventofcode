@@ -5,7 +5,7 @@ library ieee;
   use work.aoc_top_pkg_hdr.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity BLK_MEM_WRAPPER is
+entity blk_mem_wrapper is
   port (
     RESET : in    std_logic;
     CLK   : in    std_logic;
@@ -51,7 +51,7 @@ entity BLK_MEM_WRAPPER is
     BRAM_PORT_B_WRITE_ENABLE_IN : in    std_logic;
     BRAM_PORT_B_ENABLED_OUT     : out   std_logic
   );
-end entity BLK_MEM_WRAPPER;
+end entity blk_mem_wrapper;
 
 architecture RTL of BLK_MEM_WRAPPER is
   signal bram_enable_a       : std_logic;

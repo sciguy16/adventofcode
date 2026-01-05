@@ -7,7 +7,7 @@ library ieee;
 -- duplicate of day 0 for now
 -- TODO implement day 1
 
-entity DAY1 is
+entity day1 is
   port (
     RESET : in    std_logic;
     CLK   : in    std_logic;
@@ -22,7 +22,7 @@ entity DAY1 is
     BRAM_WRITE_ENABLE_OUT : out   std_logic;
     BRAM_ENABLED_IN       : in    std_logic
   );
-end entity DAY1;
+end entity day1;
 
 architecture RTL of DAY1 is
   signal accumulator        : unsigned(31 downto 0);

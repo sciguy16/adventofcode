@@ -5,7 +5,7 @@ library ieee;
   use work.day_mux_top_level_pkg_hdr.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity DAY_MUX_TOP_LEVEL is
+entity day_mux_top_level is
   port (
     RESET : in    std_logic;
     CLK   : in    std_logic;
@@ -21,7 +21,7 @@ entity DAY_MUX_TOP_LEVEL is
     BRAM_WRITE_ENABLE_OUT : out   std_logic;
     BRAM_ENABLED_IN       : in    std_logic
   );
-end entity DAY_MUX_TOP_LEVEL;
+end entity day_mux_top_level;
 
 architecture RTL of DAY_MUX_TOP_LEVEL is
   -- Day signals to mux --

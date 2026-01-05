@@ -4,8 +4,8 @@ library ieee;
   use work.aoc_top_pkg_hdr.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity BLK_MEM_WRAPPER_TB is
-end entity BLK_MEM_WRAPPER_TB;
+entity blk_mem_wrapper_tb is
+end entity blk_mem_wrapper_tb;
 
 architecture RTL of BLK_MEM_WRAPPER_TB is
   constant c_half_period_25_mhz : time := 20 ns; -- 25 MHz clock, 40 ns period

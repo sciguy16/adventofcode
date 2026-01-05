@@ -1,7 +1,7 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-entity RESET_EXPANDER is
+entity reset_expander is
   port (
     RESET_IN : in    std_logic;
     CLK      : in    std_logic;
@@ -12,7 +12,7 @@ entity RESET_EXPANDER is
     RESET_CLK_50MHZ : in    std_logic;
     RESET_OUT_50MHZ : out   std_logic
   );
-end entity RESET_EXPANDER;
+end entity reset_expander;
 
 architecture RTL of RESET_EXPANDER is
   attribute async_reg        : string;

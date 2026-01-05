@@ -5,8 +5,8 @@ library ieee;
   use work.packet_handler_pkg.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity PACKET_HANDLER_TB_DAY_MUX is
-end entity PACKET_HANDLER_TB_DAY_MUX;
+entity packet_handler_tb_day_mux is
+end entity packet_handler_tb_day_mux;
 
 architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
   -- 25 MHz clock, 40 ns period

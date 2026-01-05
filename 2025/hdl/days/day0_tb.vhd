@@ -3,8 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity DAY0_TB is
-end entity DAY0_TB;
+entity day0_tb is
+end entity day0_tb;
 
 architecture RTL of DAY0_TB is
   -- 25 MHz clock, 40 ns period

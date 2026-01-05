@@ -16,7 +16,7 @@ library ieee;
 
 -- 115200 baud from a 50 MHz interface clock
 
-entity AXI_UART_WRAPPER is
+entity axi_uart_wrapper is
   port (
     RESET    : in    std_logic;
     CLK      : in    std_logic;
@@ -33,7 +33,7 @@ entity AXI_UART_WRAPPER is
     AXI_STR_TXD_TREADY_OUT : out   std_logic;
     AXI_STR_TXD_TDATA_IN   : in    std_logic_vector(31 downto 0)
   );
-end entity AXI_UART_WRAPPER;
+end entity axi_uart_wrapper;
 
 architecture RTL of AXI_UART_WRAPPER is
   signal init_complete : std_logic := '0';

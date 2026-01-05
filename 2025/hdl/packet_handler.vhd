@@ -38,7 +38,7 @@ library ieee;
 -- * Day operation controls
 -- * Day zero mode that's approximately a self-test
 
-entity PACKET_HANDLER is
+entity packet_handler is
   port (
     RESET : in    std_logic;
     CLK   : in    std_logic;
@@ -93,7 +93,7 @@ entity PACKET_HANDLER is
     DAY_START_OUT      : out   std_logic;
     DAY_DONE_IN        : in    std_logic
   );
-end entity PACKET_HANDLER;
+end entity packet_handler;
 
 architecture RTL of PACKET_HANDLER is
   signal packet_type         : unsigned(7 downto 0)  := (others => '0');

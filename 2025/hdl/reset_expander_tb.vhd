@@ -1,8 +1,8 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-entity RESET_EXPANDER_TB is
-end entity RESET_EXPANDER_TB;
+entity reset_expander_tb is
+end entity reset_expander_tb;
 
 architecture RTL of RESET_EXPANDER_TB is
   -- 25 MHz clock, 40 ns period

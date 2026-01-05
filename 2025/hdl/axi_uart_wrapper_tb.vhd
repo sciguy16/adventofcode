@@ -2,8 +2,8 @@ library ieee;
   use ieee.std_logic_1164.all;
   use work.aoc_top_pkg_hdr.all;
 
-entity AXI_UART_WRAPPER_TB is
-end entity AXI_UART_WRAPPER_TB;
+entity axi_uart_wrapper_tb is
+end entity axi_uart_wrapper_tb;
 
 architecture RTL of AXI_UART_WRAPPER_TB is
   -- 50,000,000 (50 Mhz) / 115200 Baud rate;

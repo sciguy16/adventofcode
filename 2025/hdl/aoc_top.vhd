@@ -14,7 +14,7 @@ library ieee;
   use work.aoc_top_pkg_hdr.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity AOC_TOP is
+entity aoc_top is
   port (
     RESET_IN     : in    std_logic;
     CLK_12MHZ_IN : in    std_logic;
@@ -27,7 +27,7 @@ entity AOC_TOP is
     UART_RX : in    std_logic;
     UART_TX : out   std_logic
   );
-end entity AOC_TOP;
+end entity aoc_top;
 
 architecture RTL of AOC_TOP is
   signal clk_25mhz    : std_logic;

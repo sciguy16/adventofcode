@@ -4,7 +4,7 @@ library ieee;
   use work.bin_to_bcd_pkg_hdr.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity DAY0 is
+entity day0 is
   port (
     RESET : in    std_logic;
     CLK   : in    std_logic;
@@ -19,7 +19,7 @@ entity DAY0 is
     BRAM_WRITE_ENABLE_OUT : out   std_logic;
     BRAM_ENABLED_IN       : in    std_logic
   );
-end entity DAY0;
+end entity day0;
 
 architecture RTL of DAY0 is
   signal accumulator : unsigned(31 downto 0);

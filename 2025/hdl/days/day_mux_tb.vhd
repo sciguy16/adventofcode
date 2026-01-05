@@ -3,8 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity DAY_MUX_TB is
-end entity DAY_MUX_TB;
+entity day_mux_tb is
+end entity day_mux_tb;
 
 architecture RTL of DAY_MUX_TB is
   -- 25 MHz clock, 40 ns period

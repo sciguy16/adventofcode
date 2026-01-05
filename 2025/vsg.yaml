@@ -27,9 +27,9 @@ rule:
   component_012 :
     case : upper
   entity_008 :
-    case : upper
+    case : lower
   entity_012 :
-    case : upper
+    case : lower
   generate_005 :
     case : upper
   generate_012 :

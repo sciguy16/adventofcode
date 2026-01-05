@@ -3,8 +3,8 @@ library ieee;
   use ieee.numeric_std.all;
   use work.bin_to_bcd_pkg_hdr.all;
 
-entity BIN_TO_BCD_TB is
-end entity BIN_TO_BCD_TB;
+entity bin_to_bcd_tb is
+end entity bin_to_bcd_tb;
 
 architecture RTL of BIN_TO_BCD_TB is
   signal bin_in  : unsigned(31 downto 0) := x"0000_0000";

@@ -1,7 +1,7 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-entity HB is
+entity hb is
   generic (
     G_PERIOD : natural := 25000000
   );
@@ -10,7 +10,7 @@ entity HB is
     CLK    : in    std_logic;
     HB_LED : out   std_logic
   );
-end entity HB;
+end entity hb;
 
 architecture RTL of HB is
   signal counter : integer := 0;

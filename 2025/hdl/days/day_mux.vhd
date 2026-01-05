@@ -4,7 +4,7 @@ library ieee;
   use work.day_mux_top_level_pkg_hdr.all;
   use work.blk_mem_wrapper_pkg_hdr.all;
 
-entity DAY_MUX is
+entity day_mux is
   port (
     DAY_SEL_IN   : in    unsigned(7 downto 0);
     DAY_DONE_OUT : out   std_logic;
@@ -22,7 +22,7 @@ entity DAY_MUX is
     BRAM_WRITE_ENABLE_MUX : in    t_std_logic_arr;
     DAY_DONE_MUX          : in    t_std_logic_arr
   );
-end entity DAY_MUX;
+end entity day_mux;
 
 architecture RTL of DAY_MUX is
 begin

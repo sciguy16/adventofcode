@@ -23,12 +23,12 @@ library ieee;
   use ieee.numeric_std.all;
   use work.bin_to_bcd_pkg_hdr.all;
 
-entity BIN_TO_BCD is
+entity bin_to_bcd is
   port (
     BIN_IN  : in    unsigned(c_BIN_WIDTH - 1 downto 0);
     BCD_OUT : out   t_bcd_out
   );
-end entity BIN_TO_BCD;
+end entity bin_to_bcd;
 
 architecture RTL of BIN_TO_BCD is
 begin

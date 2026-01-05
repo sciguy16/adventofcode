@@ -2,8 +2,8 @@ library ieee;
   use ieee.std_logic_1164.all;
   use work.packet_types_pkg_hdr.all;
 
-entity PACKET_HANDLER_TB is
-end entity PACKET_HANDLER_TB;
+entity packet_handler_tb is
+end entity packet_handler_tb;
 
 architecture RTL of PACKET_HANDLER_TB is
   signal clk   : std_logic := '0';
