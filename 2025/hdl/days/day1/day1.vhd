@@ -14,6 +14,8 @@ entity day1 is
 
     DATA_LEN_BYTES_IN : in    unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_DONE_OUT      : out   std_logic;
+    PART_A_OUT        : out   std_logic_vector(31 downto 0);
+    PART_B_OUT        : out   std_logic_vector(31 downto 0);
 
     -- Port B controls --
     BRAM_ADDR_OUT         : out   t_addr_b;
@@ -31,13 +33,6 @@ architecture RTL of DAY1 is
   signal value_reg          : std_logic_vector(15 downto 0) := (others => '0');
   signal go                 : std_logic;
   signal done               : std_logic;
-
-  signal accumulator_bcd        : t_bcd_out;
-  signal accumulator_bcd_part_2 : t_bcd_out;
-  signal bcd_digit_counter      : integer range 0 to c_num_digits := 0;
-  signal is_leading_zeroes      : boolean                         := false;
-
-  constant ascii_digit_prefix : std_logic_vector(3 downto 0) := x"3";
 
   constant ascii_l  : std_logic_vector(7 downto 0) := x"4C";
   constant ascii_r  : std_logic_vector(7 downto 0) := x"52";
@@ -66,10 +61,8 @@ architecture RTL of DAY1 is
 
   type t_run_state is (
     RUN_IDLE,
-    -- RUN_WAIT_ONE_CLK,
     RUN_RUNNING,
     RUN_WAIT_PROC_IDLE,
-    RUN_WRITE_RESULT,
     RUN_DONE
   );
 
@@ -89,18 +82,6 @@ architecture RTL of DAY1 is
   );
 
   signal process_state : t_process_state := PROCESS_IDLE;
-
-  attribute mark_debug : string;
-  attribute mark_debug of accumulator        : signal is "TRUE";
-  attribute mark_debug of accumulator_part_2 : signal is "TRUE";
-  attribute mark_debug of bram_addr          : signal is "TRUE";
-  attribute mark_debug of value_reg          : signal is "TRUE";
-  attribute mark_debug of go                 : signal is "TRUE";
-  attribute mark_debug of done               : signal is "TRUE";
-  attribute mark_debug of accumulator_bcd    : signal is "TRUE";
-  attribute mark_debug of bcd_digit_counter  : signal is "TRUE";
-  attribute mark_debug of ctrl_state         : signal is "TRUE";
-  attribute mark_debug of run_state          : signal is "TRUE";
 
 begin
 
@@ -155,8 +136,7 @@ begin
       case run_state is
 
         when RUN_IDLE =>
-          bram_addr         <= (others => '0');
-          bcd_digit_counter <= 0;
+          bram_addr <= (others => '0');
           if (go = '1') then
             -- preemptively increment bram_addr since the bram read output
             -- is one cycle behind
@@ -167,13 +147,9 @@ begin
 
         when RUN_RUNNING =>
           if (bram_addr = DATA_LEN_BYTES_IN + 1) then
-            run_state         <= RUN_WRITE_RESULT;
-            is_leading_zeroes <= true;
+            run_state         <= RUN_DONE;
             parse_enable      <= false;
           else
-            -- if (not (parse_state = PARSE_DIGIT
-            --         and BRAM_READ_DATA_IN = ascii_lf
-            --         and process_ready = '0')) then
             bram_addr <= bram_addr + 1;
             -- end if;
             run_state <= RUN_RUNNING;
@@ -181,39 +157,23 @@ begin
 
         when RUN_WAIT_PROC_IDLE =>
           if (process_state = PROCESS_IDLE) then
-            run_state <= RUN_WRITE_RESULT;
+            run_state <= RUN_DONE;
           else
             run_state <= RUN_RUNNING;
           end if;
 
-        when RUN_WRITE_RESULT =>
-          BRAM_WRITE_ENABLE_OUT <= '1';
-          -- Write the BCD-encoded result into the next section of BRAM
-          if (bcd_digit_counter = c_num_digits) then
-            run_state           <= RUN_DONE;
-            bram_addr           <= bram_addr + 1;
-            BRAM_WRITE_DATA_OUT <= x"00";
-          else
-            -- TODO output both part 1 and part 2
-            current_bcd_nibble := accumulator_bcd_part_2(bcd_digit_counter);
-            if (not is_leading_zeroes or current_bcd_nibble /= x"0") then
-              is_leading_zeroes   <= false;
-              BRAM_WRITE_DATA_OUT <= ascii_digit_prefix
-                                     & current_bcd_nibble;
-              bram_addr           <= bram_addr + 1;
-            end if;
-            bcd_digit_counter <= bcd_digit_counter + 1;
-            run_state         <= RUN_WRITE_RESULT;
-          end if;
-
         when RUN_DONE =>
-          run_state <= RUN_IDLE;
-          done      <= '1';
+          run_state  <= RUN_IDLE;
+          PART_A_OUT <= std_logic_vector(accumulator);
+          PART_B_OUT <= std_logic_vector(accumulator_part_2);
+          done       <= '1';
       end case;
 
       if (RESET = '1') then
         BRAM_WRITE_DATA_OUT   <= x"00";
         BRAM_WRITE_ENABLE_OUT <= '0';
+        PART_A_OUT            <= (others => '0');
+        PART_B_OUT            <= (others => '0');
         bram_addr             <= (others => '0');
         run_state             <= RUN_IDLE;
         parse_enable          <= false;
@@ -257,21 +217,16 @@ begin
             if (current_char = ascii_lf) then
               -- wait until the process FSM is ready, since the modulo operation
               -- can take several clocks to complete
-              -- if (process_ready = '1') then
               process_go           <= '1';
               number_to_process    <= value_reg;
               direction_to_process <= direction_reg;
 
               value_reg   <= (others => '0');
               parse_state <= PARSE_DIRECTION;
-            -- else
-            -- parse_state <= PARSE_DIGIT;
-            -- end if;
+
             else
               -- store BCD value in value_reg
               value_reg <= value_reg(11 downto 0) & current_char(3 downto 0);
-              -- value_reg   <= resize(value_reg * 10, value_reg'length)
-              --               + current_digit_int;
               parse_state <= PARSE_DIGIT;
             end if;
         end case;
@@ -370,17 +325,5 @@ begin
       end if;
     end if;
   end process PROCESSING_PROC;
-
-  BIN_TO_BCD_INST : entity work.bin_to_bcd(rtl)
-    port map (
-      BIN_IN  => accumulator,
-      BCD_OUT => accumulator_bcd
-    );
-
-  BIN_TO_BCD_INST_PART_2 : entity work.bin_to_bcd(rtl)
-    port map (
-      BIN_IN  => accumulator_part_2,
-      BCD_OUT => accumulator_bcd_part_2
-    );
 
 end architecture RTL;

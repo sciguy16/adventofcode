@@ -13,6 +13,8 @@ entity day_mux_top_level is
     DAY_SEL_IN        : in    unsigned(7 downto 0);
     DATA_LEN_BYTES_IN : in    unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_DONE_OUT      : out   std_logic;
+    PART_A_OUT        : out   std_logic_vector(31 downto 0);
+    PART_B_OUT        : out   std_logic_vector(31 downto 0);
 
     -- Port B controls --
     BRAM_ADDR_OUT         : out   t_addr_b;
@@ -30,6 +32,8 @@ architecture RTL of DAY_MUX_TOP_LEVEL is
   signal bram_enabled_mux      : t_std_logic_arr;
   signal bram_write_enable_mux : t_std_logic_arr;
   signal day_done_mux          : t_std_logic_arr;
+  signal part_a_out_mux        : t_out_arr;
+  signal part_b_out_mux        : t_out_arr;
 
 begin
 
@@ -37,6 +41,8 @@ begin
     port map (
       DAY_SEL_IN   => DAY_SEL_IN,
       DAY_DONE_OUT => DAY_DONE_OUT,
+      PART_A_OUT   => PART_A_OUT,
+      PART_B_OUT   => PART_B_OUT,
 
       -- Port B controls --
       BRAM_ADDR_OUT         => BRAM_ADDR_OUT,
@@ -49,7 +55,9 @@ begin
       BRAM_WRITE_DATA_MUX   => bram_write_data_mux,
       BRAM_ENABLED_MUX      => bram_enabled_mux,
       BRAM_WRITE_ENABLE_MUX => bram_write_enable_mux,
-      DAY_DONE_MUX          => day_done_mux
+      DAY_DONE_MUX          => day_done_mux,
+      PART_A_OUT_MUX        => part_a_out_mux,
+      PART_B_OUT_MUX        => part_b_out_mux
     );
 
   DAY0_INST : entity work.day0(rtl)
@@ -59,6 +67,8 @@ begin
 
       DATA_LEN_BYTES_IN => DATA_LEN_BYTES_IN,
       DAY_DONE_OUT      => day_done_mux(0),
+      PART_A_OUT        => part_a_out_mux(0),
+      PART_B_OUT        => part_b_out_mux(0),
 
       -- Port B controls --
       BRAM_ADDR_OUT         => bram_addr_mux(0),
@@ -75,6 +85,8 @@ begin
 
       DATA_LEN_BYTES_IN => DATA_LEN_BYTES_IN,
       DAY_DONE_OUT      => day_done_mux(1),
+      PART_A_OUT        => part_a_out_mux(1),
+      PART_B_OUT        => part_b_out_mux(1),
 
       -- Port B controls --
       BRAM_ADDR_OUT         => bram_addr_mux(1),

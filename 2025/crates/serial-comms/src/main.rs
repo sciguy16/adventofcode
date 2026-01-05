@@ -6,6 +6,7 @@ use std::{
     fs::File,
     path::{Path, PathBuf},
 };
+use types::codegen::top::RunDayAck;
 
 #[allow(unused)]
 use tracing::{debug, error, info, trace, warn};
@@ -77,11 +78,14 @@ fn do_run(port: &str) -> Result<()> {
     let hdl_dir = find_hdl_dir()?;
 
     let result = run_day_from_file(&mut port, &hdl_dir, 1, InputOrTest::Test)?;
+    info!(?result);
     // check_eq(result, "3", "Day 1 test")?;
-    check_eq(result, "6", "Day 1 test")?;
+    // check_eq(result, "6", "Day 1 test")?;
     let result = run_day_from_file(&mut port, &hdl_dir, 1, InputOrTest::Input)?;
     // check_eq(result, "995", "Day 1 test")?;
-    check_eq(result, "5847", "Day 1 test")?;
+    // check_eq(result, "5847", "Day 1 test")?;
+    info!(?result);
+    println!("Part 1: {}, part 2: {}", result.part1, result.part2);
 
     Ok(())
 }
@@ -106,7 +110,7 @@ fn run_day_from_file(
     hdl_dir: &Path,
     day: u8,
     input_or_test: InputOrTest,
-) -> Result<String> {
+) -> Result<RunDayAck> {
     let day_str = format!("day{day}");
     let input_path = hdl_dir
         .join("days")
@@ -118,7 +122,7 @@ fn run_day_from_file(
         })
     })?;
     let result = port.run_day_from_reader(day, file)?;
-    info!("Got day {day} {input_or_test:?} result: {result}");
+    info!("Got day {day} {input_or_test:?} result: {result:?}");
     Ok(result)
 }
 

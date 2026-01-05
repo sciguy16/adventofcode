@@ -91,7 +91,9 @@ entity packet_handler is
     DAY_SEL_OUT        : out   unsigned(7 downto 0);
     DATA_LEN_BYTES_OUT : out   unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     DAY_START_OUT      : out   std_logic;
-    DAY_DONE_IN        : in    std_logic
+    DAY_DONE_IN        : in    std_logic;
+    PART_A_IN          : in    std_logic_vector(31 downto 0);
+    PART_B_IN          : in    std_logic_vector(31 downto 0)
   );
 end entity packet_handler;
 
@@ -130,23 +132,16 @@ architecture RTL of PACKET_HANDLER is
     REPLY_ST_SEND_BRAM_OKAY,
     REPLY_ST_SETUP_BRAM_READ,
     REPLY_ST_SEND_BRAM_DATA,
-    REPLY_ST_RUN_DAY,
+    REPLY_ST_RUN_DAY_STATUS,
+    REPLY_ST_RUN_DAY_PART1,
+    REPLY_ST_RUN_DAY_PART2,
     REPLY_ST_WAIT_DONE,
     REPLY_ST_WAIT_IDLE
   );
 
   signal reply_state : t_reply_state := REPLY_ST_IDLE;
 
-  attribute mark_debug : string;
-  attribute mark_debug of rx_state            : signal is "TRUE";
-  attribute mark_debug of PACKET_TYPE         : signal is "TRUE";
-  attribute mark_debug of RX_PACKET_LEN_WORDS : signal is "TRUE";
-  attribute mark_debug of RAM_OFFSET          : signal is "TRUE";
-  attribute mark_debug of payload_counter     : signal is "TRUE";
-  attribute mark_debug of reply_done          : signal is "TRUE";
-  attribute mark_debug of reply_state         : signal is "TRUE";
-  attribute mark_debug of data_len_bytes      : signal is "TRUE";
-  attribute mark_debug of run_day_ok          : signal is "TRUE";
+
 
   function bool_to_std_logic (
     input: boolean
@@ -185,7 +180,7 @@ begin
 
       when C_DESTINATION_top_TYPE_run_day =>
         v_header_typ := C_DESTINATION_top_TYPE_run_day_ack;
-        v_packet_len := x"0004";
+        v_packet_len := x"000C";
 
       when others =>
         report "Unexpected packet type" & to_hex_string(packet_type)
@@ -419,7 +414,7 @@ begin
               REPLY_ST_SEND_PONG_PAYLOAD when C_DESTINATION_top_TYPE_ping,
               REPLY_ST_SEND_BRAM_OFFSET when C_DESTINATION_top_TYPE_write_ram,
               REPLY_ST_SEND_BRAM_OFFSET when C_DESTINATION_top_TYPE_read_ram,
-              REPLY_ST_RUN_DAY when C_DESTINATION_top_TYPE_run_day,
+              REPLY_ST_RUN_DAY_STATUS when C_DESTINATION_top_TYPE_run_day,
               REPLY_ST_IDLE when others;
           end if;
 
@@ -471,7 +466,7 @@ begin
             reply_state <= REPLY_ST_WAIT_DONE;
           end if;
 
-        when REPLY_ST_RUN_DAY =>
+        when REPLY_ST_RUN_DAY_STATUS =>
           -- if request is bad then send ACK immediately, otherwise
           -- wait for the day mux to report DONE
           if (not run_day_ok or DAY_DONE_IN = '1') then
@@ -480,9 +475,23 @@ begin
                                       & bool_to_std_logic(run_day_ok)
                                       & x"0000";
             AXI_STR_TXD_TVALID_OUT <= '1';
-            reply_state            <= REPLY_ST_WAIT_DONE;
+            reply_state            <= REPLY_ST_RUN_DAY_PART1;
           else
-            reply_state <= REPLY_ST_RUN_DAY;
+            reply_state <= REPLY_ST_RUN_DAY_STATUS;
+          end if;
+
+        when REPLY_ST_RUN_DAY_PART1 =>
+          AXI_STR_TXD_TVALID_OUT <= '1';
+          if (AXI_STR_TXD_TREADY_IN) then
+            reply_state           <= REPLY_ST_RUN_DAY_PART2;
+            AXI_STR_TXD_TDATA_OUT <= PART_A_IN;
+          end if;
+
+        when REPLY_ST_RUN_DAY_PART2 =>
+          AXI_STR_TXD_TVALID_OUT <= '1';
+          if (AXI_STR_TXD_TREADY_IN) then
+            reply_state           <= REPLY_ST_WAIT_DONE;
+            AXI_STR_TXD_TDATA_OUT <= PART_B_IN;
           end if;
 
         when REPLY_ST_WAIT_DONE =>

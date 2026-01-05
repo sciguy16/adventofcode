@@ -18,8 +18,12 @@ architecture RTL of DAY0_TB is
   signal bram_addr         : t_addr_b;
   signal bram_write_data   : std_logic_vector(7 downto 0);
   signal bram_read_data    : std_logic_vector(7 downto 0) := x"00";
+
   signal bram_write_enable : std_logic;
-  signal bram_enabled_in   : std_logic                    := '0';
+  signal bram_enabled_in   : std_logic := '0';
+
+  signal part_a_output : std_logic_vector(31 downto 0);
+  signal part_b_output : std_logic_vector(31 downto 0);
 
   signal verbose : boolean := false;
 
@@ -78,6 +82,8 @@ begin
 
       DATA_LEN_BYTES_IN => data_len_bytes_in,
       DAY_DONE_OUT      => day_done_out,
+      PART_A_OUT        => part_a_output,
+      PART_B_OUT        => part_b_output,
 
       -- Port B controls --
       BRAM_ADDR_OUT         => bram_addr,
@@ -121,37 +127,15 @@ begin
     end loop;
     result := (others => '0');
 
-    wait_eq(bram_write_enable, '1', "bram write enable");
-
-    -- expecting ten digits: 0000 0003 54
-    expected_bram_addr := 15x"000A";
-    for i in 0 to 7 loop
-      expected_bram_addr := expected_bram_addr + 1;
-      assert bram_addr = std_logic_vector(expected_bram_addr)
-        report "bram addr 00b";
-      assert bram_write_data = x"30"
-        report "ascii 0";
-      wait_edge;
-    end loop;
-    assert bram_addr = 15x"0013"
-      report "bram addr 013";
-    assert bram_write_data = x"33"
-      report "ascii 3";
-    wait_edge;
-    assert bram_addr = 15x"0014"
-      report "bram addr 014";
-    assert bram_write_data = x"35"
-      report "ascii 5";
-    wait_edge;
-    assert bram_addr = 15x"0015"
-      report "bram addr 015";
-    assert bram_write_data = x"34"
-      report "ascii 4";
-    wait_edge;
-
     wait_eq(day_done_out, '1', "day done out");
     assert day_done_out = '1'
       report "day done out end";
+
+    assert part_a_output = x"0000_0354"
+      report "PART_A_OUT";
+    assert part_b_output = x"0000_0354"
+      report "PART_B_OUT";
+
     bram_enabled_in <= '0';
 
     for idx in 0 to 3 loop

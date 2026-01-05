@@ -2,13 +2,15 @@ use color_eyre::{Result, eyre::eyre};
 use mio_serial::{SerialPort, SerialPortType, UsbPortInfo};
 use rand::Rng;
 use std::{
-    ffi::CStr,
     fmt::{Display, Write},
     io::Read,
     sync::mpsc,
     time::Duration,
 };
-use types::{Header, SerDe, codegen::top::Types};
+use types::{
+    Header, SerDe,
+    codegen::top::{RunDayAck, Types},
+};
 
 #[allow(unused)]
 use tracing::{debug, error, info, trace, warn};
@@ -148,7 +150,11 @@ impl SerialHandler {
         }
     }
 
-    pub fn run_day(&mut self, day: u8, data_len_bytes: u16) -> Result<String> {
+    pub fn run_day(
+        &mut self,
+        day: u8,
+        data_len_bytes: u16,
+    ) -> Result<RunDayAck> {
         use types::codegen::top::{RunDay, Types};
 
         let run_day = Types::from(RunDay {
@@ -161,29 +167,10 @@ impl SerialHandler {
             && response.day == day
             && response.ok == 0x01
         {
+            Ok(response)
         } else {
-            return Err(eyre!("RunDay response mismatch"));
-        };
-
-        // get the result from BRAM - the result is ten ASCII digits
-        // immediately following the puzzle input
-        let base_addr = data_len_bytes / 4;
-        let offset = usize::from(data_len_bytes % 4) + 2;
-
-        debug!("Output base address: {base_addr:04x}");
-        debug!("Output offset: {offset:02x}");
-
-        let data = self.read_ram(base_addr.into())?;
-
-        let digits = &data[offset..offset + 12];
-        debug!("Output digits: {digits:02x?}");
-        let digits = CStr::from_bytes_until_nul(digits)?;
-        let result = digits.to_str()?.to_string();
-
-        let ram = self.read_ram(0)?;
-        trace!("Ram from zero: {ram:02x?}");
-
-        Ok(result)
+            Err(eyre!("RunDay response mismatch"))
+        }
     }
 
     pub fn self_test(&mut self) -> Result<()> {
@@ -240,10 +227,10 @@ impl SerialHandler {
         let result = self.run_day(0, to_send.len().try_into().unwrap())?;
         let expected = sum.to_string();
         debug!("Test data: {test_data:?}, sum={sum}");
-        debug!("Day result: {result}, expected {expected}");
+        debug!("Day result: {result:?}, expected {expected}");
 
-        if result != expected {
-            return Err(eyre!("Incorrect result: {result} != {expected}"));
+        if result.part1 != sum || result.part2 != sum {
+            return Err(eyre!("Incorrect result: {result:?} != {expected}"));
         }
 
         info!("5. Day zero (long)");
@@ -289,7 +276,7 @@ impl SerialHandler {
         &mut self,
         day: u8,
         mut reader: R,
-    ) -> Result<String> {
+    ) -> Result<RunDayAck> {
         let mut buf = [0; 128];
         let mut offset = 0;
         let mut total_len = 0;

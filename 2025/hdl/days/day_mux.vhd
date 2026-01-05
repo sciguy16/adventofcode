@@ -8,6 +8,8 @@ entity day_mux is
   port (
     DAY_SEL_IN   : in    unsigned(7 downto 0);
     DAY_DONE_OUT : out   std_logic;
+    PART_A_OUT   : out   std_logic_vector(31 downto 0);
+    PART_B_OUT   : out   std_logic_vector(31 downto 0);
 
     -- Port B controls --
     BRAM_ADDR_OUT         : out   t_addr_b;
@@ -20,7 +22,9 @@ entity day_mux is
     BRAM_WRITE_DATA_MUX   : in    t_bram_data_arr;
     BRAM_ENABLED_MUX      : out   t_std_logic_arr;
     BRAM_WRITE_ENABLE_MUX : in    t_std_logic_arr;
-    DAY_DONE_MUX          : in    t_std_logic_arr
+    DAY_DONE_MUX          : in    t_std_logic_arr;
+    PART_A_OUT_MUX        : in    t_out_arr;
+    PART_B_OUT_MUX        : in    t_out_arr
   );
 end entity day_mux;
 
@@ -38,12 +42,16 @@ begin
       BRAM_ENABLED_MUX(v_day_sel_int) <= BRAM_ENABLED_IN;
       BRAM_WRITE_ENABLE_OUT           <= BRAM_WRITE_ENABLE_MUX(v_day_sel_int);
       DAY_DONE_OUT                    <= DAY_DONE_MUX(v_day_sel_int);
+      PART_A_OUT                      <= PART_A_OUT_MUX(v_day_sel_int);
+      PART_B_OUT                      <= PART_B_OUT_MUX(v_day_sel_int);
     else
       BRAM_ADDR_OUT         <= (others => '0');
       BRAM_WRITE_DATA_OUT   <= x"00";
       BRAM_ENABLED_MUX      <= (others => '0');
       BRAM_WRITE_ENABLE_OUT <= '0';
       DAY_DONE_OUT          <= '0';
+      PART_A_OUT            <= (others => '0');
+      PART_B_OUT            <= (others => '0');
     end if;
   end process MUX;
 

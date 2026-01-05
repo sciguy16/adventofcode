@@ -15,4 +15,6 @@ package day_mux_top_level_pkg_hdr is
 
   type t_std_logic_arr is array(0 to C_NUM_DAYS - 1) of std_logic;
 
+  type t_out_arr is array(0 to C_NUM_DAYS - 1) of std_logic_vector(31 downto 0);
+
 end package day_mux_top_level_pkg_hdr;

@@ -66,6 +66,8 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
   signal day_sel        : unsigned(7 downto 0);
   signal data_len_bytes : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
   signal day_done       : std_logic;
+  signal part_a_output  : std_logic_vector(31 downto 0);
+  signal part_b_output  : std_logic_vector(31 downto 0);
 
   signal verbose : boolean := false;
 
@@ -152,7 +154,9 @@ begin
       -- Day mux controls
       DAY_SEL_OUT        => day_sel,
       DATA_LEN_BYTES_OUT => data_len_bytes,
-      DAY_DONE_IN        => day_done
+      DAY_DONE_IN        => day_done,
+      PART_A_IN          => part_a_output,
+      PART_B_IN          => part_b_output
     );
 
   clk <= not clk after c_half_period_25_mhz;

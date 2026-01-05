@@ -13,138 +13,161 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="4,145.333 ns"></ZoomStartTime>
-      <ZoomEndTime time="5,329.334 ns"></ZoomEndTime>
-      <Cursor1Time time="5,682.000 ns"></Cursor1Time>
+      <ZoomStartTime time="4,575.333 ns"></ZoomStartTime>
+      <ZoomEndTime time="5,759.334 ns"></ZoomEndTime>
+      <Cursor1Time time="5,410.333 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="385"></NameColumnWidth>
       <ValueColumnWidth column_width="123"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="31" />
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/RESET">
+   <WVObjectSize size="37" />
+   <wvobject type="logic" fp_name="/day1_tb/UUT/RESET">
       <obj_property name="ElementShortName">RESET</obj_property>
       <obj_property name="ObjectShortName">RESET</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/CLK">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/CLK">
       <obj_property name="ElementShortName">CLK</obj_property>
       <obj_property name="ObjectShortName">CLK</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/DATA_LEN_BYTES_IN">
+   <wvobject type="array" fp_name="/day1_tb/UUT/DATA_LEN_BYTES_IN">
       <obj_property name="ElementShortName">DATA_LEN_BYTES_IN[14:0]</obj_property>
       <obj_property name="ObjectShortName">DATA_LEN_BYTES_IN[14:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/DAY_DONE_OUT">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/DAY_DONE_OUT">
       <obj_property name="ElementShortName">DAY_DONE_OUT</obj_property>
       <obj_property name="ObjectShortName">DAY_DONE_OUT</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/BRAM_ADDR_OUT">
+   <wvobject type="array" fp_name="/day1_tb/UUT/PART_A_OUT">
+      <obj_property name="ElementShortName">PART_A_OUT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PART_A_OUT[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/PART_B_OUT">
+      <obj_property name="ElementShortName">PART_B_OUT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PART_B_OUT[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/BRAM_ADDR_OUT">
       <obj_property name="ElementShortName">BRAM_ADDR_OUT[14:0]</obj_property>
       <obj_property name="ObjectShortName">BRAM_ADDR_OUT[14:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/BRAM_WRITE_DATA_OUT">
+   <wvobject type="array" fp_name="/day1_tb/UUT/BRAM_WRITE_DATA_OUT">
       <obj_property name="ElementShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
       <obj_property name="ObjectShortName">BRAM_WRITE_DATA_OUT[7:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/BRAM_READ_DATA_IN">
+   <wvobject type="array" fp_name="/day1_tb/UUT/BRAM_READ_DATA_IN">
       <obj_property name="ElementShortName">BRAM_READ_DATA_IN[7:0]</obj_property>
       <obj_property name="ObjectShortName">BRAM_READ_DATA_IN[7:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/BRAM_WRITE_ENABLE_OUT">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/BRAM_WRITE_ENABLE_OUT">
       <obj_property name="ElementShortName">BRAM_WRITE_ENABLE_OUT</obj_property>
       <obj_property name="ObjectShortName">BRAM_WRITE_ENABLE_OUT</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/BRAM_ENABLED_IN">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/BRAM_ENABLED_IN">
       <obj_property name="ElementShortName">BRAM_ENABLED_IN</obj_property>
       <obj_property name="ObjectShortName">BRAM_ENABLED_IN</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/accumulator">
+   <wvobject type="array" fp_name="/day1_tb/UUT/accumulator">
       <obj_property name="ElementShortName">accumulator[31:0]</obj_property>
       <obj_property name="ObjectShortName">accumulator[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/accumulator_part_2">
+   <wvobject type="array" fp_name="/day1_tb/UUT/accumulator_part_2">
       <obj_property name="ElementShortName">accumulator_part_2[31:0]</obj_property>
       <obj_property name="ObjectShortName">accumulator_part_2[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/total_part_2">
-      <obj_property name="ElementShortName">total_part_2[31:0]</obj_property>
-      <obj_property name="ObjectShortName">total_part_2[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/bram_addr">
+   <wvobject type="array" fp_name="/day1_tb/UUT/bram_addr">
       <obj_property name="ElementShortName">bram_addr[14:0]</obj_property>
       <obj_property name="ObjectShortName">bram_addr[14:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/value_reg">
+   <wvobject type="array" fp_name="/day1_tb/UUT/value_reg">
       <obj_property name="ElementShortName">value_reg[15:0]</obj_property>
       <obj_property name="ObjectShortName">value_reg[15:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/go">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/go">
       <obj_property name="ElementShortName">go</obj_property>
       <obj_property name="ObjectShortName">go</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/done">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/done">
       <obj_property name="ElementShortName">done</obj_property>
       <obj_property name="ObjectShortName">done</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/accumulator_bcd">
+   <wvobject type="array" fp_name="/day1_tb/UUT/accumulator_bcd">
       <obj_property name="ElementShortName">accumulator_bcd[0:10][3:0]</obj_property>
       <obj_property name="ObjectShortName">accumulator_bcd[0:10][3:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/accumulator_bcd_part_2">
+   <wvobject type="array" fp_name="/day1_tb/UUT/accumulator_bcd_part_2">
       <obj_property name="ElementShortName">accumulator_bcd_part_2[0:10][3:0]</obj_property>
       <obj_property name="ObjectShortName">accumulator_bcd_part_2[0:10][3:0]</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/bcd_digit_counter">
+   <wvobject type="other" fp_name="/day1_tb/UUT/bcd_digit_counter">
       <obj_property name="ElementShortName">bcd_digit_counter</obj_property>
       <obj_property name="ObjectShortName">bcd_digit_counter</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/is_leading_zeroes">
+   <wvobject type="other" fp_name="/day1_tb/UUT/is_leading_zeroes">
       <obj_property name="ElementShortName">is_leading_zeroes</obj_property>
       <obj_property name="ObjectShortName">is_leading_zeroes</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/parse_enable">
+   <wvobject type="other" fp_name="/day1_tb/UUT/parse_enable">
       <obj_property name="ElementShortName">parse_enable</obj_property>
       <obj_property name="ObjectShortName">parse_enable</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/dial_position">
+   <wvobject type="array" fp_name="/day1_tb/UUT/dial_position">
       <obj_property name="ElementShortName">dial_position[15:0]</obj_property>
       <obj_property name="ObjectShortName">dial_position[15:0]</obj_property>
-      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/DAY1_TB/UUT/number_to_process">
+   <wvobject type="array" fp_name="/day1_tb/UUT/number_to_process">
       <obj_property name="ElementShortName">number_to_process[15:0]</obj_property>
       <obj_property name="ObjectShortName">number_to_process[15:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/process_go">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/process_go">
       <obj_property name="ElementShortName">process_go</obj_property>
       <obj_property name="ObjectShortName">process_go</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/DAY1_TB/UUT/process_ready">
+   <wvobject type="logic" fp_name="/day1_tb/UUT/process_ready">
       <obj_property name="ElementShortName">process_ready</obj_property>
       <obj_property name="ObjectShortName">process_ready</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/direction_reg">
+   <wvobject type="other" fp_name="/day1_tb/UUT/direction_reg">
       <obj_property name="ElementShortName">direction_reg</obj_property>
       <obj_property name="ObjectShortName">direction_reg</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/direction_to_process">
+   <wvobject type="other" fp_name="/day1_tb/UUT/direction_to_process">
       <obj_property name="ElementShortName">direction_to_process</obj_property>
       <obj_property name="ObjectShortName">direction_to_process</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/ctrl_state">
+   <wvobject type="other" fp_name="/day1_tb/UUT/ctrl_state">
       <obj_property name="ElementShortName">ctrl_state</obj_property>
       <obj_property name="ObjectShortName">ctrl_state</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/run_state">
+   <wvobject type="other" fp_name="/day1_tb/UUT/run_state">
       <obj_property name="ElementShortName">run_state</obj_property>
       <obj_property name="ObjectShortName">run_state</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/parse_state">
+   <wvobject type="other" fp_name="/day1_tb/UUT/parse_state">
       <obj_property name="ElementShortName">parse_state</obj_property>
       <obj_property name="ObjectShortName">parse_state</obj_property>
    </wvobject>
-   <wvobject type="other" fp_name="/DAY1_TB/UUT/process_state">
+   <wvobject type="other" fp_name="/day1_tb/UUT/process_state">
       <obj_property name="ElementShortName">process_state</obj_property>
       <obj_property name="ObjectShortName">process_state</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/ascii_digit_prefix">
+      <obj_property name="ElementShortName">ascii_digit_prefix[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_digit_prefix[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/ascii_l">
+      <obj_property name="ElementShortName">ascii_l[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_l[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/ascii_r">
+      <obj_property name="ElementShortName">ascii_r[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_r[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/ascii_lf">
+      <obj_property name="ElementShortName">ascii_lf[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ascii_lf[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/day1_tb/UUT/dial_init">
+      <obj_property name="ElementShortName">dial_init[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dial_init[15:0]</obj_property>
    </wvobject>
 </wave_config>

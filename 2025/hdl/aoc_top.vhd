@@ -86,6 +86,8 @@ architecture RTL of AOC_TOP is
   signal data_len_bytes : unsigned(14 downto 0);
   signal day_start      : std_logic;
   signal day_done       : std_logic;
+  signal part_a_output  : std_logic_vector(31 downto 0);
+  signal part_b_output  : std_logic_vector(31 downto 0);
 
   attribute mark_debug : string;
   attribute mark_debug of bram_axi_arlen_port_a : signal is "TRUE";
@@ -216,7 +218,9 @@ begin
       DAY_SEL_OUT        => day_sel,
       DATA_LEN_BYTES_OUT => data_len_bytes,
       DAY_START_OUT      => day_start,
-      DAY_DONE_IN        => day_done
+      DAY_DONE_IN        => day_done,
+      PART_A_IN          => part_a_output,
+      PART_B_IN          => part_b_output
     );
 
   BLK_MEM_WRAPPER_INST : entity work.blk_mem_wrapper(rtl)
@@ -272,6 +276,8 @@ begin
       DAY_SEL_IN        => day_sel,
       DATA_LEN_BYTES_IN => data_len_bytes,
       DAY_DONE_OUT      => day_done,
+      PART_A_OUT        => part_a_output,
+      PART_B_OUT        => part_b_output,
 
       -- Port B controls --
       BRAM_ADDR_OUT         => bram_addr_b,

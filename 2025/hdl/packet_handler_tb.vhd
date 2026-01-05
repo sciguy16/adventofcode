@@ -67,7 +67,9 @@ begin
       -- Day mux controls
       DAY_SEL_OUT        => open,
       DATA_LEN_BYTES_OUT => open,
-      DAY_DONE_IN        => '0'
+      DAY_DONE_IN        => '0',
+      PART_A_IN          => (others => '0'),
+      PART_B_IN          => (others => '0')
 
     );
 

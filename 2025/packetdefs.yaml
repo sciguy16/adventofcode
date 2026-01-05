@@ -63,3 +63,7 @@ destinations:
       width_bytes: 1
     - name: padding
       width_bytes: 2
+    - name: part1
+      width_bytes: 4
+    - name: part2
+      width_bytes: 4

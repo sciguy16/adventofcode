@@ -62,8 +62,10 @@ architecture RTL of DAY1_TB is
 
   signal bram_mux_uut_npreload : std_logic := '0';
 
-  signal bram_preload : std_logic := '0';
-  signal day1_go      : std_logic := '0';
+  signal bram_preload  : std_logic := '0';
+  signal day1_go       : std_logic := '0';
+  signal part_a_output : std_logic_vector(31 downto 0);
+  signal part_b_output : std_logic_vector(31 downto 0);
 
   signal verbose : boolean := false;
 
@@ -107,6 +109,8 @@ begin
 
       DATA_LEN_BYTES_IN => data_len_bytes_in,
       DAY_DONE_OUT      => day_done_out,
+      PART_A_OUT        => part_a_output,
+      PART_B_OUT        => part_b_output,
 
       -- Port B controls --
       BRAM_ADDR_OUT         => bram_addr_b_uut,
@@ -151,7 +155,17 @@ begin
     assert day_done_out = '1'
       report "day done out end";
 
-    wait;
+    assert part_a_output = x"0000_0005"
+      report "PART_A_OUT";
+    assert part_b_output = x"0000_000E"
+      report "PART_B_OUT";
+
+    for idx in 0 to 3 loop
+      wait_edge;
+    end loop;
+    report "DONE";
+
+    std.env.stop;
   end process STIMULUS;
 
   BRAM_MUX : process (all) is
@@ -235,45 +249,6 @@ begin
     bram_mux_uut_npreload <= '0';
 
     wait_edge;
-
-    bram_addr_b_preload <= 15x"003A";
-    wait_edge;
-    assert bram_read_data_b = x"35"
-      report "digit 5";
-
-    bram_addr_b_preload <= 15x"003B";
-    wait_edge;
-    assert bram_read_data_b = x"00"
-      report "NUL";
-
-    -- bram_addr_b_preload <= std_logic_vector(v_bram_addr);
-
-    -- for idx in v_read_output'range loop
-    --  wait_edge;
-    --  v_read_output(idx)  := bram_read_data_b;
-    --  v_bram_addr         := v_bram_addr + 1;
-    --  bram_addr_b_preload <= std_logic_vector(v_bram_addr);
-    -- end loop;
-    -- assert v_bram_addr = (
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"00",
-    --  x"05"
-    --  )
-    --  report "output mismatch";
-
-    for idx in 0 to 3 loop
-      wait_edge;
-    end loop;
-    report "DONE";
-
-    std.env.stop;
 
     wait;
   end process BRAM_PRELOAD_PROC;
