@@ -2,6 +2,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use work.aoc_top_pkg_hdr.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity BLK_MEM_WRAPPER_TB is
 end entity BLK_MEM_WRAPPER_TB;
@@ -13,37 +14,41 @@ architecture RTL of BLK_MEM_WRAPPER_TB is
   signal reset : std_logic := '1';
 
   -- Write controls --
-  signal bram_axi_write_word_off_a   : std_logic_vector(9 downto 0) := 10x"000";
-  signal bram_axi_awlen_port_a_in    : std_logic_vector(7 downto 0) := x"00";
-  signal bram_axi_awvalid_port_a_in  : std_logic                    := '0';
-  signal bram_axi_awready_port_a_out : std_logic;
+  signal bram_write_word_off_a : t_addr_a := (others => '0');
+
+  signal bram_awlen_port_a_in : std_logic_vector(7 downto 0) := x"00";
+
+  signal bram_awvalid_port_a_in  : std_logic := '0';
+  signal bram_awready_port_a_out : std_logic;
 
   -- Write data --
-  signal bram_axi_wdata_port_a_in   : std_logic_vector(31 downto 0);
-  signal bram_axi_wlast_port_a_in   : std_logic := '0';
-  signal bram_axi_wvalid_port_a_in  : std_logic := '0';
-  signal bram_axi_wready_port_a_out : std_logic;
+  signal bram_wdata_port_a_in   : std_logic_vector(31 downto 0);
+  signal bram_wlast_port_a_in   : std_logic := '0';
+  signal bram_wvalid_port_a_in  : std_logic := '0';
+  signal bram_wready_port_a_out : std_logic;
 
   -- Write response --
-  signal bram_axi_bresp_port_a_out  : std_logic_vector(1 downto 0);
-  signal bram_axi_bvalid_port_a_out : std_logic;
-  signal bram_axi_bready_port_a_in  : std_logic := '0';
+  signal bram_bresp_port_a_out  : std_logic_vector(1 downto 0);
+  signal bram_bvalid_port_a_out : std_logic;
+  signal bram_bready_port_a_in  : std_logic := '0';
 
   -- Read controls --
-  signal bram_axi_read_word_offset_a : std_logic_vector(9 downto 0) := 10x"000";
-  signal bram_axi_arlen_port_a_in    : std_logic_vector(7 downto 0) := x"00";
-  signal bram_axi_arvalid_port_a_in  : std_logic                    := '0';
-  signal bram_axi_arready_port_a_out : std_logic;
+  signal bram_read_word_offset_a : t_addr_a := (others => '0');
+
+  signal bram_arlen_port_a_in : std_logic_vector(7 downto 0) := x"00";
+
+  signal bram_arvalid_port_a_in  : std_logic := '0';
+  signal bram_arready_port_a_out : std_logic;
 
   -- Read data --
-  signal bram_axi_rdata_port_a_out  : std_logic_vector(31 downto 0);
-  signal bram_axi_rresp_port_a_out  : std_logic_vector(1 downto 0);
-  signal bram_axi_rlast_port_a_out  : std_logic;
-  signal bram_axi_rvalid_port_a_out : std_logic;
-  signal bram_axi_rready_port_a_in  : std_logic := '0';
+  signal bram_rdata_port_a_out  : std_logic_vector(31 downto 0);
+  signal bram_rresp_port_a_out  : std_logic_vector(1 downto 0);
+  signal bram_rlast_port_a_out  : std_logic;
+  signal bram_rvalid_port_a_out : std_logic;
+  signal bram_rready_port_a_in  : std_logic := '0';
 
   -- Port B controls --
-  signal bram_addr_b_in              : std_logic_vector(11 downto 0);
+  signal bram_addr_b_in              : t_addr_b;
   signal bram_data_b_in              : std_logic_vector(7 downto 0);
   signal bram_data_b_out             : std_logic_vector(7 downto 0);
   signal bram_port_b_write_enable_in : std_logic;
@@ -92,34 +97,34 @@ begin
       -- Port A controls --
 
       -- Write controls --
-      S_AXI_WRITE_WORD_OFFSET_PORT_A_IN => bram_axi_write_word_off_a,
-      S_AXI_AWLEN_PORT_A_IN             => bram_axi_awlen_port_a_in,
-      S_AXI_AWVALID_PORT_A_IN           => bram_axi_awvalid_port_a_in,
-      S_AXI_AWREADY_PORT_A_OUT          => bram_axi_awready_port_a_out,
+      S_AXI_WRITE_WORD_OFFSET_PORT_A_IN => bram_write_word_off_a,
+      S_AXI_AWLEN_PORT_A_IN             => bram_awlen_port_a_in,
+      S_AXI_AWVALID_PORT_A_IN           => bram_awvalid_port_a_in,
+      S_AXI_AWREADY_PORT_A_OUT          => bram_awready_port_a_out,
 
       -- Write data --
-      S_AXI_WDATA_PORT_A_IN   => bram_axi_wdata_port_a_in,
-      S_AXI_WLAST_PORT_A_IN   => bram_axi_wlast_port_a_in,
-      S_AXI_WVALID_PORT_A_IN  => bram_axi_wvalid_port_a_in,
-      S_AXI_WREADY_PORT_A_OUT => bram_axi_wready_port_a_out,
+      S_AXI_WDATA_PORT_A_IN   => bram_wdata_port_a_in,
+      S_AXI_WLAST_PORT_A_IN   => bram_wlast_port_a_in,
+      S_AXI_WVALID_PORT_A_IN  => bram_wvalid_port_a_in,
+      S_AXI_WREADY_PORT_A_OUT => bram_wready_port_a_out,
 
       -- Write response --
-      S_AXI_BRESP_PORT_A_OUT  => bram_axi_bresp_port_a_out,
-      S_AXI_BVALID_PORT_A_OUT => bram_axi_bvalid_port_a_out,
-      S_AXI_BREADY_PORT_A_IN  => bram_axi_bready_port_a_in,
+      S_AXI_BRESP_PORT_A_OUT  => bram_bresp_port_a_out,
+      S_AXI_BVALID_PORT_A_OUT => bram_bvalid_port_a_out,
+      S_AXI_BREADY_PORT_A_IN  => bram_bready_port_a_in,
 
       -- Read controls --
-      S_AXI_READ_WORD_OFFSET_PORT_A_IN => bram_axi_read_word_offset_a,
-      S_AXI_ARLEN_PORT_A_IN            => bram_axi_arlen_port_a_in,
-      S_AXI_ARVALID_PORT_A_IN          => bram_axi_arvalid_port_a_in,
-      S_AXI_ARREADY_PORT_A_OUT         => bram_axi_arready_port_a_out,
+      S_AXI_READ_WORD_OFFSET_PORT_A_IN => bram_read_word_offset_a,
+      S_AXI_ARLEN_PORT_A_IN            => bram_arlen_port_a_in,
+      S_AXI_ARVALID_PORT_A_IN          => bram_arvalid_port_a_in,
+      S_AXI_ARREADY_PORT_A_OUT         => bram_arready_port_a_out,
 
       -- Read data --
-      S_AXI_RDATA_PORT_A_OUT  => bram_axi_rdata_port_a_out,
-      S_AXI_RRESP_PORT_A_OUT  => bram_axi_rresp_port_a_out,
-      S_AXI_RLAST_PORT_A_OUT  => bram_axi_rlast_port_a_out,
-      S_AXI_RVALID_PORT_A_OUT => bram_axi_rvalid_port_a_out,
-      S_AXI_RREADY_PORT_A_IN  => bram_axi_rready_port_a_in,
+      S_AXI_RDATA_PORT_A_OUT  => bram_rdata_port_a_out,
+      S_AXI_RRESP_PORT_A_OUT  => bram_rresp_port_a_out,
+      S_AXI_RLAST_PORT_A_OUT  => bram_rlast_port_a_out,
+      S_AXI_RVALID_PORT_A_OUT => bram_rvalid_port_a_out,
+      S_AXI_RREADY_PORT_A_IN  => bram_rready_port_a_in,
 
       -- Port B controls --
       BRAM_ADDR_B_IN              => bram_addr_b_in,
@@ -134,13 +139,13 @@ begin
   STIMULUS : process is
     variable nibble_slv : std_logic_vector(3 downto 0);
   begin
-    bram_addr_b_in              <= x"000";
+    bram_addr_b_in              <= 15x"0000";
     bram_data_b_in              <= x"00";
     bram_port_b_write_enable_in <= '0';
     assert bram_data_b_out = x"00";
     assert bram_port_b_enabled_out = '0';
-    bram_axi_arvalid_port_a_in  <= '0';
-    bram_axi_rready_port_a_in   <= '0';
+    bram_arvalid_port_a_in      <= '0';
+    bram_rready_port_a_in       <= '0';
 
     wait_edge;
     reset <= '0';
@@ -149,118 +154,118 @@ begin
     wait_edge;
 
     -- Write four words over the AXI interface
-    bram_axi_write_word_off_a  <= 10x"0000";
-    bram_axi_awlen_port_a_in   <= x"04";
-    bram_axi_awvalid_port_a_in <= '1';
+    bram_write_word_off_a  <= (others => '0');
+    bram_awlen_port_a_in   <= x"04";
+    bram_awvalid_port_a_in <= '1';
 
-    bram_axi_wdata_port_a_in  <= x"00112233";
-    bram_axi_wlast_port_a_in  <= '0';
-    bram_axi_wvalid_port_a_in <= '1';
+    bram_wdata_port_a_in  <= x"00112233";
+    bram_wlast_port_a_in  <= '0';
+    bram_wvalid_port_a_in <= '1';
 
-    wait_eq(bram_axi_awready_port_a_out, '1', "bram_axi_awready_port_a_OUT");
-    assert bram_axi_awready_port_a_out = '1'
+    wait_eq(bram_awready_port_a_out, '1', "bram_awready_port_a_OUT");
+    assert bram_awready_port_a_out = '1'
       report "AWREADY";
-    bram_axi_awvalid_port_a_in <= '0';
+    bram_awvalid_port_a_in <= '0';
 
-    wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for "
-            & to_hex_string(bram_axi_wdata_port_a_in)
+    wait_eq(bram_wready_port_a_out, '1',
+            "bram_wready_port_a_OUT for "
+            & to_hex_string(bram_wdata_port_a_in)
           );
-    assert bram_axi_wready_port_a_out = '1'
+    assert bram_wready_port_a_out = '1'
       report "WREADY";
 
-    bram_axi_wdata_port_a_in <= x"44556677";
+    bram_wdata_port_a_in <= x"44556677";
     -- wait_edge;
-    wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for "
-            & to_hex_string(bram_axi_wdata_port_a_in)
+    wait_eq(bram_wready_port_a_out, '1',
+            "bram_wready_port_a_OUT for "
+            & to_hex_string(bram_wdata_port_a_in)
           );
-    assert bram_axi_wready_port_a_out = '1'
+    assert bram_wready_port_a_out = '1'
       report "WREADY";
 
-    bram_axi_wdata_port_a_in <= x"8899AABB";
+    bram_wdata_port_a_in <= x"8899AABB";
     -- wait_edge;
-    wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for "
-            & to_hex_string(bram_axi_wdata_port_a_in)
+    wait_eq(bram_wready_port_a_out, '1',
+            "bram_wready_port_a_OUT for "
+            & to_hex_string(bram_wdata_port_a_in)
           );
-    assert bram_axi_wready_port_a_out = '1'
+    assert bram_wready_port_a_out = '1'
       report "WREADY";
 
-    bram_axi_wdata_port_a_in <= x"CCDDEEFF";
-    bram_axi_wlast_port_a_in <= '1';
+    bram_wdata_port_a_in <= x"CCDDEEFF";
+    bram_wlast_port_a_in <= '1';
     -- wait_edge;
-    wait_eq(bram_axi_wready_port_a_out, '1',
-            "bram_axi_wready_port_a_OUT for "
-            & to_hex_string(bram_axi_wdata_port_a_in)
+    wait_eq(bram_wready_port_a_out, '1',
+            "bram_wready_port_a_OUT for "
+            & to_hex_string(bram_wdata_port_a_in)
           );
-    assert bram_axi_wready_port_a_out = '1'
+    assert bram_wready_port_a_out = '1'
       report "WREADY";
-    bram_axi_wlast_port_a_in  <= '0';
-    bram_axi_wvalid_port_a_in <= '0';
+    bram_wlast_port_a_in  <= '0';
+    bram_wvalid_port_a_in <= '0';
 
-    bram_axi_bready_port_a_in <= '1';
-    assert bram_axi_bvalid_port_a_out = '1'
-      report "bram_axi_bvalid_port_a_OUT";
-    -- wait_eq(bram_axi_bvalid_port_a_OUT, '1', "bram_axi_bvalid_port_a_OUT");
+    bram_bready_port_a_in <= '1';
+    assert bram_bvalid_port_a_out = '1'
+      report "bram_bvalid_port_a_OUT";
+    -- wait_eq(bram_bvalid_port_a_OUT, '1', "bram_bvalid_port_a_OUT");
     wait_edge;
-    assert bram_axi_bresp_port_a_out = c_AXI_RESP_OKAY;
-    bram_axi_bready_port_a_in <= '0';
+    assert bram_bresp_port_a_out = c_AXI_RESP_OKAY;
+    bram_bready_port_a_in <= '0';
 
     wait_edge;
     wait_edge;
 
     -- Read the four words back
-    bram_axi_read_word_offset_a <= 10x"0000";
-    bram_axi_arlen_port_a_in    <= x"04";
-    bram_axi_arvalid_port_a_in  <= '1';
+    bram_read_word_offset_a <= (others => '0');
+    bram_arlen_port_a_in    <= x"04";
+    bram_arvalid_port_a_in  <= '1';
     -- wait_edge;
-    wait_eq(bram_axi_arready_port_a_out, '1', "bram_axi_arready_port_a_OUT");
-    bram_axi_arvalid_port_a_in <= '0';
-    bram_axi_rready_port_a_in  <= '1';
+    wait_eq(bram_arready_port_a_out, '1', "bram_arready_port_a_OUT");
+    bram_arvalid_port_a_in <= '0';
+    bram_rready_port_a_in  <= '1';
 
     -- wait_edge;
-    wait_eq(bram_axi_rvalid_port_a_out, '1', "bram_axi_rvalid_port_a_OUT");
-    assert bram_axi_rvalid_port_a_out = '1'
+    wait_eq(bram_rvalid_port_a_out, '1', "bram_rvalid_port_a_OUT");
+    assert bram_rvalid_port_a_out = '1'
       report "rvalid";
-    assert bram_axi_rdata_port_a_out = x"00112233"
+    assert bram_rdata_port_a_out = x"00112233"
       report "rdata";
-    assert bram_axi_rresp_port_a_out = c_AXI_RESP_OKAY
+    assert bram_rresp_port_a_out = c_AXI_RESP_OKAY
       report "rresp";
 
     -- wait_edge;
-    wait_eq(bram_axi_rvalid_port_a_out, '1', "bram_axi_rvalid_port_a_OUT");
-    assert bram_axi_rvalid_port_a_out = '1'
+    wait_eq(bram_rvalid_port_a_out, '1', "bram_rvalid_port_a_OUT");
+    assert bram_rvalid_port_a_out = '1'
       report "rvalid";
-    assert bram_axi_rdata_port_a_out = x"44556677"
+    assert bram_rdata_port_a_out = x"44556677"
       report "rdata";
-    assert bram_axi_rresp_port_a_out = c_AXI_RESP_OKAY
+    assert bram_rresp_port_a_out = c_AXI_RESP_OKAY
       report "rresp";
 
     -- wait_edge;
-    wait_eq(bram_axi_rvalid_port_a_out, '1', "bram_axi_rvalid_port_a_OUT");
-    assert bram_axi_rvalid_port_a_out = '1'
+    wait_eq(bram_rvalid_port_a_out, '1', "bram_rvalid_port_a_OUT");
+    assert bram_rvalid_port_a_out = '1'
       report "rvalid";
-    assert bram_axi_rdata_port_a_out = x"8899AABB"
+    assert bram_rdata_port_a_out = x"8899AABB"
       report "rdata";
-    assert bram_axi_rresp_port_a_out = c_AXI_RESP_OKAY
+    assert bram_rresp_port_a_out = c_AXI_RESP_OKAY
       report "rresp";
 
     -- wait_edge;
-    wait_eq(bram_axi_rvalid_port_a_out, '1', "bram_axi_rvalid_port_a_OUT");
-    assert bram_axi_rvalid_port_a_out = '1'
+    wait_eq(bram_rvalid_port_a_out, '1', "bram_rvalid_port_a_OUT");
+    assert bram_rvalid_port_a_out = '1'
       report "rvalid";
-    assert bram_axi_rdata_port_a_out = x"CCDDEEFF"
+    assert bram_rdata_port_a_out = x"CCDDEEFF"
       report "rdata";
-    assert bram_axi_rresp_port_a_out = c_AXI_RESP_OKAY
+    assert bram_rresp_port_a_out = c_AXI_RESP_OKAY
       report "rresp";
 
     wait_edge;
-    assert bram_axi_rlast_port_a_out = '1'
+    assert bram_rlast_port_a_out = '1'
       report "rlast asserted";
     wait_edge;
-    bram_axi_rready_port_a_in <= '0';
-    assert bram_axi_rlast_port_a_out = '0'
+    bram_rready_port_a_in <= '0';
+    assert bram_rlast_port_a_out = '0'
       report "rlast deasserted";
 
     for idx in 0 to 1 loop
@@ -270,7 +275,7 @@ begin
     assert bram_port_b_enabled_out = '1'
       report "Port B is not enabled";
 
-    bram_addr_b_in <= x"000";
+    bram_addr_b_in <= 15x"0000";
     bram_data_b_in <= x"00";
 
     for nibble in 0 to 15 loop

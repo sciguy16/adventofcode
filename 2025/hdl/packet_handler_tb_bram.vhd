@@ -3,6 +3,7 @@ library ieee;
   use ieee.numeric_std.all;
   use work.packet_types_pkg_hdr.all;
   use work.packet_handler_pkg.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity PACKET_HANDLER_TB_BRAM is
 end entity PACKET_HANDLER_TB_BRAM;
@@ -24,7 +25,7 @@ architecture RTL of PACKET_HANDLER_TB_BRAM is
   signal axi_str_txd_tdata  : std_logic_vector(31 downto 0);
 
   -- Write controls --
-  signal bram_write_word_off_a : std_logic_vector(9 downto 0);
+  signal bram_write_word_off_a : t_addr_a;
   signal bram_awlen_a          : std_logic_vector(7 downto 0);
   signal bram_awvalid_a        : std_logic;
   signal bram_awready_a        : std_logic;
@@ -41,7 +42,7 @@ architecture RTL of PACKET_HANDLER_TB_BRAM is
   signal bram_bready_a : std_logic;
 
   -- Read controls --
-  signal bram_read_word_offset_a : std_logic_vector(9 downto 0);
+  signal bram_read_word_offset_a : t_addr_a;
   signal bram_arlen_a            : std_logic_vector(7 downto 0);
   signal bram_arvalid_a          : std_logic;
   signal bram_arready_a          : std_logic;
@@ -357,7 +358,7 @@ begin
       S_AXI_RREADY_PORT_A_IN  => bram_rready_a,
 
       -- Port B controls --
-      BRAM_ADDR_B_IN              => x"000",
+      BRAM_ADDR_B_IN              => (others => '0'),
       BRAM_DATA_B_IN              => x"00",
       BRAM_DATA_B_OUT             => open,
       BRAM_PORT_B_WRITE_ENABLE_IN => '0',

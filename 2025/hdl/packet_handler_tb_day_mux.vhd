@@ -3,6 +3,7 @@ library ieee;
   use ieee.numeric_std.all;
   use work.packet_types_pkg_hdr.all;
   use work.packet_handler_pkg.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity PACKET_HANDLER_TB_DAY_MUX is
 end entity PACKET_HANDLER_TB_DAY_MUX;
@@ -15,16 +16,17 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
   signal clk   : std_logic := '0';
   signal reset : std_logic := '0';
 
-  signal axi_str_rxd_tvalid : std_logic                     := '0';
+  signal axi_str_rxd_tvalid : std_logic := '0';
   signal axi_str_rxd_tready : std_logic;
-  signal axi_str_rxd_tdata  : std_logic_vector(31 downto 0) := x"00000000";
+
+  signal axi_str_rxd_tdata : std_logic_vector(31 downto 0) := x"00000000";
 
   signal axi_str_txd_tvalid : std_logic;
   signal axi_str_txd_tready : std_logic := '0';
   signal axi_str_txd_tdata  : std_logic_vector(31 downto 0);
 
   -- Write controls --
-  signal bram_write_word_off_a : std_logic_vector(9 downto 0);
+  signal bram_write_word_off_a : t_addr_a;
   signal bram_awlen_a          : std_logic_vector(7 downto 0);
   signal bram_awvalid_a        : std_logic;
   signal bram_awready_a        : std_logic;
@@ -41,7 +43,7 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
   signal bram_bready_a : std_logic;
 
   -- Read controls --
-  signal bram_read_word_off_a : std_logic_vector(9 downto 0);
+  signal bram_read_word_off_a : t_addr_a;
   signal bram_arlen_a         : std_logic_vector(7 downto 0);
   signal bram_arvalid_a       : std_logic;
   signal bram_arready_a       : std_logic;
@@ -54,15 +56,15 @@ architecture RTL of PACKET_HANDLER_TB_DAY_MUX is
   signal bram_rready_a : std_logic;
 
   -- Port B controls --
-  signal bram_addr_b          : std_logic_vector(11 downto 0) := x"000";
-  signal bram_write_data_b    : std_logic_vector(7 downto 0)  := x"00";
+  signal bram_addr_b          : t_addr_b;
+  signal bram_write_data_b    : std_logic_vector(7 downto 0);
   signal bram_read_data_b     : std_logic_vector(7 downto 0);
-  signal bram_port_b_write_en : std_logic                     := '0';
+  signal bram_port_b_write_en : std_logic;
   signal bram_port_b_enabled  : std_logic;
 
   -- Day mux controls
   signal day_sel        : unsigned(7 downto 0);
-  signal data_len_bytes : unsigned(11 downto 0);
+  signal data_len_bytes : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
   signal day_done       : std_logic;
 
   signal verbose : boolean := false;

@@ -1,6 +1,7 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
+  use work.blk_mem_wrapper_pkg_hdr.all;
 
 entity DAY0_TB is
 end entity DAY0_TB;
@@ -12,9 +13,9 @@ architecture RTL of DAY0_TB is
   signal clk   : std_logic := '1';
   signal reset : std_logic := '1';
 
-  signal data_len_bytes_in : unsigned(11 downto 0)        := x"000";
+  signal data_len_bytes_in : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
   signal day_done_out      : std_logic;
-  signal bram_addr         : std_logic_vector(11 downto 0);
+  signal bram_addr         : t_addr_b;
   signal bram_write_data   : std_logic_vector(7 downto 0);
   signal bram_read_data    : std_logic_vector(7 downto 0) := x"00";
   signal bram_write_enable : std_logic;
@@ -89,9 +90,11 @@ begin
   clk <= not clk after c_half_period_25_mhz;
 
   STIMULUS : process is
-    variable expected_bram_addr : unsigned(11 downto 0);
+    variable expected_bram_addr : unsigned(BRAM_PORT_B_ADDR_WIDTH - 1 downto 0);
     variable result             : std_logic_vector(31 downto 0);
   begin
+    data_len_bytes_in <= (others => '0');
+
     for idx in 0 to 3 loop
       wait_edge;
     end loop;
@@ -101,7 +104,7 @@ begin
     assert day_done_out = '0'
       report "day done out init";
 
-    data_len_bytes_in <= x"00A";
+    data_len_bytes_in <= 15x"000A";
     bram_enabled_in   <= '1';
 
     wait_edge;
@@ -121,7 +124,7 @@ begin
     wait_eq(bram_write_enable, '1', "bram write enable");
 
     -- expecting ten digits: 0000 0003 54
-    expected_bram_addr := x"00A";
+    expected_bram_addr := 15x"000A";
     for i in 0 to 7 loop
       expected_bram_addr := expected_bram_addr + 1;
       assert bram_addr = std_logic_vector(expected_bram_addr)
@@ -130,17 +133,17 @@ begin
         report "ascii 0";
       wait_edge;
     end loop;
-    assert bram_addr = x"013"
+    assert bram_addr = 15x"0013"
       report "bram addr 013";
     assert bram_write_data = x"33"
       report "ascii 3";
     wait_edge;
-    assert bram_addr = x"014"
+    assert bram_addr = 15x"0014"
       report "bram addr 014";
     assert bram_write_data = x"35"
       report "ascii 5";
     wait_edge;
-    assert bram_addr = x"015"
+    assert bram_addr = 15x"0015"
       report "bram addr 015";
     assert bram_write_data = x"34"
       report "ascii 4";

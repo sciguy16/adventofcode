@@ -14,6 +14,11 @@ architecture RTL of BIN_TO_BCD_TB is
   (
     x"0",
     x"0",
+    x"0",
+    x"0",
+    x"0",
+    x"0",
+    x"0",
     x"2",
     x"7",
     x"4",

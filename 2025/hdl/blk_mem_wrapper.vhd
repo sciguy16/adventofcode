@@ -57,10 +57,11 @@ architecture RTL of BLK_MEM_WRAPPER is
   signal bram_enable_a       : std_logic;
   signal bram_reset_a        : std_logic;
   signal bram_write_enable_a : std_logic_vector(3 downto 0);
-  signal bram_addr_a         : std_logic_vector(bram_port_a_addr_width + 1 downto 0);
-  signal bram_din_a          : std_logic_vector(31 downto 0);
-  signal bram_dout_a         : std_logic_vector(31 downto 0);
-  signal bram_clk            : std_logic;
+
+  signal bram_addr_a : std_logic_vector(bram_port_a_addr_width + 1 downto 0);
+  signal bram_din_a  : std_logic_vector(31 downto 0);
+  signal bram_dout_a : std_logic_vector(31 downto 0);
+  signal bram_clk    : std_logic;
 
   component BLK_MEM_GEN_0 is
     port (

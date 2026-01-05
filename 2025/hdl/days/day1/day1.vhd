@@ -194,7 +194,7 @@ begin
             bram_addr           <= bram_addr + 1;
             BRAM_WRITE_DATA_OUT <= x"00";
           else
-            --TODO output both part 1 and part 2
+            -- TODO output both part 1 and part 2
             current_bcd_nibble := accumulator_bcd_part_2(bcd_digit_counter);
             if (not is_leading_zeroes or current_bcd_nibble /= x"0") then
               is_leading_zeroes   <= false;
@@ -303,7 +303,6 @@ begin
       v_units        := number_to_process(3 downto 0);
       v_to_rotate_by := resize(unsigned(v_tens) * 10 + unsigned(v_units), 16);
 
-
       case process_state is
 
         when PROCESS_IDLE =>
@@ -343,19 +342,19 @@ begin
           end if;
 
           if (dial_position > 99) then
-            dial_position <= dial_position - 100;
+            dial_position      <= dial_position - 100;
             accumulator_part_2 <= accumulator_part_2 + 1;
           -- process_state <= PROCESS_DO_MOD;
           elsif (dial_position < 0) then
-            if -dial_position /= to_integer(v_to_rotate_by) then
-            accumulator_part_2 <= accumulator_part_2 + 1;
+            if (-dial_position /= to_integer(v_to_rotate_by)) then
+              accumulator_part_2 <= accumulator_part_2 + 1;
             end if;
-            dial_position      <= dial_position + 100;
+            dial_position <= dial_position + 100;
           -- process_state <= PROCESS_DO_MOD;
           -- else
-          --elsif dial_position = 0 then
+          -- elsif dial_position = 0 then
           --  accumulator_part_2 <= accumulator_part_2 + 1;
-          --end if;
+          -- end if;
           elsif (dial_position > 100 or dial_position = 0) then
             -- avoid double-counting when dial = 100
             accumulator_part_2 <= accumulator_part_2 + 1;
