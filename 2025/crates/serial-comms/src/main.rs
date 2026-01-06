@@ -79,11 +79,11 @@ fn do_run(port: &str) -> Result<()> {
 
     let result = run_day_from_file(&mut port, &hdl_dir, 1, InputOrTest::Test)?;
     info!(?result);
-    // check_eq(result, "3", "Day 1 test")?;
-    // check_eq(result, "6", "Day 1 test")?;
+    check_eq(result.part1, 3, "Day 0 test")?;
+    check_eq(result.part2, 6, "Day 0 test")?;
     let result = run_day_from_file(&mut port, &hdl_dir, 1, InputOrTest::Input)?;
-    // check_eq(result, "995", "Day 1 test")?;
-    // check_eq(result, "5847", "Day 1 test")?;
+    check_eq(result.part1, 995, "Day 1 test")?;
+    check_eq(result.part2, 5847, "Day 1 test")?;
     info!(?result);
     println!("Part 1: {}, part 2: {}", result.part1, result.part2);
 
