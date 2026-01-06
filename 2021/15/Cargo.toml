@@ -8,4 +8,4 @@ license = "MPL-2.0"
 
 [dependencies]
 nalgebra.workspace = true
-petgraph = "0.6"
+petgraph.workspace = true

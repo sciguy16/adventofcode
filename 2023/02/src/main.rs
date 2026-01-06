@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use nom::{Finish, IResult};
+use nom::{Finish, IResult, Parser};
 use std::str::FromStr;
 
 struct DataType(Vec<Inner>);
@@ -50,7 +50,7 @@ impl Inner {
 
             // tag
             let t;
-            (i, t) = alt((tag("red"), tag("green"), tag("blue")))(i)?;
+            (i, t) = alt((tag("red"), tag("green"), tag("blue"))).parse(i)?;
 
             // assign the count to the correct field
             match t {
@@ -67,7 +67,7 @@ impl Inner {
                 break;
             }
             let c;
-            (i, c) = alt((char(','), char(';')))(i)?;
+            (i, c) = alt((char(','), char(';'))).parse(i)?;
             match c {
                 ',' => {}
                 ';' => {

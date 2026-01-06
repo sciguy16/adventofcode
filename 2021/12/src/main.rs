@@ -1,10 +1,8 @@
 use itertools::Itertools;
-use petgraph::{
-    algo,
-    graph::{Graph, NodeIndex},
-};
+use petgraph::graph::{Graph, NodeIndex};
 use std::{collections::BTreeMap, str::FromStr};
 
+#[expect(unused)]
 struct Cave {
     inner: Graph<String, ()>,
     map: BTreeMap<String, NodeIndex<u32>>,
@@ -65,11 +63,16 @@ impl FromStr for CaveSize {
 }
 
 fn part_one(cave: &Cave) -> usize {
-    let start = *cave.map.get("start").unwrap();
-    let end = *cave.map.get("end").unwrap();
-    let _spaths =
-        algo::all_simple_paths::<Vec<_>, _>(&cave.inner, start, end, 1, None)
-            .collect::<Vec<_>>();
+    let _start = *cave.map.get("start").unwrap();
+    let _end = *cave.map.get("end").unwrap();
+    // let _spaths = algo::all_simple_paths::<Vec<_>, _, _>(
+    //     &cave.inner,
+    //     start,
+    //     end,
+    //     1,
+    //     None,
+    // )
+    // .collect::<Vec<_>>();
 
     // let path_count = 0;
 

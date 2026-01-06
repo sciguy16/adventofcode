@@ -25,11 +25,12 @@ opt-level = 3 # sometimes 's' might help
 opt-level = 2
 
 [workspace.dependencies]
-itertools = "0.13.0"
-grid = "0.15.0"
-ndarray = "0.16.1"
-nalgebra = "0.33.2"
+itertools = "0.14.0"
+grid = "1.0.0"
+ndarray = "0.17.1"
+nalgebra = "0.34.1"
 owo-colors = "4.1.0"
+petgraph = "0.8.3"
 
 aoc-grid = { path = "crates/aoc-grid" }
 

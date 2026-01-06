@@ -134,7 +134,9 @@ fn part_one<const R: usize, const C: usize>(
         });
     //println!("start: {start}, end: {end} = 0x{:x}", end);
     //println!("node map: {:?}", node_map);
-    let cost = *node_map.get(&end.into()).unwrap();
+    let cost = *node_map
+        .get::<petgraph::stable_graph::NodeIndex>(&end.into())
+        .unwrap();
     //println!("cost: {}", cost);
     assert!(cost < 368 || R > 100, "Your answer is too high");
     assert!(cost > 939 || R <= 100, "Your answer is too low");
