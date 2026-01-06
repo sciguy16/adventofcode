@@ -1,7 +1,6 @@
 use color_eyre::Result;
 use grid::Grid;
-use std::collections::HashSet;
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -123,7 +122,7 @@ fn part_one(inp: &DataType) -> usize {
     // find start
     let start = g
         .indexed_iter()
-        .find(|(_, &cell)| cell == Cell::Start)
+        .find(|&(_, cell)| *cell == Cell::Start)
         .map(|(coords, _)| coords)
         .unwrap();
     println!("Start is at {start:?}");
@@ -153,10 +152,10 @@ fn part_one(inp: &DataType) -> usize {
         dbg!(&path2);
         dbg!(&seen);
         limit = limit.checked_sub(1).expect("execution limit reached");
-        if let (Some(end1), Some(end2)) = (path1.last(), path2.last()) {
-            if end1 == end2 {
-                break;
-            }
+        if let (Some(end1), Some(end2)) = (path1.last(), path2.last())
+            && end1 == end2
+        {
+            break;
         }
 
         // extend path1

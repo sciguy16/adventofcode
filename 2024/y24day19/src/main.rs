@@ -37,17 +37,12 @@ impl FromStr for DataType {
 
 #[cached(key = "u64", convert = r#"{ hash(pattern) }"#)]
 fn pattern_is_possible(pattern: &str, towels: &[String]) -> bool {
-    if pattern.is_empty() {
-        return true;
-    }
-    for towel in towels {
-        if let Some(tail) = pattern.strip_prefix(towel) {
-            if pattern_is_possible(tail, towels) {
-                return true;
-            }
-        }
-    }
-    false
+    pattern.is_empty()
+        || towels.iter().any(|towel| {
+            pattern
+                .strip_prefix(towel)
+                .is_some_and(|tail| pattern_is_possible(tail, towels))
+        })
 }
 
 fn part_one(inp: &DataType) -> u64 {
