@@ -1,2 +1,3 @@
 [toolchain]
 channel = "nightly" # TODO swap to stable once 1.94 hits (for array_windows)
+components = ["rustfmt", "clippy"]
