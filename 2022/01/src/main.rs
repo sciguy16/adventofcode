@@ -1,6 +1,5 @@
 use color_eyre::Result;
-use std::collections::BTreeSet;
-use std::str::FromStr;
+use std::{collections::BTreeSet, str::FromStr};
 
 struct DataType {
     inner: Vec<Vec<u64>>,

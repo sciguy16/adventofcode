@@ -1,7 +1,9 @@
 use itertools::Itertools;
 use nalgebra::Vector2;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 #[derive(Copy, Clone, Debug)]
 enum Fold {

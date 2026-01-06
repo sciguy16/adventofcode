@@ -1,7 +1,9 @@
-use std::cmp::Ordering;
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    cmp::Ordering,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("Hello, world!");

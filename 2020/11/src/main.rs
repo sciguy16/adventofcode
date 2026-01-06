@@ -1,8 +1,10 @@
 use ndarray::{Array2, Axis};
-use std::error::Error;
-use std::fmt::Display;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    error::Error,
+    fmt::Display,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
 #[derive(Clone, Debug, PartialEq)]
 enum CellType {

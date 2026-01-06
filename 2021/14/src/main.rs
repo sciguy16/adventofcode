@@ -1,6 +1,8 @@
-use std::collections::BTreeMap;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    collections::BTreeMap,
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 #[derive(Copy, Clone)]
 struct InsertionRule {

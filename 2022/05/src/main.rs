@@ -1,4 +1,4 @@
-use color_eyre::{eyre::eyre, Result};
+use color_eyre::{Result, eyre::eyre};
 use std::str::FromStr;
 
 fn transpose_stacks(inp: &[Vec<Option<char>>]) -> Vec<Vec<char>> {

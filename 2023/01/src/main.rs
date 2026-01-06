@@ -1,6 +1,5 @@
 use color_eyre::Result;
-use std::collections::HashMap;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 const DIGITS: [(&str, u32); 10] = [
     ("zero", 0),

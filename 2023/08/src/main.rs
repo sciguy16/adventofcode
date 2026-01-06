@@ -1,7 +1,9 @@
-use color_eyre::{eyre::eyre, Report, Result};
-use std::collections::HashMap;
-use std::fmt::{self, Debug, Formatter};
-use std::str::FromStr;
+use color_eyre::{Report, Result, eyre::eyre};
+use std::{
+    collections::HashMap,
+    fmt::{self, Debug, Formatter},
+    str::FromStr,
+};
 
 const AAA: Node = Node([b'A'; 3]);
 const ZZZ: Node = Node([b'Z'; 3]);

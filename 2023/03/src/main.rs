@@ -1,10 +1,12 @@
 use color_eyre::Result;
 use ndarray::{Array, Array2};
-use std::collections::HashSet;
 #[cfg(test)]
 use std::fmt::Write;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    collections::HashSet,
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 const ROWS: usize = 140;
 const COLS: usize = 140;

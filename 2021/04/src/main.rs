@@ -1,8 +1,10 @@
-use eyre::{eyre, Error};
+use eyre::{Error, eyre};
 use ndarray::prelude::*;
 use owo_colors::OwoColorize;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 #[derive(Clone, Debug)]
 struct BingoBoard {

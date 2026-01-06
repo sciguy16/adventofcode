@@ -1,7 +1,7 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
 use nalgebra::DMatrix;
-use petgraph::{algo::dijkstra, Graph};
+use petgraph::{Graph, algo::dijkstra};
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Debug)]

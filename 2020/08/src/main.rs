@@ -1,8 +1,10 @@
-use std::collections::HashSet;
-use std::convert::TryInto;
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    collections::HashSet,
+    convert::TryInto,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
 #[derive(Clone)]
 enum Instruction {

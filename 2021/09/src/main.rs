@@ -1,8 +1,10 @@
 use nalgebra::DMatrix;
 use owo_colors::OwoColorize;
-use std::collections::BTreeSet;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    collections::BTreeSet,
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 #[derive(Debug)]
 struct HeightMap<const R: usize, const C: usize>(DMatrix<u32>);

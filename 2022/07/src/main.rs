@@ -1,4 +1,4 @@
-use color_eyre::{eyre::eyre, Result};
+use color_eyre::{Result, eyre::eyre};
 use std::collections::HashMap;
 
 const THRESHOLD: usize = 100000;
@@ -99,8 +99,11 @@ impl<'a> Directory<'a> {
                 // start at root and walk up
                 let mut current = &mut fs;
                 for level in &path {
-                    let DirEntry::Dir{entries,  }  =
-                        current.inner.entry(level).or_default()else{panic!()};
+                    let DirEntry::Dir { entries } =
+                        current.inner.entry(level).or_default()
+                    else {
+                        panic!()
+                    };
                     current = entries;
                 }
 

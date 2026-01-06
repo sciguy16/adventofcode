@@ -1,6 +1,6 @@
 use aoc_grid::{Coord, Grid};
 use color_eyre::Result;
-use petgraph::{graphmap::GraphMap, Undirected};
+use petgraph::{Undirected, graphmap::GraphMap};
 use rustc_hash::FxBuildHasher;
 use std::{
     fmt::{Display, Formatter},

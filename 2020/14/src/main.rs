@@ -1,4 +1,4 @@
-use eyre::{eyre, Result};
+use eyre::{Result, eyre};
 use itertools::Itertools;
 use std::collections::BTreeMap;
 use std::fmt::{self, Display};

@@ -1,7 +1,9 @@
-use std::convert::TryFrom;
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    convert::TryFrom,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
 #[derive(PartialEq)]
 struct Seat {

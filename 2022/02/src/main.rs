@@ -1,5 +1,4 @@
-use color_eyre::eyre::eyre;
-use color_eyre::Result;
+use color_eyre::{Result, eyre::eyre};
 use std::str::FromStr;
 
 #[derive(Copy, Clone, Eq, PartialEq)]

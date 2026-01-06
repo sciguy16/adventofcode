@@ -1,8 +1,10 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
 lazy_static! {
     static ref HAIR_REGEX: Regex = Regex::new("^#[0-9a-f]{6}$").unwrap();

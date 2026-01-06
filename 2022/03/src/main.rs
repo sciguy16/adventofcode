@@ -1,6 +1,5 @@
 use color_eyre::Result;
-use std::collections::HashSet;
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 trait Priority {
     fn priority(&self) -> u64;
@@ -61,7 +60,9 @@ fn part_two(inp: &DataType) -> u64 {
     inp.inner
         .chunks_exact(3)
         .filter_map(|chunk| {
-            let [(_,_,a), (_,_,b), (_,_,c)] = chunk else {unreachable!()};
+            let [(_, _, a), (_, _, b), (_, _, c)] = chunk else {
+                unreachable!()
+            };
             a.intersection(b)
                 .find(|ch| c.contains(ch))
                 .map(Priority::priority)

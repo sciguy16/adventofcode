@@ -1,4 +1,4 @@
-use eyre::{eyre, Error};
+use eyre::{Error, eyre};
 #[cfg(debug_assertions)]
 use owo_colors::OwoColorize;
 use std::str::FromStr;

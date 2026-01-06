@@ -1,4 +1,4 @@
-use crate::{coord::Coord, Direction};
+use crate::{Direction, coord::Coord};
 use std::fmt::Display;
 
 #[cfg(test)]

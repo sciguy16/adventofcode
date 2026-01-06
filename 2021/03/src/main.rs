@@ -1,6 +1,8 @@
-use std::cmp::Ordering;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    cmp::Ordering,
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 #[derive(Debug)]
 struct ReportEntry<const N: usize>([bool; N]);

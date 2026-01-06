@@ -1,7 +1,9 @@
 use color_eyre::Result;
 use owo_colors::OwoColorize;
-use std::fmt::{self, Display, Formatter};
-use std::str::FromStr;
+use std::{
+    fmt::{self, Display, Formatter},
+    str::FromStr,
+};
 
 type Integer = i8;
 

@@ -1,11 +1,12 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::error::Error;
-use std::fs::File;
-use std::hash::Hash;
-use std::io::{BufRead, BufReader};
+use std::{
+    collections::{HashMap, HashSet},
+    error::Error,
+    fs::File,
+    hash::Hash,
+    io::{BufRead, BufReader},
+};
 
 lazy_static! {
     static ref CHILD_PARSE_REGEX: Regex =
@@ -213,15 +214,16 @@ mod test {
 
     fn test_data() -> Vec<Relation> {
         let data = [
-    	"light red bags contain 1 bright white bag, 2 muted yellow bags.",
-"dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
-"bright white bags contain 1 shiny gold bag.",
-"muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
-"shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
-"dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
-"vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
-"faded blue bags contain no other bags.",
-"dotted black bags contain no other bags."];
+            "light red bags contain 1 bright white bag, 2 muted yellow bags.",
+            "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
+            "bright white bags contain 1 shiny gold bag.",
+            "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
+            "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
+            "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
+            "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
+            "faded blue bags contain no other bags.",
+            "dotted black bags contain no other bags.",
+        ];
         data.iter()
             .map(|line| Relation::from_string(line).unwrap())
             .collect()

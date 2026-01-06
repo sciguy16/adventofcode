@@ -79,7 +79,15 @@ impl FromStr for DataType {
         let mut expected_letter = FIRST_LETTER.checked_sub(1).unwrap();
         for (
             _,
-            [state_state, when_zero_write, when_zero_move, when_zero_next, when_one_write, when_one_move, when_one_next],
+            [
+                state_state,
+                when_zero_write,
+                when_zero_move,
+                when_zero_next,
+                when_one_write,
+                when_one_move,
+                when_one_next,
+            ],
         ) in state_regex.captures_iter(inp).map(|c| c.extract())
         {
             // sense-check the state letters

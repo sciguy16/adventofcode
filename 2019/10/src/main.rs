@@ -1,10 +1,10 @@
 #![allow(unused)]
 
 use ndarray::{Array2, ArrayBase};
-use std::cmp::{max, min};
-use std::convert;
-use std::fmt;
-use std::ops;
+use std::{
+    cmp::{max, min},
+    convert, fmt, ops,
+};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 struct Point(usize, usize);

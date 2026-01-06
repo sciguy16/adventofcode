@@ -1,6 +1,5 @@
 use color_eyre::Result;
-use std::collections::HashSet;
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 struct DataType {
     inner: Vec<Hand>,
