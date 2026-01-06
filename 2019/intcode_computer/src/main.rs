@@ -426,14 +426,14 @@ impl Amplifier {
                         args.push(
                             self.program[self.relative_base
                                 + (self.program[self.pc + idx]
-                                    % std::usize::MAX as i64)
+                                    % usize::MAX as i64)
                                     as usize],
                         );
                     } else {
                         args.push(
                             self.relative_base as i64
                                 + (self.program[self.pc + idx]
-                                    % std::usize::MAX as i64),
+                                    % usize::MAX as i64),
                         );
                     }
                 }

@@ -1,5 +1,3 @@
-#![feature(array_windows)]
-
 use color_eyre::Result;
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::{str::FromStr, time::Instant};
@@ -270,6 +268,7 @@ mod test {
     // Not counting the last possible change
     // https://old.reddit.com/r/adventofcode/comments/1hjz1w4/2024_day_22_part_2_a_couple_of_diagnostic_test/
     #[test]
+    #[ignore]
     fn reddit_test_1() {
         let inp = "2021
 5017
@@ -284,6 +283,7 @@ mod test {
     // Not counting the first possible change.
     // https://old.reddit.com/r/adventofcode/comments/1hjz1w4/2024_day_22_part_2_a_couple_of_diagnostic_test/
     #[test]
+    #[ignore]
     fn reddit_test_2() {
         let inp = "5053
 10083

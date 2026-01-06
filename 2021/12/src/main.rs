@@ -1,8 +1,9 @@
 use itertools::Itertools;
-use petgraph::algo;
-use petgraph::graph::{Graph, NodeIndex};
-use std::collections::BTreeMap;
-use std::str::FromStr;
+use petgraph::{
+    algo,
+    graph::{Graph, NodeIndex},
+};
+use std::{collections::BTreeMap, str::FromStr};
 
 struct Cave {
     inner: Graph<String, ()>,
@@ -43,6 +44,7 @@ impl FromStr for Cave {
     }
 }
 
+#[expect(unused)]
 enum CaveSize {
     Small,
     Large,

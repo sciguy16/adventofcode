@@ -3,6 +3,7 @@ use std::{str::FromStr, time::Instant};
 
 const PUZZLE_INPUT: i32 = 325489;
 
+#[expect(unused)]
 struct DataType;
 
 impl FromStr for DataType {

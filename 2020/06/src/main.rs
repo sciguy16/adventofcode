@@ -1,7 +1,9 @@
-use std::collections::HashSet;
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    collections::HashSet,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
 type Form = HashSet<char>;
 
@@ -45,7 +47,7 @@ fn parse_forms(inp: &[String]) -> Result<Vec<Form>, &'static str> {
         }
 
         for chr in line.chars() {
-            if !('a'..='z').contains(&chr) {
+            if !chr.is_ascii_lowercase() {
                 return Err("Invalid letter found");
             }
             print!("{chr}");
@@ -80,7 +82,7 @@ fn parse_forms_2(inp: &[String]) -> Result<Vec<Form>, &'static str> {
 
         println!();
         for chr in line.chars() {
-            if !('a'..='z').contains(&chr) {
+            if !chr.is_ascii_lowercase() {
                 return Err("Invalid letter found");
             }
             print!("{chr}");

@@ -1,5 +1,3 @@
-#![feature(array_windows)]
-
 use color_eyre::Result;
 use std::{cmp::Ordering, str::FromStr};
 

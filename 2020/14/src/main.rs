@@ -9,20 +9,20 @@ use std::fmt::{self, Display};
 ///
 /// What an implementation looks like is two separate bitmasks:
 /// * `and_mask`: 1 in each position apart from the zeroes in the original
-///      mask, with the effect that `input & and_mask` clears the bits
-///      which should be set to zero
+///   mask, with the effect that `input & and_mask` clears the bits
+///   which should be set to zero
 /// * `or_mask`: 1 in each position marked by a 1 in the original mask,
-///      with the effect that `input | or_mask` sets the bits which should
-///      be overriden by 1
+///   with the effect that `input | or_mask` sets the bits which should
+///   be overriden by 1
 ///
 /// Mask2 looks like:
 ///
 /// * If the bitmask bit is 0, the corresponding memory address bit is
-///      unchanged.
+///   unchanged.
 /// * If the bitmask bit is 1, the corresponding memory address bit is
-///      overwritten with 1.
+///   overwritten with 1.
 /// * If the bitmask bit is X, the corresponding memory address bit is
-///      floating.
+///   floating.
 #[derive(Copy, Clone, Debug, Default)]
 struct Mask {
     and_mask: u64,

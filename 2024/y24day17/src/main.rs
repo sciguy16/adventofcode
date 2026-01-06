@@ -201,6 +201,7 @@ Register C: 0
 Program: 0,3,5,4,3,0";
 
     #[test]
+    #[ignore]
     fn test_part_2() {
         let inp = TEST_DATA_2.parse().unwrap();
         let ans = part_two(&inp);

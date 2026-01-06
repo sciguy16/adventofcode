@@ -1,10 +1,6 @@
-#![feature(array_chunks)]
-
 use color_eyre::Result;
 // use rayon::prelude::*;
-use std::collections::HashMap;
-use std::ops::Add;
-use std::str::FromStr;
+use std::{collections::HashMap, ops::Add, str::FromStr};
 
 const MAP_LABELS: &[&str] = &[
     "soil",
@@ -186,8 +182,10 @@ fn part_two(inp: &DataType) -> i64 {
     // 3m13 plain iter
     // even longer with rayon
     inp.seeds
-        .array_chunks()
-        .flat_map(|&[start, len]| (start..start + len))
+        .as_chunks()
+        .0
+        .iter()
+        .flat_map(|&[start, len]| start..start + len)
         // .par_bridge()
         .map(|mut value| {
             // propagate number through all maps

@@ -1,6 +1,7 @@
 use color_eyre::Result;
 use std::{collections::HashSet, str::FromStr};
 
+#[expect(unused)]
 struct DataType {
     rules: HashSet<(u8, u8)>,
     pages_with_rules: HashSet<u8>,

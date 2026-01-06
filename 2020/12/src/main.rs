@@ -1,11 +1,14 @@
-use std::error::Error;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::{
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 enum Orientation {
     North,
     South,
+    #[default]
     East,
     West,
 }
@@ -35,12 +38,6 @@ impl Orientation {
 enum RotationDirection {
     Left,
     Right,
-}
-
-impl Default for Orientation {
-    fn default() -> Self {
-        Orientation::East
-    }
 }
 
 #[derive(Debug, Default)]
