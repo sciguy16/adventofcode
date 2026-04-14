@@ -8,7 +8,7 @@ clap = { version = "4.5.53", features = ["derive"] }
 color-eyre = "0.6.5"
 hex = "0.4.3"
 mio-serial = "5.0.6"
-rand = "0.9.2"
+rand = "0.9.3"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 types.workspace = true
