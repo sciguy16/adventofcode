@@ -29,7 +29,7 @@ opt-level = 2
 
 [workspace.dependencies]
 itertools = "0.14.0"
-grid = "1.0.0"
+grid = "1.0.1"
 ndarray = "0.17.1"
 nalgebra = "0.34.1"
 owo-colors = "4.1.0"
